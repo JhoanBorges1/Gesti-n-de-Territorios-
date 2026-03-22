@@ -289,6 +289,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
+    // --- Funciones de Interfaz ---
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { 
@@ -301,69 +302,56 @@
         document.getElementById('fechaActualDisplay').innerText = `${nombreMes} 2026`;
     }
     window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
-    document.getElementById('btnImagen').addEventListener('click', async () => {
-        const area = document.getElementById('areaExportar');
-        const canvas = await html2canvas(area, { 
-            scale: 4, 
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            width: area.scrollWidth,
-            height: area.scrollHeight
-        });
-        const link = document.createElement('a');
-        link.download = `agenda-${document.getElementById('mesAgenda').value}-2026.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    });
-    document.getElementById('btnPDF').addEventListener('click', async () => {
-        const { jsPDF } = window.jspdf;
-        const area = document.getElementById('areaExportar');
-        const canvas = await html2canvas(area, { 
-            scale: 4, 
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            width: area.scrollWidth,
-            height: area.scrollHeight
-        });
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('l', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth, pdfHeight);
-        pdf.save(`agenda-${document.getElementById('mesAgenda').value}-2026.pdf`);
-    });
 
+    // --- Lógica de Persistencia (LocalStorage) ---
+    
     let agendaDatos = [];
+
+    // 1. Cargar datos al iniciar la página
+    window.addEventListener('DOMContentLoaded', () => {
+        const datosGuardados = localStorage.getItem('agendaVistaAlMar');
+        if (datosGuardados) {
+            agendaDatos = JSON.parse(datosGuardados);
+            renderContactos();
+            console.log("Datos recuperados de la sesión anterior");
+        }
+    });
 
     function guardarTablaDatos() {
         const filas = document.querySelectorAll('#tablaCuerpoAgenda tr');
-        agendaDatos = [];
+        const nuevaAgenda = [];
         const mesIndex = document.getElementById('mesAgenda').value;
         
         filas.forEach(fila => {
             const celdas = fila.querySelectorAll('td');
-            agendaDatos.push({
-                diaSemana: celdas[0].innerText,
+            nuevaAgenda.push({
+                diaSemana: celdas[0].innerText.trim(),
                 diaMes: parseInt(celdas[1].innerText),
                 mes: parseInt(mesIndex),
-                hora: celdas[2].innerText,
-                conductor: celdas[3].innerText,
-                territorio: celdas[4].innerText,
-                lugar: celdas[5].innerText,
-                grupos: celdas[6].innerText
+                hora: celdas[2].innerText.trim(),
+                conductor: celdas[3].innerText.trim(),
+                territorio: celdas[4].innerText.trim(),
+                lugar: celdas[5].innerText.trim(),
+                grupos: celdas[6].innerText.trim()
             });
         });
+
+        agendaDatos = nuevaAgenda;
+        
+        // 2. Guardar en el navegador (JSON.stringify convierte el array en texto)
+        localStorage.setItem('agendaVistaAlMar', JSON.stringify(agendaDatos));
+        
         renderContactos();
-        alert("Información de la tabla guardada localmente para la sección de Contactar.");
+        alert("¡Información guardada con éxito! No se perderá aunque cierres el navegador.");
     }
 
     function renderContactos() {
         const container = document.getElementById('listaContactos');
         const hoy = new Date();
         const diaHoy = hoy.getDate();
-        const mesHoy = hoy.getMonth() + 1;
+        const mesHoy = hoy.getMonth() + 1; // Enero es 0
         
+        // Filtramos las asignaciones de hoy y mañana
         const asignacionesProximas = agendaDatos.filter(item => {
             return item.mes === mesHoy && (item.diaMes === diaHoy || item.diaMes === diaHoy + 1);
         });
@@ -378,7 +366,7 @@
             const card = document.createElement('div');
             card.className = 'contact-item';
             
-            // Simulación de número de teléfono (en un sistema real se extraería del objeto conductor registrado)
+            // Aquí podrías vincular el teléfono real si tuvieras un objeto de conductores
             const telf = "+584120000000"; 
             const mensaje = `Hola, espero que estés muy bien. Te escribo para notificarte de forma amable que te corresponde conducir un grupo de predicación el día ${asig.diaSemana} ${asig.diaMes}/${asig.mes} a las ${asig.hora} en el territorio ${asig.territorio}. El lugar de encuentro será ${asig.lugar}. Por favor, confírmame si podrás dirigir el grupo. Estaremos atentos a tu respuesta.`;
             const encodedMsg = encodeURIComponent(mensaje);
@@ -404,6 +392,41 @@
     function marcarEnviado(id) {
         document.getElementById(`check-${id}`).style.display = 'inline';
     }
+
+    // --- Exportación a PDF/Imagen (Mantener igual) ---
+    document.getElementById('btnImagen').addEventListener('click', async () => {
+        const area = document.getElementById('areaExportar');
+        const canvas = await html2canvas(area, { 
+            scale: 4, 
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            width: area.scrollWidth,
+            height: area.scrollHeight
+        });
+        const link = document.createElement('a');
+        link.download = `agenda-${document.getElementById('mesAgenda').value}-2026.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+
+    document.getElementById('btnPDF').addEventListener('click', async () => {
+        const { jsPDF } = window.jspdf;
+        const area = document.getElementById('areaExportar');
+        const canvas = await html2canvas(area, { 
+            scale: 4, 
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            width: area.scrollWidth,
+            height: area.scrollHeight
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('l', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth, pdfHeight);
+        pdf.save(`agenda-${document.getElementById('mesAgenda').value}-2026.pdf`);
+    });
 </script>
 </body>
 </html>
