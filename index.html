@@ -28,6 +28,7 @@
         .btn-primary { background: var(--google-blue); color: white; }
         .btn-outline { background: white; border: 1px solid #dadce0; color: var(--google-blue); }
         .btn-danger-outline { background: white; border: 1px solid #f5c2c7; color: var(--google-red); width: auto; padding: 6px 12px; font-size: 0.75rem; }
+        .btn-edit-outline { background: white; border: 1px solid #dadce0; color: var(--google-blue); width: auto; padding: 6px 12px; font-size: 0.75rem; margin-right: 5px; }
         .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
         label { font-size: 0.85rem; font-weight: 500; color: var(--text-sub); }
         input, select, textarea { padding: 12px; border-radius: 12px; border: 1px solid #dadce0; font-size: 0.95rem; background: white; }
@@ -39,7 +40,7 @@
         .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
         .modal-footer button { width: auto; }
         .hidden { display: none; }
-        .group-card { border: 1px solid #eee; padding: 16px; border-radius: 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .group-card { border: 1px solid #dadce0; padding: 16px; border-radius: 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
         .sub-section { background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid var(--google-blue); }
         #areaExportar { padding: 30px; background: #ffffff; border-radius: 12px; width: fit-content; min-width: 850px; display: block; box-sizing: border-box; }
         .export-header { margin-bottom: 20px; border-bottom: 2px solid var(--google-blue); padding-bottom: 10px; text-align: center; }
@@ -72,15 +73,11 @@
     <section class="module-section">
         <div class="module-title">Conductores</div>
         <div class="btn-vertical-group">
-            <button class="btn-primary" onclick="openModal('modalConductor')">Agregar Conductor</button>
+            <button class="btn-primary" onclick="openModalConductor()">Agregar Conductor</button>
             <button class="btn-outline" onclick="toggleVisibility('listaConductores')">Ver Lista y Editar</button>
         </div>
         <div id="listaConductores" class="hidden" style="margin-top:16px;">
-            <div class="group-card">
-                <div><strong>Jhoan Borges</strong><br><small>Grupo 3 (Anciano)</small></div>
-                <button class="btn-danger-outline">Eliminar</button>
             </div>
-        </div>
     </section>
     <section class="module-section">
         <div class="module-title">Territorios</div>
@@ -145,7 +142,7 @@
                                 <td class="col-dia" contenteditable="true">SAB</td>
                                 <td class="col-fecha" contenteditable="true">04</td>
                                 <td class="col-hora" contenteditable="true">09:00 AM</td>
-                                <td class="col-nombre" contenteditable="true">Jhoan Borges</td>
+                                <td class="col-nombre" contenteditable="true">Sin Nombre</td>
                                 <td class="col-nombre" contenteditable="true">Sector 1</td>
                                 <td class="col-lugar" contenteditable="true">Plaza Central</td>
                                 <td class="col-grupos" contenteditable="true">Todos</td>
@@ -169,45 +166,30 @@
         </div>
     </section>
 </div>
+
 <div id="modalConductor" class="modal">
     <div class="modal-content">
-        <h2 class="module-title">Registro de Conductor</h2>
-        <form>
+        <h2 class="module-title" id="tituloModalConductor">Registro de Conductor</h2>
+        <form id="formConductor">
+            <input type="hidden" id="editIndexConductor" value="">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div class="input-group"><label>Nombre</label><input type="text" placeholder="Ej: Jhoan" required></div>
-                <div class="input-group"><label>Apellido</label><input type="text" placeholder="Ej: Borges" required></div>
+                <div class="input-group"><label>Nombre</label><input type="text" id="cNombre" placeholder="Ej: Jhoan" required></div>
+                <div class="input-group"><label>Apellido</label><input type="text" id="cApellido" placeholder="Ej: Borges" required></div>
             </div>
-            <div class="input-group"><label>Teléfono</label><input type="tel" value="+58 " required></div>
+            <div class="input-group"><label>Teléfono</label><input type="tel" id="cTelefono" value="+58 " required></div>
             <div class="input-group">
                 <label>¿Es Anciano?</label>
-                <select onchange="document.getElementById('grupoSugerido').classList.toggle('hidden', this.value !== 'si')">
+                <select id="cEsAnciano" onchange="document.getElementById('grupoSugerido').classList.toggle('hidden', this.value !== 'si')">
                     <option value="no">No</option>
                     <option value="si">Sí</option>
                 </select>
             </div>
             <div id="grupoSugerido" class="input-group hidden">
                 <label>Asignar a Grupo:</label>
-                <select><script>for(let i=1;i<=8;i++) document.write(`<option value="${i}">Grupo ${i}</option>`);</script></select>
-            </div>
-            <div class="input-group">
-                <label>Días de conducción habituales</label>
-                <div class="chip-group">
-                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Horarios Disponibles</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                    <label class="chip-item"><input type="checkbox"> 6:30 pm (TG Lun/Vie)</label>
-                </div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div class="input-group"><label>Fecha con disponibilidad</label><input type="date"></div>
-                <div class="input-group"><label>Fecha no disponible</label><input type="date"></div>
+                <select id="cGrupoAsignado">
+                    <option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option>
+                    <option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option>
+                </select>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
@@ -216,41 +198,13 @@
         </form>
     </div>
 </div>
+
 <div id="modalTerritorio" class="modal">
     <div class="modal-content">
         <h2 class="module-title">Nuevo Territorio</h2>
         <form>
             <div class="input-group"><label>Nombre del Territorio</label><input type="text" placeholder="Ej: Zona A-1" required></div>
             <div class="input-group"><label>Lugares de encuentro</label><textarea rows="2" placeholder="Describe puntos de reunión..."></textarea></div>
-            <div class="input-group">
-                <label>Días de Predicación Sugeridos</label>
-                <div class="chip-group">
-                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Horarios Sugeridos</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                </div>
-            </div>
-            <div class="sub-section">
-                <label style="color:#1a73e8; font-weight:700;">Configuración de Subterritorio</label>
-                <div class="input-group" style="margin-top:10px;"><input type="text" placeholder="Nombre del subterritorio"></div>
-                <label style="font-size:0.75rem;">Días específicos:</label>
-                <div class="chip-group" style="margin-bottom:12px;">
-                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
-                </div>
-                <label style="font-size:0.75rem;">Horarios específicos:</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                </div>
-            </div>
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
                 <button type="submit" class="btn-primary">Guardar Territorio</button>
@@ -258,26 +212,23 @@
         </form>
     </div>
 </div>
+
 <div id="modalGrupo" class="modal">
     <div class="modal-content">
         <h2 class="module-title">Registrar Grupo de Predicación</h2>
         <form>
             <div class="input-group">
                 <label>Número del Grupo</label>
-                <select required>
+                <select required id="selectGrupoAnciano">
                     <option value="">Seleccione número...</option>
                     <script>for(let i=1;i<=8;i++) document.write(`<option value="${i}">Grupo ${i}</option>`);</script>
                 </select>
             </div>
             <div class="input-group">
                 <label>Anciano Responsable</label>
-                <select required>
-                    <option value="">Seleccione un conductor registrado...</option>
-                    <option value="1">Jhoan Borges (Anciano)</option>
+                <select required id="selectAncianoResponsable">
+                    <option value="">Cargando ancianos...</option>
                 </select>
-                <p style="font-size:0.7rem; color:#1a73e8; margin-top:8px;">
-                    * Este anciano conducirá el grupo automáticamente el último sábado de cada mes.
-                </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button>
@@ -286,10 +237,30 @@
         </form>
     </div>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-    // --- Funciones de Interfaz ---
+    // --- Variables de Estado Global ---
+    let conductores = [];
+    let agendaDatos = [];
+
+    // --- Inicialización ---
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedConductores = localStorage.getItem('vdm_conductores');
+        if(savedConductores) {
+            conductores = JSON.parse(savedConductores);
+            renderListaConductores();
+        }
+
+        const savedAgenda = localStorage.getItem('agendaVistaAlMar');
+        if(savedAgenda) {
+            agendaDatos = JSON.parse(savedAgenda);
+            renderContactos();
+        }
+    });
+
+    // --- Funciones de Interfaz Comunes ---
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { 
@@ -303,20 +274,101 @@
     }
     window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
 
-    // --- Lógica de Persistencia (LocalStorage) ---
-    
-    let agendaDatos = [];
+    // --- Lógica de Conductores ---
+    function openModalConductor() {
+        document.getElementById('formConductor').reset();
+        document.getElementById('editIndexConductor').value = "";
+        document.getElementById('tituloModalConductor').innerText = "Registro de Conductor";
+        document.getElementById('grupoSugerido').classList.add('hidden');
+        openModal('modalConductor');
+    }
 
-    // 1. Cargar datos al iniciar la página
-    window.addEventListener('DOMContentLoaded', () => {
-        const datosGuardados = localStorage.getItem('agendaVistaAlMar');
-        if (datosGuardados) {
-            agendaDatos = JSON.parse(datosGuardados);
-            renderContactos();
-            console.log("Datos recuperados de la sesión anterior");
+    document.getElementById('formConductor').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const index = document.getElementById('editIndexConductor').value;
+        const nuevo = {
+            nombre: document.getElementById('cNombre').value,
+            apellido: document.getElementById('cApellido').value,
+            telefono: document.getElementById('cTelefono').value,
+            esAnciano: document.getElementById('cEsAnciano').value === 'si',
+            grupo: document.getElementById('cEsAnciano').value === 'si' ? document.getElementById('cGrupoAsignado').value : null
+        };
+
+        if(index === "") {
+            conductores.push(nuevo);
+        } else {
+            conductores[index] = nuevo;
         }
+
+        localStorage.setItem('vdm_conductores', JSON.stringify(conductores));
+        renderListaConductores();
+        actualizarSelectAncianos();
+        closeModal('modalConductor');
     });
 
+    function renderListaConductores() {
+        const container = document.getElementById('listaConductores');
+        if(conductores.length === 0) {
+            container.innerHTML = '<p style="font-size:0.8rem; color:var(--text-sub);">No hay conductores registrados.</p>';
+            return;
+        }
+        container.innerHTML = '';
+        conductores.forEach((c, index) => {
+            const card = document.createElement('div');
+            card.className = 'group-card';
+            card.innerHTML = `
+                <div>
+                    <strong>${c.nombre} ${c.apellido}</strong><br>
+                    <small>${c.esAnciano ? 'Grupo ' + c.grupo + ' (Anciano)' : 'Publicador'}</small><br>
+                    <small style="color:var(--google-blue);">${c.telefono}</small>
+                </div>
+                <div>
+                    <button class="btn-edit-outline" onclick="editarConductor(${index})">Editar</button>
+                    <button class="btn-danger-outline" onclick="eliminarConductor(${index})">Eliminar</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function editarConductor(index) {
+        const c = conductores[index];
+        document.getElementById('editIndexConductor').value = index;
+        document.getElementById('cNombre').value = c.nombre;
+        document.getElementById('cApellido').value = c.apellido;
+        document.getElementById('cTelefono').value = c.telefono;
+        document.getElementById('cEsAnciano').value = c.esAnciano ? 'si' : 'no';
+        
+        if(c.esAnciano) {
+            document.getElementById('grupoSugerido').classList.remove('hidden');
+            document.getElementById('cGrupoAsignado').value = c.grupo;
+        } else {
+            document.getElementById('grupoSugerido').classList.add('hidden');
+        }
+
+        document.getElementById('tituloModalConductor').innerText = "Editar Conductor";
+        openModal('modalConductor');
+    }
+
+    function eliminarConductor(index) {
+        if(confirm("¿Estás seguro de eliminar este conductor?")) {
+            conductores.splice(index, 1);
+            localStorage.setItem('vdm_conductores', JSON.stringify(conductores));
+            renderListaConductores();
+            actualizarSelectAncianos();
+        }
+    }
+
+    function actualizarSelectAncianos() {
+        const select = document.getElementById('selectAncianoResponsable');
+        if(!select) return;
+        select.innerHTML = '<option value="">Seleccione un anciano...</option>';
+        conductores.filter(c => c.esAnciano).forEach(c => {
+            select.innerHTML += `<option value="${c.nombre} ${c.apellido}">${c.nombre} ${c.apellido}</option>`;
+        });
+    }
+
+    // --- Lógica de Agenda y Persistencia ---
     function guardarTablaDatos() {
         const filas = document.querySelectorAll('#tablaCuerpoAgenda tr');
         const nuevaAgenda = [];
@@ -337,41 +389,38 @@
         });
 
         agendaDatos = nuevaAgenda;
-        
-        // 2. Guardar en el navegador (JSON.stringify convierte el array en texto)
         localStorage.setItem('agendaVistaAlMar', JSON.stringify(agendaDatos));
-        
         renderContactos();
-        alert("¡Información guardada con éxito! No se perderá aunque cierres el navegador.");
+        alert("¡Información guardada con éxito!");
     }
 
     function renderContactos() {
         const container = document.getElementById('listaContactos');
         const hoy = new Date();
         const diaHoy = hoy.getDate();
-        const mesHoy = hoy.getMonth() + 1; // Enero es 0
+        const mesHoy = hoy.getMonth() + 1;
         
-        // Filtramos las asignaciones de hoy y mañana
         const asignacionesProximas = agendaDatos.filter(item => {
             return item.mes === mesHoy && (item.diaMes === diaHoy || item.diaMes === diaHoy + 1);
         });
 
         if (asignacionesProximas.length === 0) {
-            container.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-sub);">No hay asignaciones para hoy o mañana en los datos guardados.</p>';
+            container.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-sub);">No hay asignaciones para hoy o mañana.</p>';
             return;
         }
 
         container.innerHTML = '';
         asignacionesProximas.forEach((asig, index) => {
-            const card = document.createElement('div');
-            card.className = 'contact-item';
-            
-            // Aquí podrías vincular el teléfono real si tuvieras un objeto de conductores
-            const telf = "+584120000000"; 
+            // Buscamos el teléfono real en nuestra lista de conductores
+            const conductorData = conductores.find(c => (c.nombre + " " + c.apellido).toLowerCase() === asig.conductor.toLowerCase());
+            const telf = conductorData ? conductorData.telefono.replace(/\s/g, '') : "+58"; 
+
             const mensaje = `Hola, espero que estés muy bien. Te escribo para notificarte de forma amable que te corresponde conducir un grupo de predicación el día ${asig.diaSemana} ${asig.diaMes}/${asig.mes} a las ${asig.hora} en el territorio ${asig.territorio}. El lugar de encuentro será ${asig.lugar}. Por favor, confírmame si podrás dirigir el grupo. Estaremos atentos a tu respuesta.`;
             const encodedMsg = encodeURIComponent(mensaje);
             const waUrl = `https://wa.me/${telf}?text=${encodedMsg}`;
 
+            const card = document.createElement('div');
+            card.className = 'contact-item';
             card.innerHTML = `
                 <div class="contact-info">
                     <strong>${asig.conductor}</strong><br>
@@ -393,18 +442,12 @@
         document.getElementById(`check-${id}`).style.display = 'inline';
     }
 
-    // --- Exportación a PDF/Imagen (Mantener igual) ---
+    // --- Exportación a PDF/Imagen ---
     document.getElementById('btnImagen').addEventListener('click', async () => {
         const area = document.getElementById('areaExportar');
-        const canvas = await html2canvas(area, { 
-            scale: 4, 
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            width: area.scrollWidth,
-            height: area.scrollHeight
-        });
+        const canvas = await html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
         const link = document.createElement('a');
-        link.download = `agenda-${document.getElementById('mesAgenda').value}-2026.png`;
+        link.download = `agenda-${document.getElementById('mesAgenda').value}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
     });
@@ -412,20 +455,14 @@
     document.getElementById('btnPDF').addEventListener('click', async () => {
         const { jsPDF } = window.jspdf;
         const area = document.getElementById('areaExportar');
-        const canvas = await html2canvas(area, { 
-            scale: 4, 
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            width: area.scrollWidth,
-            height: area.scrollHeight
-        });
+        const canvas = await html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('l', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
         const imgProps = pdf.getImageProperties(imgData);
         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
         pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth, pdfHeight);
-        pdf.save(`agenda-${document.getElementById('mesAgenda').value}-2026.pdf`);
+        pdf.save(`agenda-${document.getElementById('mesAgenda').value}.pdf`);
     });
 </script>
 </body>
