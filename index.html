@@ -140,8 +140,7 @@
                     </select>
                 </div>
                 <button class="btn-primary" onclick="guardarEnHistorial()" style="width: auto;">Guardar Historial</button>
-                <button id="btnPDF" class="btn-outline" style="width: auto;">PDF</button>
-                <button id="btnImagen" class="btn-outline" style="width: auto;">Imagen</button>
+                <button id="btnImagen" class="btn-outline" style="width: auto;">Descargar Imagen</button>
             </div>
         </div>
     </section>
@@ -226,7 +225,6 @@
 <div id="modalGrupo" class="modal"><div class="modal-content"><h2 class="module-title">Registrar Grupo de Predicación</h2><form id="formGrupo"><input type="hidden" id="editIndexGrupo"><div class="input-group"><label>Número del Grupo</label><select id="gNumero" required><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option></select></div><div class="input-group"><label>Anciano Responsable</label><select id="gAnciano" required></select></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button><button type="submit" class="btn-primary">Guardar Cambios</button></div></form></div></div>
 <div id="modalHistorial" class="modal"><div class="modal-content"><h2 class="module-title">Historial de Agendas</h2><div id="listaHistorial"></div><div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div></div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
     let conductores = [], territorios = [], grupos = [], agendasMaestras = {}, historialAgendas = {};
@@ -250,6 +248,7 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
+    
     function generarNuevaAgenda() {
         const mes = document.getElementById('mesAgenda').value;
         const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
@@ -257,12 +256,19 @@
         const diasEnMes = new Date(2026, mes, 0).getDate();
         let nuevaAgenda = [];
         for (let i = 1; i <= diasEnMes; i++) {
-            const fecha = new Date(2026, mes - 1, i);
-            const diaNombre = diasSemana[fecha.getDay()];
+            const fechaObj = new Date(2026, mes - 1, i);
+            const diaNombre = diasSemana[fechaObj.getDay()];
+            const fechaIso = fechaObj.toISOString().split('T')[0];
             const horariosDelDia = MATRIZ_HORARIOS[diaNombre] || [];
             let territoriosUsadosHoy = [];
             horariosDelDia.forEach(hora => {
-                const condsDisponibles = conductores.filter(c => c.disponibilidadDias?.includes(diaNombre) && c.disponibilidadHoras?.includes(hora));
+                const condsDisponibles = conductores.filter(c => {
+                    const cumpleDia = c.disponibilidadDias?.includes(diaNombre);
+                    const cumpleHora = c.disponibilidadHoras?.includes(hora);
+                    const noDisponible = c.fechaNoDisponible === fechaIso;
+                    const forzadoDisponible = c.fechaDisponible === fechaIso;
+                    return (cumpleDia && cumpleHora && !noDisponible) || forzadoDisponible;
+                });
                 const terrsDisponibles = territorios.filter(t => t.disponibilidadDias?.includes(diaNombre) && t.disponibilidadHoras?.includes(hora) && !territoriosUsadosHoy.includes(t.nombre));
                 const conductorAsignado = condsDisponibles.length > 0 ? condsDisponibles[Math.floor(Math.random() * condsDisponibles.length)] : null;
                 const territorioAsignado = terrsDisponibles.length > 0 ? terrsDisponibles[Math.floor(Math.random() * terrsDisponibles.length)] : null;
@@ -292,10 +298,9 @@
             cuerpo.appendChild(tr); ultimoDia = fila.diaMes;
         });
     }
-    async function exportarElemento(formato) {
+    async function exportarElemento() {
         const area = document.getElementById('areaExportar'); const rango = document.getElementById('rangoExportar').value;
         const filas = Array.from(document.querySelectorAll('#tablaCuerpoAgenda tr'));
-        
         filas.forEach(tr => {
             let diaCelda = tr.cells[1].innerText;
             if (!diaCelda) {
@@ -313,22 +318,9 @@
             else if (rango === 'sem4' && dia < 22) visible = false;
             tr.style.display = visible ? '' : 'none';
         });
-
-        const canvas = await html2canvas(area, { scale: 2, useCORS: true, logging: false });
+        const canvas = await html2canvas(area, { scale: 2, useCORS: true });
         filas.forEach(f => f.style.display = '');
-        
-        if (formato === 'img') { 
-            const link = document.createElement('a'); 
-            link.download = 'agenda.png'; 
-            link.href = canvas.toDataURL(); 
-            link.click(); 
-        } else { 
-            const pdf = new jspdf.jsPDF('l', 'mm', 'a4' ); 
-            const imgWidth = 280; 
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, imgWidth, imgHeight); 
-            pdf.save('agenda.pdf'); 
-        }
+        const link = document.createElement('a'); link.download = 'agenda.png'; link.href = canvas.toDataURL(); link.click();
     }
     function renderContactos() {
         const container = document.getElementById('listaContactos'); const hoy = new Date(); const d = hoy.getDate(), m = hoy.getMonth() + 1;
@@ -447,8 +439,7 @@
     function cargarDeHistorial(m) { agendasMaestras[m] = historialAgendas[m]; document.getElementById('mesAgenda').value = m; cargarAgendaDelMes(); closeModal('modalHistorial'); }
     function actualizarCelda(index, campo, valor) { const mes = document.getElementById('mesAgenda').value; if(agendasMaestras[mes]) { agendasMaestras[mes][index][campo] = valor.trim(); guardarTodo(); renderContactos(); } }
     function guardarEnHistorial() { const mes = document.getElementById('mesAgenda').value; if (!agendasMaestras[mes]) return; historialAgendas[mes] = JSON.parse(JSON.stringify(agendasMaestras[mes])); guardarTodo(); renderHistorial(); alert("Guardado."); }
-    document.getElementById('btnImagen').addEventListener('click', () => exportarElemento('img'));
-    document.getElementById('btnPDF').addEventListener('click', () => exportarElemento('pdf'));
+    document.getElementById('btnImagen').addEventListener('click', exportarElemento);
 </script>
 </body>
 </html>
