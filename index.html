@@ -63,6 +63,7 @@
             margin-bottom: 20px;
             border-bottom: 2px solid var(--google-blue);
             padding-bottom: 10px;
+            text-align: center;
         }
 
         .export-header h2 {
@@ -72,8 +73,16 @@
             margin: 0;
         }
 
+        .export-header p {
+            margin: 5px 0 0 0;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
         .agenda-table { 
-            width: 100%; 
+            width: auto;
+            min-width: 100%;
             border-collapse: separate; 
             border-spacing: 0;
             font-size: 0.7rem; 
@@ -81,26 +90,28 @@
             border: 1px solid #e0e0e0;
             border-radius: 12px;
             overflow: hidden;
+            margin: 0 auto;
         }
 
         .agenda-table th { 
             background: #f1f3f4; 
-            padding: 10px 8px; 
-            text-align: left; 
+            padding: 10px 12px; 
+            text-align: center; 
             color: #3c4043;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 1px solid #e0e0e0;
+            white-space: nowrap;
         }
 
         .agenda-table td { 
-            /* CORRECCIÓN 1: Incrementar padding vertical para dar espacio al texto */
-            padding: 10px 8px; 
+            padding: 10px 12px; 
             border-bottom: 1px solid #f1f3f4;
             color: #202124;
             vertical-align: middle;
             box-sizing: border-box;
+            text-align: center;
         }
 
         .agenda-table tr:last-child td { border-bottom: none; }
@@ -109,15 +120,15 @@
         .agenda-table input { 
             border: none; 
             width: 100%; 
-            /* CORRECCIÓN 2: Resetear padding del input y ajustar line-height y min-height */
-            padding: 0; 
+            padding: 4px 0; 
             background: transparent; 
             font-family: inherit; 
             font-size: inherit;
             color: inherit;
-            line-height: 1.4; /* Asegura altura suficiente para glifos bajos */
-            min-height: 1.2em; /* Altura mínima consistente */
-            display: block;
+            line-height: 1.4;
+            min-height: 1.2em;
+            display: inline-block;
+            text-align: inherit;
         }
 
         .agenda-table input:focus { 
@@ -126,7 +137,7 @@
             border-radius: 4px;
         }
 
-        .col-hora { font-weight: 500; color: var(--google-blue); width: 70px; }
+        .col-hora { font-weight: 500; color: var(--google-blue); }
     </style>
 </head>
 <body>
@@ -193,11 +204,13 @@
             <div id="areaExportar">
                 <div class="export-header">
                     <h2>Agenda de Predicación - Vista Al Mar</h2>
+                    <p id="fechaActualDisplay"></p>
                 </div>
                 <table class="agenda-table">
                     <thead>
                         <tr>
-                            <th>Día / Fecha</th>
+                            <th>Día</th>
+                            <th>Fecha</th>
                             <th>Hora</th>
                             <th>Conductor</th>
                             <th>Territorio</th>
@@ -207,7 +220,8 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><input type="text" value="Sábado 04/04"></td>
+                            <td><input type="text" value="SAB"></td>
+                            <td><input type="text" value="04"></td>
                             <td class="col-hora"><input type="text" value="09:00 AM"></td>
                             <td><input type="text" value="Jhoan Borges"></td>
                             <td><input type="text" value="Sector 1"></td>
@@ -357,7 +371,20 @@
 <script>
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
+    function toggleVisibility(id) { 
+        if(id === 'resultadoAgenda') {
+            updateExportHeader();
+        }
+        document.getElementById(id).classList.toggle('hidden'); 
+    }
+    
+    function updateExportHeader() {
+        const selectMes = document.getElementById('mesAgenda');
+        const nombreMes = selectMes.options[selectMes.selectedIndex].text;
+        const anio = 2026;
+        document.getElementById('fechaActualDisplay').innerText = `${nombreMes} ${anio}`;
+    }
+
     window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
 
     document.getElementById('btnImagen').addEventListener('click', async () => {
@@ -385,3 +412,4 @@
 
 </body>
 </html>
+ 
