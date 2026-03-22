@@ -52,7 +52,7 @@
         .group-card { border: 1px solid #eee; padding: 16px; border-radius: 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
         .sub-section { background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid var(--google-blue); }
 
-        /* ESTILOS DE EXPORTACIÓN (TD SIN INPUTS) */
+        /* ESTILOS DE EXPORTACIÓN (MODO EDICIÓN DIRECTA) */
         #areaExportar {
             padding: 30px;
             background: #ffffff;
@@ -120,12 +120,22 @@
             text-align: center;
             line-height: 1.4;
             word-wrap: break-word;
+            outline: none; /* Quita el borde azul al editar */
+        }
+
+        /* Efecto visual para indicar que es editable en pantalla */
+        .agenda-table td[contenteditable="true"]:hover {
+            background-color: #f8f9fa;
+            cursor: text;
+        }
+
+        .agenda-table td[contenteditable="true"]:focus {
+            background-color: #e8f0fe;
         }
 
         .agenda-table tr:last-child td { border-bottom: none; }
         .agenda-table tr:nth-child(even) { background-color: #fafafa; }
 
-        /* Anchos de columna para integridad de texto */
         .col-dia { min-width: 50px; }
         .col-fecha { min-width: 50px; }
         .col-hora { font-weight: 500; color: var(--google-blue); min-width: 90px; }
@@ -196,6 +206,7 @@
         </div>
 
         <div id="resultadoAgenda" class="hidden" style="margin-top: 24px;">
+            <p style="font-size: 0.8rem; color: var(--google-blue); margin-bottom: 10px;">* Haz clic en cualquier casilla para editar la información antes de guardar.</p>
             <div class="table-responsive">
                 <div id="areaExportar">
                     <div class="export-header">
@@ -216,13 +227,13 @@
                         </thead>
                         <tbody id="tablaCuerpoAgenda">
                             <tr>
-                                <td class="col-dia">SAB</td>
-                                <td class="col-fecha">04</td>
-                                <td class="col-hora">09:00 AM</td>
-                                <td class="col-nombre">Jhoan Borges</td>
-                                <td class="col-nombre">Sector 1</td>
-                                <td class="col-lugar">Plaza Central</td>
-                                <td class="col-grupos">Todos</td>
+                                <td class="col-dia" contenteditable="true">SAB</td>
+                                <td class="col-fecha" contenteditable="true">04</td>
+                                <td class="col-hora" contenteditable="true">09:00 AM</td>
+                                <td class="col-nombre" contenteditable="true">Jhoan Borges</td>
+                                <td class="col-nombre" contenteditable="true">Sector 1</td>
+                                <td class="col-lugar" contenteditable="true">Plaza Central</td>
+                                <td class="col-grupos" contenteditable="true">Todos</td>
                             </tr>
                         </tbody>
                     </table>
@@ -382,10 +393,7 @@
             useCORS: true,
             backgroundColor: "#ffffff",
             width: area.scrollWidth,
-            height: area.scrollHeight,
-            onclone: (clonedDoc) => {
-                clonedDoc.getElementById('areaExportar').style.display = 'block';
-            }
+            height: area.scrollHeight
         });
         const link = document.createElement('a');
         link.download = `agenda-${document.getElementById('mesAgenda').value}-2026.png`;
