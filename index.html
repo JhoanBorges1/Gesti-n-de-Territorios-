@@ -136,7 +136,7 @@
                                 <td class="col-dia" contenteditable="true">LUN</td>
                                 <td class="col-fecha" contenteditable="true">23</td>
                                 <td class="col-hora" contenteditable="true">09:00 AM</td>
-                                <td class="col-nombre" contenteditable="true">Nombre Conductor</td>
+                                <td class="col-nombre" contenteditable="true">Nombre</td>
                                 <td class="col-nombre" contenteditable="true">La Radio</td>
                                 <td class="col-lugar" contenteditable="true">Casa Israel Rivas</td>
                                 <td class="col-grupos" contenteditable="true">1</td>
@@ -188,29 +188,29 @@
             </div>
             <div class="input-group">
                 <label>Días de conducción habituales</label>
-                <div class="chip-group" id="cDiasHabituales">
-                    <label class="chip-item"><input type="checkbox" value="Lun"> Lun</label>
-                    <label class="chip-item"><input type="checkbox" value="Mar"> Mar</label>
-                    <label class="chip-item"><input type="checkbox" value="Mié"> Mié</label>
-                    <label class="chip-item"><input type="checkbox" value="Jue"> Jue</label>
-                    <label class="chip-item"><input type="checkbox" value="Vie"> Vie</label>
-                    <label class="chip-item"><input type="checkbox" value="Sáb"> Sáb</label>
-                    <label class="chip-item"><input type="checkbox" value="Dom"> Dom</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> Lun</label>
+                    <label class="chip-item"><input type="checkbox"> Mar</label>
+                    <label class="chip-item"><input type="checkbox"> Mié</label>
+                    <label class="chip-item"><input type="checkbox"> Jue</label>
+                    <label class="chip-item"><input type="checkbox"> Vie</label>
+                    <label class="chip-item"><input type="checkbox"> Sáb</label>
+                    <label class="chip-item"><input type="checkbox"> Dom</label>
                 </div>
             </div>
             <div class="input-group">
                 <label>Horarios Disponibles</label>
-                <div class="chip-group" id="cHorasHabituales">
-                    <label class="chip-item"><input type="checkbox" value="7:00 am"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox" value="9:00 am"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox" value="11:00 am (Dom)"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox" value="4:00 pm"> 4:00 pm</label>
-                    <label class="chip-item"><input type="checkbox" value="6:30 pm (TG Lun/Vie)"> 6:30 pm (TG Lun/Vie)</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
+                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
+                    <label class="chip-item"><input type="checkbox"> 6:30 pm (TG Lun/Vie)</label>
                 </div>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div class="input-group"><label>Fecha con disponibilidad</label><input type="date" id="cFechaDisp"></div>
-                <div class="input-group"><label>Fecha no disponible</label><input type="date" id="cFechaNoDisp"></div>
+                <div class="input-group"><label>Fecha con disponibilidad</label><input type="date"></div>
+                <div class="input-group"><label>Fecha no disponible</label><input type="date"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
@@ -227,28 +227,53 @@
             <input type="hidden" id="editIndexTerritorio" value="">
             <div class="input-group"><label>Nombre del Territorio</label><input type="text" id="tNombre" placeholder="Ej: Zona A-1" required></div>
             <div class="input-group"><label>Lugares de encuentro</label><textarea id="tLugar" rows="2" placeholder="Describe puntos de reunión..."></textarea></div>
+
             <div class="input-group">
                 <label>Días de Predicación Sugeridos</label>
-                <div class="chip-group" id="tDiasSug">
-                    <label class="chip-item"><input type="checkbox" value="Lun"> Lun</label>
-                    <label class="chip-item"><input type="checkbox" value="Mar"> Mar</label>
-                    <label class="chip-item"><input type="checkbox" value="Mié"> Mié</label>
-                    <label class="chip-item"><input type="checkbox" value="Jue"> Jue</label>
-                    <label class="chip-item"><input type="checkbox" value="Vie"> Vie</label>
-                    <label class="chip-item"><input type="checkbox" value="Sáb"> Sáb</label>
-                    <label class="chip-item"><input type="checkbox" value="Dom"> Dom</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> Lun</label>
+                    <label class="chip-item"><input type="checkbox"> Mar</label>
+                    <label class="chip-item"><input type="checkbox"> Mié</label>
+                    <label class="chip-item"><input type="checkbox"> Jue</label>
+                    <label class="chip-item"><input type="checkbox"> Vie</label>
+                    <label class="chip-item"><input type="checkbox"> Sáb</label>
+                    <label class="chip-item"><input type="checkbox"> Dom</label>
                 </div>
             </div>
-            <div class="sub-section">
+
+            <div class="input-group">
+                <label>Horarios Sugeridos</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
+                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
+                </div>
+            </div>
+
+            <div class="sub-section" style="background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid #1a73e8;">
                 <label style="color:#1a73e8; font-weight:700;">Configuración de Subterritorio</label>
                 <div class="input-group" style="margin-top:10px;"><input type="text" id="tsNombre" placeholder="Nombre del subterritorio"></div>
+                
                 <label style="font-size:0.75rem;">Días específicos:</label>
-                <div class="chip-group" id="tsDias">
-                    <label class="chip-item"><input type="checkbox" value="Lun"> Lun</label>
-                    <label class="chip-item"><input type="checkbox" value="Mar"> Mar</label>
-                    <label class="chip-item"><input type="checkbox" value="Sáb"> Sáb</label>
+                <div class="chip-group" style="margin-bottom:12px;">
+                    <label class="chip-item"><input type="checkbox"> Lun</label>
+                    <label class="chip-item"><input type="checkbox"> Mar</label>
+                    <label class="chip-item"><input type="checkbox"> Mié</label>
+                    <label class="chip-item"><input type="checkbox"> Jue</label>
+                    <label class="chip-item"><input type="checkbox"> Vie</label>
+                    <label class="chip-item"><input type="checkbox"> Sáb</label>
+                    <label class="chip-item"><input type="checkbox"> Dom</label>
+                </div>
+                
+                <label style="font-size:0.75rem;">Horarios específicos:</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
                 <button type="submit" class="btn-primary">Guardar Territorio</button>
@@ -308,7 +333,6 @@
         actualizarSelectAncianos();
     });
 
-    // --- INTERFAZ ---
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { 
@@ -319,8 +343,9 @@
         const selectMes = document.getElementById('mesAgenda');
         document.getElementById('fechaActualDisplay').innerText = `${selectMes.options[selectMes.selectedIndex].text} 2026`;
     }
+    window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
 
-    // --- CONDUCTORES ---
+    // CONDUCTORES
     function openModalConductor() {
         document.getElementById('formConductor').reset();
         document.getElementById('editIndexConductor').value = "";
@@ -369,15 +394,10 @@
     }
 
     function eliminarConductor(index) {
-        if(confirm("¿Eliminar conductor?")) {
-            conductores.splice(index, 1);
-            localStorage.setItem('vdm_conductores', JSON.stringify(conductores));
-            renderListaConductores();
-            actualizarSelectAncianos();
-        }
+        if(confirm("¿Eliminar?")) { conductores.splice(index, 1); localStorage.setItem('vdm_conductores', JSON.stringify(conductores)); renderListaConductores(); actualizarSelectAncianos(); }
     }
 
-    // --- TERRITORIOS ---
+    // TERRITORIOS
     function openModalTerritorio() {
         document.getElementById('formTerritorio').reset();
         document.getElementById('editIndexTerritorio').value = "";
@@ -424,7 +444,7 @@
         if(confirm("¿Eliminar?")) { territorios.splice(i, 1); localStorage.setItem('vdm_territorios', JSON.stringify(territorios)); renderListaTerritorios(); }
     }
 
-    // --- GRUPOS ---
+    // GRUPOS
     function openModalGrupo() {
         actualizarSelectAncianos();
         document.getElementById('formGrupo').reset();
@@ -463,17 +483,15 @@
         });
     }
 
-    function eliminarGrupo(i) {
-        grupos.splice(i, 1); localStorage.setItem('vdm_grupos', JSON.stringify(grupos)); renderListaGrupos();
-    }
+    function eliminarGrupo(i) { grupos.splice(i, 1); localStorage.setItem('vdm_grupos', JSON.stringify(grupos)); renderListaGrupos(); }
 
-    // --- AGENDA Y MENSAJERÍA ---
+    // AGENDA Y CONTACTO
     function guardarTablaDatos() {
         const filas = document.querySelectorAll('#tablaCuerpoAgenda tr');
         agendaDatos = Array.from(filas).map(fila => {
             const tds = fila.querySelectorAll('td');
             return {
-                diaSemana: tds[0].innerText.trim(), diaMes: parseInt(tds[1].innerText),
+                diaSemana: tds[0].innerText.trim(), diaMes: tds[1].innerText.trim(),
                 mes: parseInt(document.getElementById('mesAgenda').value),
                 hora: tds[2].innerText.trim(), conductor: tds[3].innerText.trim(),
                 territorio: tds[4].innerText.trim(), lugar: tds[5].innerText.trim()
@@ -481,25 +499,22 @@
         });
         localStorage.setItem('agendaVistaAlMar', JSON.stringify(agendaDatos));
         renderContactos();
-        alert("¡Agenda guardada!");
+        alert("¡Guardado!");
     }
 
     function renderContactos() {
         const container = document.getElementById('listaContactos');
         const hoy = new Date();
         const d = hoy.getDate(), m = hoy.getMonth() + 1;
-        const selectMes = document.getElementById('mesAgenda');
-        const nombreMes = selectMes.options[selectMes.selectedIndex].text;
-
-        const prox = agendaDatos.filter(i => i.mes === m && (i.diaMes === d || i.diaMes === d + 1));
-        if (prox.length === 0) { container.innerHTML = '<p>No hay asignaciones próximas.</p>'; return; }
+        const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
+        
+        const prox = agendaDatos.filter(i => i.mes === m && (parseInt(i.diaMes) === d || parseInt(i.diaMes) === d + 1));
+        if (!prox.length) { container.innerHTML = '<p>No hay asignaciones próximas.</p>'; return; }
         container.innerHTML = '';
         prox.forEach((asig, i) => {
-            const cInfo = conductores.find(c => (c.nombre + " " + c.apellido).toLowerCase() === asig.conductor.toLowerCase());
-            const telf = cInfo ? cInfo.telefono.replace(/\s/g, '') : "+58";
-            
+            const c = conductores.find(c => (c.nombre + " " + c.apellido).toLowerCase() === asig.conductor.toLowerCase());
+            const telf = c ? c.telefono.replace(/\s/g, '') : "+58";
             const msg = `¡Hola! ¿Cómo estás?. Este mensaje es para notificarte que tienes el privilegio de dirigir el grupo del ${asig.diaSemana.toLowerCase()} ${asig.diaMes} de ${nombreMes} a las ${asig.hora}. Ese día estarán abarcando el territorio ${asig.territorio}. El lugar de encuentro será en ${asig.lugar}. ¿Podrías confirmarme si vas a asistir? Estaré atento a tu respuesta. ¡Muchas gracias!`;
-
             const div = document.createElement('div');
             div.className = 'contact-item';
             div.innerHTML = `<div class="contact-info"><strong>${asig.conductor}</strong><br><small>${asig.diaSemana} ${asig.diaMes} - ${asig.hora}</small></div>
@@ -508,7 +523,6 @@
         });
     }
 
-    // --- EXPORTACIÓN ---
     document.getElementById('btnImagen').addEventListener('click', async () => {
         const canvas = await html2canvas(document.getElementById('areaExportar'), { scale: 3 });
         const link = document.createElement('a'); link.download = 'agenda.png'; link.href = canvas.toDataURL(); link.click();
