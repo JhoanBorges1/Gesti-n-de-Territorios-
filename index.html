@@ -95,10 +95,12 @@
         }
 
         .agenda-table td { 
-            padding: 8px; 
+            /* CORRECCIÓN 1: Incrementar padding vertical para dar espacio al texto */
+            padding: 10px 8px; 
             border-bottom: 1px solid #f1f3f4;
             color: #202124;
             vertical-align: middle;
+            box-sizing: border-box;
         }
 
         .agenda-table tr:last-child td { border-bottom: none; }
@@ -107,11 +109,15 @@
         .agenda-table input { 
             border: none; 
             width: 100%; 
-            padding: 2px; 
+            /* CORRECCIÓN 2: Resetear padding del input y ajustar line-height y min-height */
+            padding: 0; 
             background: transparent; 
             font-family: inherit; 
             font-size: inherit;
             color: inherit;
+            line-height: 1.4; /* Asegura altura suficiente para glifos bajos */
+            min-height: 1.2em; /* Altura mínima consistente */
+            display: block;
         }
 
         .agenda-table input:focus { 
