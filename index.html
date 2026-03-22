@@ -231,6 +231,22 @@
                     <label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm</label>
                 </div>
             </div>
+            <div class="sub-section">
+                <label style="color:#1a73e8; font-weight:700;">Configuración de Subterritorio</label>
+                <div class="input-group" style="margin-top:10px;"><input type="text" id="tsNombre" placeholder="Nombre del subterritorio"></div>
+                <label style="font-size:0.75rem;">Días específicos:</label>
+                <div class="chip-group" id="tsDias" style="margin-bottom:12px;">
+                    <label class="chip-item"><input type="checkbox" value="LUN"> Lun</label><label class="chip-item"><input type="checkbox" value="MAR"> Mar</label>
+                    <label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label><label class="chip-item"><input type="checkbox" value="JUE"> Jue</label>
+                    <label class="chip-item"><input type="checkbox" value="VIE"> Vie</label><label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label>
+                    <label class="chip-item"><input type="checkbox" value="DOM"> Dom</label>
+                </div>
+                <label style="font-size:0.75rem;">Horarios específicos:</label>
+                <div class="chip-group" id="tsHoras">
+                    <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7:00 am</label><label class="chip-item"><input type="checkbox" value="09:00 AM"> 9:00 am</label>
+                    <label class="chip-item"><input type="checkbox" value="04:00 PM"> 4:00 pm</label>
+                </div>
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
                 <button type="submit" class="btn-primary">Guardar Territorio</button>
@@ -373,22 +389,36 @@
         e.preventDefault(); const i = document.getElementById('editIndexTerritorio').value;
         const dias = Array.from(document.querySelectorAll('#tDias input:checked')).map(cb => cb.value);
         const horas = Array.from(document.querySelectorAll('#tHoras input:checked')).map(cb => cb.value);
-        const t = { numero: document.getElementById('tNumero').value, nombre: document.getElementById('tNombre').value, lugar: document.getElementById('tLugar').value, disponibilidadDias: dias, disponibilidadHoras: horas };
+        const subDias = Array.from(document.querySelectorAll('#tsDias input:checked')).map(cb => cb.value);
+        const subHoras = Array.from(document.querySelectorAll('#tsHoras input:checked')).map(cb => cb.value);
+        const t = { 
+            numero: document.getElementById('tNumero').value, 
+            nombre: document.getElementById('tNombre').value, 
+            lugar: document.getElementById('tLugar').value, 
+            disponibilidadDias: dias, 
+            disponibilidadHoras: horas,
+            subNombre: document.getElementById('tsNombre').value,
+            subDias: subDias,
+            subHoras: subHoras
+        };
         if(i === "") territorios.push(t); else territorios[i] = t; guardarTodo(); renderListaTerritorios(); closeModal('modalTerritorio');
     });
     function renderListaTerritorios() {
         const cont = document.getElementById('listaTerritorios'); cont.innerHTML = '';
         territorios.forEach((t, i) => {
             const d = document.createElement('div'); d.className = 'group-card';
-            d.innerHTML = `<div><strong>${t.numero ? t.numero + '. ' : ''}${t.nombre}</strong></div><div><button class="btn-edit-outline" onclick="editarTerritorio(${i})">Edit</button><button class="btn-danger-outline" onclick="eliminarTerritorio(${i})">X</button></div>`;
+            d.innerHTML = `<div><strong>${t.numero ? t.numero + '. ' : ''}${t.nombre}</strong>${t.subNombre ? '<br><small>Sub: '+t.subNombre+'</small>' : ''}</div><div><button class="btn-edit-outline" onclick="editarTerritorio(${i})">Edit</button><button class="btn-danger-outline" onclick="eliminarTerritorio(${i})">X</button></div>`;
             cont.appendChild(d);
         });
     }
     function editarTerritorio(i) {
         const t = territorios[i]; document.getElementById('editIndexTerritorio').value = i;
         document.getElementById('tNumero').value = t.numero || ""; document.getElementById('tNombre').value = t.nombre; document.getElementById('tLugar').value = t.lugar;
+        document.getElementById('tsNombre').value = t.subNombre || "";
         document.querySelectorAll('#tDias input').forEach(cb => cb.checked = t.disponibilidadDias?.includes(cb.value));
-        document.querySelectorAll('#tHoras input').forEach(cb => cb.checked = t.disponibilidadHoras?.includes(cb.value)); openModal('modalTerritorio');
+        document.querySelectorAll('#tHoras input').forEach(cb => cb.checked = t.disponibilidadHoras?.includes(cb.value));
+        document.querySelectorAll('#tsDias input').forEach(cb => cb.checked = t.subDias?.includes(cb.value));
+        document.querySelectorAll('#tsHoras input').forEach(cb => cb.checked = t.subHoras?.includes(cb.value)); openModal('modalTerritorio');
     }
     function eliminarTerritorio(i) { if(confirm("¿Eliminar?")) { territorios.splice(i,1); guardarTodo(); renderListaTerritorios(); } }
     function openModalGrupo() { document.getElementById('formGrupo').reset(); document.getElementById('editIndexGrupo').value = ""; actualizarSelectAncianos(); openModal('modalGrupo'); }
@@ -427,4 +457,3 @@
 </script>
 </body>
 </html>
- 
