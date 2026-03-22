@@ -52,8 +52,6 @@
         .agenda-table td { padding: 12px 10px; border-bottom: 1px solid #f1f3f4; color: #202124; vertical-align: middle; text-align: center; line-height: 1.4; word-wrap: break-word; outline: none; }
         .agenda-table td.bold-cell { font-weight: 700; }
         .agenda-table tr.day-separator td { border-top: 3px solid var(--google-blue); }
-        .agenda-table td[contenteditable="true"]:hover { background-color: #f8f9fa; cursor: text; }
-        .agenda-table td[contenteditable="true"]:focus { background-color: #e8f0fe; }
         .contact-item { background: white; border: 1px solid #dadce0; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .contact-actions { display: flex; align-items: center; gap: 10px; }
         .btn-whatsapp { background: #25D366; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
@@ -161,7 +159,6 @@
                 <div class="input-group"><label>Apellido</label><input type="text" id="cApellido" placeholder="Ej: Borges" required></div>
             </div>
             <div class="input-group"><label>Teléfono</label><input type="tel" id="cTelefono" value="+58 " required></div>
-            
             <div class="input-group">
                 <label>¿Es Anciano?</label>
                 <select id="cEsAnciano" onchange="document.getElementById('grupoSugerido').classList.toggle('hidden', this.value !== 'si')">
@@ -169,21 +166,13 @@
                     <option value="si">Sí</option>
                 </select>
             </div>
-            
             <div id="grupoSugerido" class="input-group hidden">
                 <label>Asignar a Grupo:</label>
                 <select id="cGrupoAsignado">
-                    <option value="1">Grupo 1</option>
-                    <option value="2">Grupo 2</option>
-                    <option value="3">Grupo 3</option>
-                    <option value="4">Grupo 4</option>
-                    <option value="5">Grupo 5</option>
-                    <option value="6">Grupo 6</option>
-                    <option value="7">Grupo 7</option>
-                    <option value="8">Grupo 8</option>
+                    <option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option>
+                    <option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option>
                 </select>
             </div>
-
             <div class="input-group">
                 <label>Días de conducción habituales</label>
                 <div class="chip-group" id="cDias">
@@ -196,7 +185,6 @@
                     <label class="chip-item"><input type="checkbox" value="DOM"> Dom</label>
                 </div>
             </div>
-
             <div class="input-group">
                 <label>Horarios Disponibles</label>
                 <div class="chip-group" id="cHoras">
@@ -207,12 +195,10 @@
                     <label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm (TG Lun/Vie)</label>
                 </div>
             </div>
-
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <div class="input-group"><label>Fecha con disponibilidad</label><input type="date" id="cFechaDisponible"></div>
                 <div class="input-group"><label>Fecha no disponible</label><input type="date" id="cFechaNoDisponible"></div>
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
                 <button type="submit" class="btn-primary">Guardar Conductor</button>
@@ -221,22 +207,46 @@
     </div>
 </div>
 
-<div id="modalTerritorio" class="modal"><div class="modal-content"><h2 class="module-title" id="tituloModalTerritorio">Nuevo Territorio</h2><form id="formTerritorio"><input type="hidden" id="editIndexTerritorio"><div class="input-group"><label>Nombre del Territorio</label><input type="text" id="tNombre" placeholder="Ej: Zona A-1" required></div><div class="input-group"><label>Lugares de encuentro</label><textarea id="tLugar" rows="2" placeholder="Describe puntos de reunión..."></textarea></div><div class="input-group"><label>Días de Predicación Sugeridos</label><div class="chip-group" id="tDias"><label class="chip-item"><input type="checkbox" value="LUN"> Lun</label><label class="chip-item"><input type="checkbox" value="MAR"> Mar</label><label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label><label class="chip-item"><input type="checkbox" value="JUE"> Jue</label><label class="chip-item"><input type="checkbox" value="VIE"> Vie</label><label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label><label class="chip-item"><input type="checkbox" value="DOM"> Dom</label></div></div><div class="input-group"><label>Horarios Sugeridos</label><div class="chip-group" id="tHoras"><label class="chip-item"><input type="checkbox" value="07:00 AM"> 7:00 am</label><label class="chip-item"><input type="checkbox" value="09:00 AM"> 9:00 am</label><label class="chip-item"><input type="checkbox" value="11:00 AM"> 11:00 am (Dom)</label><label class="chip-item"><input type="checkbox" value="04:00 PM"> 4:00 pm</label><label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm</label></div></div><div class="sub-section"><label style="color:#1a73e8; font-weight:700;">Configuración de Subterritorio</label><div class="input-group" style="margin-top:10px;"><input type="text" id="tsNombre" placeholder="Nombre del subterritorio"></div><label style="font-size:0.75rem;">Días específicos:</label><div class="chip-group" id="tsDias" style="margin-bottom:12px;"><label class="chip-item"><input type="checkbox" value="LUN"> Lun</label><label class="chip-item"><input type="checkbox" value="MAR"> Mar</label><label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label><label class="chip-item"><input type="checkbox" value="JUE"> Jue</label><label class="chip-item"><input type="checkbox" value="VIE"> Vie</label><label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label><label class="chip-item"><input type="checkbox" value="DOM"> Dom</label></div><label style="font-size:0.75rem;">Horarios específicos:</label><div class="chip-group" id="tsHoras"><label class="chip-item"><input type="checkbox" value="07:00 AM"> 7:00 am</label><label class="chip-item"><input type="checkbox" value="09:00 AM"> 9:00 am</label><label class="chip-item"><input type="checkbox" value="04:00 PM"> 4:00 pm</label></div></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button><button type="submit" class="btn-primary">Guardar Territorio</button></div></form></div></div>
+<div id="modalTerritorio" class="modal">
+    <div class="modal-content">
+        <h2 class="module-title" id="tituloModalTerritorio">Nuevo Territorio</h2>
+        <form id="formTerritorio">
+            <input type="hidden" id="editIndexTerritorio">
+            <div style="display:grid; grid-template-columns: 1fr 3fr; gap:12px;">
+                <div class="input-group"><label>Número</label><input type="number" id="tNumero" placeholder="1" required></div>
+                <div class="input-group"><label>Nombre del Territorio</label><input type="text" id="tNombre" placeholder="Ej: Zona A-1" required></div>
+            </div>
+            <div class="input-group"><label>Lugares de encuentro</label><textarea id="tLugar" rows="2" placeholder="Describe puntos de reunión..."></textarea></div>
+            <div class="input-group"><label>Días de Predicación Sugeridos</label>
+                <div class="chip-group" id="tDias">
+                    <label class="chip-item"><input type="checkbox" value="LUN"> Lun</label><label class="chip-item"><input type="checkbox" value="MAR"> Mar</label>
+                    <label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label><label class="chip-item"><input type="checkbox" value="JUE"> Jue</label>
+                    <label class="chip-item"><input type="checkbox" value="VIE"> Vie</label><label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label>
+                    <label class="chip-item"><input type="checkbox" value="DOM"> Dom</label>
+                </div>
+            </div>
+            <div class="input-group"><label>Horarios Sugeridos</label>
+                <div class="chip-group" id="tHoras">
+                    <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7:00 am</label><label class="chip-item"><input type="checkbox" value="09:00 AM"> 9:00 am</label>
+                    <label class="chip-item"><input type="checkbox" value="11:00 AM"> 11:00 am (Dom)</label><label class="chip-item"><input type="checkbox" value="04:00 PM"> 4:00 pm</label>
+                    <label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar Territorio</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div id="modalGrupo" class="modal"><div class="modal-content"><h2 class="module-title">Registrar Grupo de Predicación</h2><form id="formGrupo"><input type="hidden" id="editIndexGrupo"><div class="input-group"><label>Número del Grupo</label><select id="gNumero" required><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option></select></div><div class="input-group"><label>Anciano Responsable</label><select id="gAnciano" required></select></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button><button type="submit" class="btn-primary">Guardar Cambios</button></div></form></div></div>
 <div id="modalHistorial" class="modal"><div class="modal-content"><h2 class="module-title">Historial de Agendas</h2><div id="listaHistorial"></div><div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
     let conductores = [], territorios = [], grupos = [], agendasMaestras = {}, historialAgendas = {};
-    const MATRIZ_HORARIOS = {
-        'LUN': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'],
-        'MAR': ['07:00 AM', '09:00 AM', '04:00 PM'],
-        'MIÉ': ['07:00 AM', '09:00 AM'],
-        'JUE': ['07:00 AM', '09:00 AM', '04:00 PM'],
-        'VIE': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'],
-        'SÁB': ['07:00 AM', '09:00 AM'],
-        'DOM': ['11:00 AM']
-    };
+    const MATRIZ_HORARIOS = { 'LUN': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 'MAR': ['07:00 AM', '09:00 AM', '04:00 PM'], 'MIÉ': ['07:00 AM', '09:00 AM'], 'JUE': ['07:00 AM', '09:00 AM', '04:00 PM'], 'VIE': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 'SÁB': ['07:00 AM', '09:00 AM'], 'DOM': ['11:00 AM'] };
     window.addEventListener('DOMContentLoaded', () => {
         conductores = JSON.parse(localStorage.getItem('vdm_conductores') || '[]');
         territorios = JSON.parse(localStorage.getItem('vdm_territorios') || '[]');
@@ -273,7 +283,7 @@
                 const conductorAsignado = condsDisponibles.length > 0 ? condsDisponibles[Math.floor(Math.random() * condsDisponibles.length)] : null;
                 const territorioAsignado = terrsDisponibles.length > 0 ? terrsDisponibles[Math.floor(Math.random() * terrsDisponibles.length)] : null;
                 if (territorioAsignado) territoriosUsadosHoy.push(territorioAsignado.nombre);
-                nuevaAgenda.push({ diaSemana: diaNombre, diaMes: i, hora: hora, conductor: conductorAsignado ? `${conductorAsignado.nombre} ${conductorAsignado.apellido}` : "Sin Asignar", territorio: territorioAsignado ? territorioAsignado.nombre : "Sin Territorio", lugar: territorioAsignado ? territorioAsignado.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Por Definir"), grupos: (hora === "06:30 PM" || (territorioAsignado && territorioAsignado.nombre.toLowerCase().includes('telegram'))) ? "Telegram" : "Todos" });
+                nuevaAgenda.push({ diaSemana: diaNombre, diaMes: i, hora: hora, conductor: conductorAsignado ? `${conductorAsignado.nombre} ${conductorAsignado.apellido}` : "Sin Asignar", territorio: territorioAsignado ? (territorioAsignado.numero ? `${territorioAsignado.numero}. ${territorioAsignado.nombre}` : territorioAsignado.nombre) : "Sin Territorio", lugar: territorioAsignado ? territorioAsignado.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Por Definir"), grupos: (hora === "06:30 PM" || (territorioAsignado && territorioAsignado.nombre.toLowerCase().includes('telegram'))) ? "Telegram" : "Todos" });
             });
         }
         agendasMaestras[mes] = nuevaAgenda; guardarTodo(); renderAgenda(nuevaAgenda, nombreMes);
@@ -303,15 +313,8 @@
         const filas = Array.from(document.querySelectorAll('#tablaCuerpoAgenda tr'));
         filas.forEach(tr => {
             let diaCelda = tr.cells[1].innerText;
-            if (!diaCelda) {
-                let prev = tr.previousElementSibling;
-                while (prev && !diaCelda) {
-                    diaCelda = prev.cells[1].innerText;
-                    prev = prev.previousElementSibling;
-                }
-            }
-            const dia = parseInt(diaCelda);
-            let visible = true;
+            if (!diaCelda) { let prev = tr.previousElementSibling; while (prev && !diaCelda) { diaCelda = prev.cells[1].innerText; prev = prev.previousElementSibling; } }
+            const dia = parseInt(diaCelda); let visible = true;
             if (rango === 'sem1' && (dia < 1 || dia > 7)) visible = false;
             else if (rango === 'sem2' && (dia < 8 || dia > 14)) visible = false;
             else if (rango === 'sem3' && (dia < 15 || dia > 21)) visible = false;
@@ -337,7 +340,8 @@
         });
     }
     function guardarTodo() {
-        conductores.sort((a,b) => a.nombre.localeCompare(b.nombre)); territorios.sort((a,b) => a.nombre.localeCompare(b.nombre));
+        conductores.sort((a,b) => a.nombre.localeCompare(b.nombre));
+        territorios.sort((a,b) => (parseInt(a.numero) || 999) - (parseInt(b.numero) || 999));
         localStorage.setItem('vdm_conductores', JSON.stringify(conductores)); localStorage.setItem('vdm_territorios', JSON.stringify(territorios));
         localStorage.setItem('vdm_grupos', JSON.stringify(grupos)); localStorage.setItem('vdm_agendas', JSON.stringify(agendasMaestras));
         localStorage.setItem('vdm_historial', JSON.stringify(historialAgendas));
@@ -347,19 +351,8 @@
         e.preventDefault(); const index = document.getElementById('editIndexConductor').value;
         const dias = Array.from(document.querySelectorAll('#cDias input:checked')).map(cb => cb.value);
         const horas = Array.from(document.querySelectorAll('#cHoras input:checked')).map(cb => cb.value);
-        const c = { 
-            nombre: document.getElementById('cNombre').value, 
-            apellido: document.getElementById('cApellido').value, 
-            telefono: document.getElementById('cTelefono').value, 
-            esAnciano: document.getElementById('cEsAnciano').value === 'si', 
-            grupo: document.getElementById('cGrupoAsignado').value, 
-            disponibilidadDias: dias, 
-            disponibilidadHoras: horas,
-            fechaDisponible: document.getElementById('cFechaDisponible').value,
-            fechaNoDisponible: document.getElementById('cFechaNoDisponible').value
-        };
-        if(index === "") conductores.push(c); else conductores[index] = c;
-        guardarTodo(); renderListaConductores(); actualizarSelectAncianos(); closeModal('modalConductor');
+        const c = { nombre: document.getElementById('cNombre').value, apellido: document.getElementById('cApellido').value, telefono: document.getElementById('cTelefono').value, esAnciano: document.getElementById('cEsAnciano').value === 'si', grupo: document.getElementById('cGrupoAsignado').value, disponibilidadDias: dias, disponibilidadHoras: horas, fechaDisponible: document.getElementById('cFechaDisponible').value, fechaNoDisponible: document.getElementById('cFechaNoDisponible').value };
+        if(index === "") conductores.push(c); else conductores[index] = c; guardarTodo(); renderListaConductores(); actualizarSelectAncianos(); closeModal('modalConductor');
     });
     function renderListaConductores() {
         const cont = document.getElementById('listaConductores'); cont.innerHTML = '';
@@ -371,11 +364,7 @@
     }
     function editarConductor(i) {
         const c = conductores[i]; document.getElementById('editIndexConductor').value = i;
-        document.getElementById('cNombre').value = c.nombre; document.getElementById('cApellido').value = c.apellido; 
-        document.getElementById('cTelefono').value = c.telefono; document.getElementById('cEsAnciano').value = c.esAnciano ? 'si' : 'no';
-        document.getElementById('cGrupoAsignado').value = c.grupo || "1"; document.getElementById('grupoSugerido').classList.toggle('hidden', !c.esAnciano);
-        document.getElementById('cFechaDisponible').value = c.fechaDisponible || "";
-        document.getElementById('cFechaNoDisponible').value = c.fechaNoDisponible || "";
+        document.getElementById('cNombre').value = c.nombre; document.getElementById('cApellido').value = c.apellido; document.getElementById('cTelefono').value = c.telefono; document.getElementById('cEsAnciano').value = c.esAnciano ? 'si' : 'no'; document.getElementById('cGrupoAsignado').value = c.grupo || "1"; document.getElementById('grupoSugerido').classList.toggle('hidden', !c.esAnciano); document.getElementById('cFechaDisponible').value = c.fechaDisponible || ""; document.getElementById('cFechaNoDisponible').value = c.fechaNoDisponible || "";
         document.querySelectorAll('#cDias input').forEach(cb => cb.checked = c.disponibilidadDias?.includes(cb.value));
         document.querySelectorAll('#cHoras input').forEach(cb => cb.checked = c.disponibilidadHoras?.includes(cb.value)); openModal('modalConductor');
     }
@@ -385,21 +374,20 @@
         e.preventDefault(); const i = document.getElementById('editIndexTerritorio').value;
         const dias = Array.from(document.querySelectorAll('#tDias input:checked')).map(cb => cb.value);
         const horas = Array.from(document.querySelectorAll('#tHoras input:checked')).map(cb => cb.value);
-        const t = { nombre: document.getElementById('tNombre').value, lugar: document.getElementById('tLugar').value, disponibilidadDias: dias, disponibilidadHoras: horas };
-        if(i === "") territorios.push(t); else territorios[i] = t;
-        guardarTodo(); renderListaTerritorios(); closeModal('modalTerritorio');
+        const t = { numero: document.getElementById('tNumero').value, nombre: document.getElementById('tNombre').value, lugar: document.getElementById('tLugar').value, disponibilidadDias: dias, disponibilidadHoras: horas };
+        if(i === "") territorios.push(t); else territorios[i] = t; guardarTodo(); renderListaTerritorios(); closeModal('modalTerritorio');
     });
     function renderListaTerritorios() {
         const cont = document.getElementById('listaTerritorios'); cont.innerHTML = '';
         territorios.forEach((t, i) => {
             const d = document.createElement('div'); d.className = 'group-card';
-            d.innerHTML = `<div><strong>${t.nombre}</strong></div><div><button class="btn-edit-outline" onclick="editarTerritorio(${i})">Edit</button><button class="btn-danger-outline" onclick="eliminarTerritorio(${i})">X</button></div>`;
+            d.innerHTML = `<div><strong>${t.numero ? t.numero + '. ' : ''}${t.nombre}</strong></div><div><button class="btn-edit-outline" onclick="editarTerritorio(${i})">Edit</button><button class="btn-danger-outline" onclick="eliminarTerritorio(${i})">X</button></div>`;
             cont.appendChild(d);
         });
     }
     function editarTerritorio(i) {
         const t = territorios[i]; document.getElementById('editIndexTerritorio').value = i;
-        document.getElementById('tNombre').value = t.nombre; document.getElementById('tLugar').value = t.lugar;
+        document.getElementById('tNumero').value = t.numero || ""; document.getElementById('tNombre').value = t.nombre; document.getElementById('tLugar').value = t.lugar;
         document.querySelectorAll('#tDias input').forEach(cb => cb.checked = t.disponibilidadDias?.includes(cb.value));
         document.querySelectorAll('#tHoras input').forEach(cb => cb.checked = t.disponibilidadHoras?.includes(cb.value)); openModal('modalTerritorio');
     }
@@ -422,10 +410,7 @@
             cont.appendChild(d);
         });
     }
-    function editarGrupo(i) {
-        const g = grupos[i]; document.getElementById('editIndexGrupo').value = i;
-        actualizarSelectAncianos(); document.getElementById('gNumero').value = g.numero; document.getElementById('gAnciano').value = g.anciano; openModal('modalGrupo');
-    }
+    function editarGrupo(i) { const g = grupos[i]; document.getElementById('editIndexGrupo').value = i; actualizarSelectAncianos(); document.getElementById('gNumero').value = g.numero; document.getElementById('gAnciano').value = g.anciano; openModal('modalGrupo'); }
     function eliminarGrupo(i) { if(confirm("¿Eliminar Grupo?")) { grupos.splice(i,1); guardarTodo(); renderListaGrupos(); } }
     function renderHistorial() {
         const cont = document.getElementById('listaHistorial'); cont.innerHTML = ''; const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
