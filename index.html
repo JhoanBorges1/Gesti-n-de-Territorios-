@@ -121,7 +121,7 @@
         </div>
 
         <div id="resultadoAgenda" class="hidden" style="margin-top: 24px;">
-            <div style="overflow-x: auto;">
+            <div id="areaExportar" style="padding: 10px; background: white;">
                 <table class="agenda-table">
                     <thead>
                         <tr>
@@ -140,12 +140,12 @@
                             <td><input type="text" value="Plaza Central"></td>
                             <td><input type="text" value="Todos"></td>
                         </tr>
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
             <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn-outline" style="max-width: 200px;" onclick="alert('Guardando PDF...')">Guardar en PDF</button>
-                <button class="btn-outline" style="max-width: 200px;" onclick="alert('Guardando Imagen...')">Guardar Imagen</button>
+                <button id="btnPDF" class="btn-outline" style="max-width: 200px;">Guardar en PDF</button>
+                <button id="btnImagen" class="btn-outline" style="max-width: 200px;">Guardar Imagen</button>
             </div>
         </div>
     </section>
@@ -199,83 +199,42 @@
     </div>
 </div>
 
-<div id="modalTerritorio" class="modal">
-    <div class="modal-content">
-        <h2 class="module-title">Nuevo Territorio</h2>
-        <form>
-            <div class="input-group"><label>Nombre del Territorio</label><input type="text" placeholder="Ej: Zona A-1" required></div>
-            <div class="input-group"><label>Lugares de encuentro</label><textarea rows="2" placeholder="Describe puntos de reunión..."></textarea></div>
-            <div class="input-group">
-                <label>Días de Predicación Sugeridos</label>
-                <div class="chip-group">
-                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Horarios Sugeridos</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                </div>
-            </div>
-            <div class="sub-section">
-                <label style="color:var(--google-blue); font-weight:700;">Configuración de Subterritorio</label>
-                <div class="input-group" style="margin-top:10px;"><input type="text" placeholder="Nombre del subterritorio"></div>
-                <label style="font-size:0.75rem;">Días específicos:</label>
-                <div class="chip-group" style="margin-bottom:12px;">
-                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
-                </div>
-                <label style="font-size:0.75rem;">Horarios específicos:</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Territorio</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div id="modalGrupo" class="modal">
-    <div class="modal-content">
-        <h2 class="module-title">Registrar Grupo de Predicación</h2>
-        <form>
-            <div class="input-group">
-                <label>Número del Grupo</label>
-                <select required>
-                    <option value="">Seleccione número...</option>
-                    <script>for(let i=1;i<=8;i++) document.write(`<option value="${i}">Grupo ${i}</option>`);</script>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Anciano Responsable</label>
-                <select required>
-                    <option value="">Seleccione un conductor registrado...</option>
-                    <option value="1">Jhoan Borges (Anciano)</option>
-                </select>
-                <p style="font-size:0.7rem; color:var(--google-blue); margin-top:8px;">* Conducción automática el último sábado del mes.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Cambios</button>
-            </div>
-        </form>
-    </div>
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
     window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
+
+    // Lógica para exportar Imagen
+    document.getElementById('btnImagen').addEventListener('click', async () => {
+        const area = document.getElementById('areaExportar');
+        const canvas = await html2canvas(area, { scale: 2 });
+        const link = document.createElement('a');
+        link.download = 'agenda-territorios.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+
+    // Lógica para exportar PDF
+    document.getElementById('btnPDF').addEventListener('click', async () => {
+        const { jsPDF } = window.jspdf;
+        const area = document.getElementById('areaExportar');
+        const canvas = await html2canvas(area, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        
+        pdf.text("Agenda de Predicación - Vista Al Mar", 10, 10);
+        pdf.addImage(imgData, 'PNG', 10, 20, pdfWidth, pdfHeight);
+        pdf.save('agenda-territorios.pdf');
+    });
 </script>
 
 </body>
 </html>
- 
