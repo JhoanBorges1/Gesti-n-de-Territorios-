@@ -52,16 +52,7 @@
         .agenda-table td { padding: 12px 10px; border-bottom: 1px solid #f1f3f4; color: #202124; vertical-align: middle; text-align: center; line-height: 1.4; word-wrap: break-word; outline: none; }
         .agenda-table td[contenteditable="true"]:hover { background-color: #f8f9fa; cursor: text; }
         .agenda-table td[contenteditable="true"]:focus { background-color: #e8f0fe; }
-        .agenda-table tr:last-child td { border-bottom: none; }
-        .agenda-table tr:nth-child(even) { background-color: #fafafa; }
-        .col-dia { min-width: 50px; }
-        .col-fecha { min-width: 50px; }
-        .col-hora { font-weight: 500; color: var(--google-blue); min-width: 90px; }
-        .col-nombre { min-width: 140px; }
-        .col-lugar { min-width: 160px; }
-        .col-grupos { min-width: 70px; }
         .contact-item { background: white; border: 1px solid #dadce0; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .contact-info { font-size: 0.9rem; }
         .contact-actions { display: flex; align-items: center; gap: 10px; }
         .btn-whatsapp { background: #25D366; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
         .check-icon { color: var(--google-green); font-weight: bold; display: none; }
@@ -102,21 +93,24 @@
         <div class="btn-vertical-group">
             <div class="input-group">
                 <label>Seleccionar mes (2026)</label>
-                <select id="mesAgenda" style="max-width: 300px;">
+                <select id="mesAgenda" onchange="cargarAgendaDelMes()">
                     <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
                     <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
                     <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
                     <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
                 </select>
             </div>
-            <button class="btn-primary" onclick="toggleVisibility('resultadoAgenda')">Generar</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="generarNuevaAgenda()">Generar Todo el Mes</button>
+                <button class="btn-outline" onclick="openModal('modalHistorial')">Historial Guardado</button>
+            </div>
         </div>
         <div id="resultadoAgenda" class="hidden" style="margin-top: 24px;">
-            <p style="font-size: 0.8rem; color: var(--google-blue); margin-bottom: 10px;">* Haz clic en cualquier casilla para editar la información antes de guardar.</p>
+            <p style="font-size: 0.8rem; color: var(--google-blue); margin-bottom: 10px;">* Los cambios se guardan automáticamente al editar las celdas.</p>
             <div class="table-responsive">
                 <div id="areaExportar">
                     <div class="export-header">
-                        <h2>Agenda de Predicación - Vista Al Mar</h2>
+                        <h2 id="tituloExportar">Agenda de Predicación</h2>
                         <p id="fechaActualDisplay"></p>
                     </div>
                     <table class="agenda-table">
@@ -131,24 +125,13 @@
                                 <th class="col-grupos">Grupos</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaCuerpoAgenda">
-                            <tr>
-                                <td class="col-dia" contenteditable="true">LUN</td>
-                                <td class="col-fecha" contenteditable="true">23</td>
-                                <td class="col-hora" contenteditable="true">09:00 AM</td>
-                                <td class="col-nombre" contenteditable="true">Nombre</td>
-                                <td class="col-nombre" contenteditable="true">La Radio</td>
-                                <td class="col-lugar" contenteditable="true">Casa Israel Rivas</td>
-                                <td class="col-grupos" contenteditable="true">1</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="tablaCuerpoAgenda"></tbody>
                     </table>
                 </div>
             </div>
             <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <button id="btnPDF" class="btn-outline" style="max-width: 200px;">Guardar en PDF</button>
                 <button id="btnImagen" class="btn-outline" style="max-width: 200px;">Guardar Imagen</button>
-                <button id="btnGuardarDatos" class="btn-primary" style="max-width: 200px;" onclick="guardarTablaDatos()">Guardar Información</button>
             </div>
         </div>
     </section>
@@ -156,373 +139,196 @@
     <section class="module-section">
         <div class="module-title">Contactar</div>
         <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Próximas asignaciones (2 días):</p>
-        <div id="listaContactos">
-            <p style="font-size: 0.8rem; color: var(--text-sub);">No hay datos guardados para mostrar asignaciones próximas.</p>
-        </div>
+        <div id="listaContactos"></div>
     </section>
 </div>
 
-<div id="modalConductor" class="modal">
-    <div class="modal-content">
-        <h2 class="module-title" id="tituloModalConductor">Registro de Conductor</h2>
-        <form id="formConductor">
-            <input type="hidden" id="editIndexConductor" value="">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div class="input-group"><label>Nombre</label><input type="text" id="cNombre" placeholder="Ej: Jhoan" required></div>
-                <div class="input-group"><label>Apellido</label><input type="text" id="cApellido" placeholder="Ej: Borges" required></div>
-            </div>
-            <div class="input-group"><label>Teléfono</label><input type="tel" id="cTelefono" value="+58 " required></div>
-            <div class="input-group">
-                <label>¿Es Anciano?</label>
-                <select id="cEsAnciano" onchange="document.getElementById('grupoSugerido').classList.toggle('hidden', this.value !== 'si')">
-                    <option value="no">No</option>
-                    <option value="si">Sí</option>
-                </select>
-            </div>
-            <div id="grupoSugerido" class="input-group hidden">
-                <label>Asignar a Grupo:</label>
-                <select id="cGrupoAsignado">
-                    <option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option>
-                    <option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Días de conducción habituales</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> Lun</label>
-                    <label class="chip-item"><input type="checkbox"> Mar</label>
-                    <label class="chip-item"><input type="checkbox"> Mié</label>
-                    <label class="chip-item"><input type="checkbox"> Jue</label>
-                    <label class="chip-item"><input type="checkbox"> Vie</label>
-                    <label class="chip-item"><input type="checkbox"> Sáb</label>
-                    <label class="chip-item"><input type="checkbox"> Dom</label>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Horarios Disponibles</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                    <label class="chip-item"><input type="checkbox"> 6:30 pm (TG Lun/Vie)</label>
-                </div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div class="input-group"><label>Fecha con disponibilidad</label><input type="date"></div>
-                <div class="input-group"><label>Fecha no disponible</label><input type="date"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Conductor</button>
-            </div>
-        </form>
-    </div>
-</div>
+<div id="modalConductor" class="modal"><div class="modal-content"><h2 class="module-title" id="tituloModalConductor">Registro de Conductor</h2><form id="formConductor"><input type="hidden" id="editIndexConductor"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;"><div class="input-group"><label>Nombre</label><input type="text" id="cNombre" required></div><div class="input-group"><label>Apellido</label><input type="text" id="cApellido" required></div></div><div class="input-group"><label>Teléfono</label><input type="tel" id="cTelefono" value="+58 " required></div><div class="input-group"><label>¿Es Anciano?</label><select id="cEsAnciano" onchange="document.getElementById('grupoSugerido').classList.toggle('hidden', this.value !== 'si')"><option value="no">No</option><option value="si">Sí</option></select></div><div id="grupoSugerido" class="input-group hidden"><label>Asignar a Grupo:</label><select id="cGrupoAsignado"><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option></select></div><div class="input-group"><label>Días de conducción habituales</label><div class="chip-group"><label class="chip-item"><input type="checkbox"> Lun</label><label class="chip-item"><input type="checkbox"> Mar</label><label class="chip-item"><input type="checkbox"> Mié</label><label class="chip-item"><input type="checkbox"> Jue</label><label class="chip-item"><input type="checkbox"> Vie</label><label class="chip-item"><input type="checkbox"> Sáb</label><label class="chip-item"><input type="checkbox"> Dom</label></div></div><div class="input-group"><label>Horarios Disponibles</label><div class="chip-group"><label class="chip-item"><input type="checkbox"> 7:00 am</label><label class="chip-item"><input type="checkbox"> 9:00 am</label><label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label><label class="chip-item"><input type="checkbox"> 4:00 pm</label><label class="chip-item"><input type="checkbox"> 6:30 pm (TG Lun/Vie)</label></div></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button><button type="submit" class="btn-primary">Guardar Conductor</button></div></form></div></div>
 
-<div id="modalTerritorio" class="modal">
-    <div class="modal-content">
-        <h2 class="module-title" id="tituloModalTerritorio">Nuevo Territorio</h2>
-        <form id="formTerritorio">
-            <input type="hidden" id="editIndexTerritorio" value="">
-            <div class="input-group"><label>Nombre del Territorio</label><input type="text" id="tNombre" placeholder="Ej: Zona A-1" required></div>
-            <div class="input-group"><label>Lugares de encuentro</label><textarea id="tLugar" rows="2" placeholder="Describe puntos de reunión..."></textarea></div>
+<div id="modalTerritorio" class="modal"><div class="modal-content"><h2 class="module-title" id="tituloModalTerritorio">Nuevo Territorio</h2><form id="formTerritorio"><input type="hidden" id="editIndexTerritorio"><div class="input-group"><label>Nombre del Territorio</label><input type="text" id="tNombre" required></div><div class="input-group"><label>Lugares de encuentro</label><textarea id="tLugar" rows="2"></textarea></div><div class="input-group"><label>Días de Predicación Sugeridos</label><div class="chip-group"><label class="chip-item"><input type="checkbox"> Lun</label><label class="chip-item"><input type="checkbox"> Mar</label><label class="chip-item"><input type="checkbox"> Mié</label><label class="chip-item"><input type="checkbox"> Jue</label><label class="chip-item"><input type="checkbox"> Vie</label><label class="chip-item"><input type="checkbox"> Sáb</label><label class="chip-item"><input type="checkbox"> Dom</label></div></div><div class="input-group"><label>Horarios Sugeridos</label><div class="chip-group"><label class="chip-item"><input type="checkbox"> 7:00 am</label><label class="chip-item"><input type="checkbox"> 9:00 am</label><label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label><label class="chip-item"><input type="checkbox"> 4:00 pm</label></div></div><div class="sub-section" style="background:#f1f3f4;padding:20px;border-radius:20px;margin-top:15px;border-left:4px solid #1a73e8;"><label style="color:#1a73e8;font-weight:700;">Configuración de Subterritorio</label><div class="input-group" style="margin-top:10px;"><input type="text" id="tsNombre" placeholder="Nombre subterritorio"></div><label style="font-size:0.75rem;">Días específicos:</label><div class="chip-group" style="margin-bottom:12px;"><label class="chip-item"><input type="checkbox"> Lun</label><label class="chip-item"><input type="checkbox"> Mar</label><label class="chip-item"><input type="checkbox"> Mié</label><label class="chip-item"><input type="checkbox"> Jue</label><label class="chip-item"><input type="checkbox"> Vie</label><label class="chip-item"><input type="checkbox"> Sáb</label><label class="chip-item"><input type="checkbox"> Dom</label></div><label style="font-size:0.75rem;">Horarios específicos:</label><div class="chip-group"><label class="chip-item"><input type="checkbox"> 7:00 am</label><label class="chip-item"><input type="checkbox"> 9:00 am</label><label class="chip-item"><input type="checkbox"> 4:00 pm</label></div></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button><button type="submit" class="btn-primary">Guardar Territorio</button></div></form></div></div>
 
-            <div class="input-group">
-                <label>Días de Predicación Sugeridos</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> Lun</label>
-                    <label class="chip-item"><input type="checkbox"> Mar</label>
-                    <label class="chip-item"><input type="checkbox"> Mié</label>
-                    <label class="chip-item"><input type="checkbox"> Jue</label>
-                    <label class="chip-item"><input type="checkbox"> Vie</label>
-                    <label class="chip-item"><input type="checkbox"> Sáb</label>
-                    <label class="chip-item"><input type="checkbox"> Dom</label>
-                </div>
-            </div>
+<div id="modalGrupo" class="modal"><div class="modal-content"><h2 class="module-title">Registrar Grupo de Predicación</h2><form id="formGrupo"><div class="input-group"><label>Número del Grupo</label><select id="gNumero" required><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option></select></div><div class="input-group"><label>Anciano Responsable</label><select id="gAnciano" required></select></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button><button type="submit" class="btn-primary">Guardar Cambios</button></div></form></div></div>
 
-            <div class="input-group">
-                <label>Horarios Sugeridos</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                </div>
-            </div>
-
-            <div class="sub-section" style="background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid #1a73e8;">
-                <label style="color:#1a73e8; font-weight:700;">Configuración de Subterritorio</label>
-                <div class="input-group" style="margin-top:10px;"><input type="text" id="tsNombre" placeholder="Nombre del subterritorio"></div>
-                
-                <label style="font-size:0.75rem;">Días específicos:</label>
-                <div class="chip-group" style="margin-bottom:12px;">
-                    <label class="chip-item"><input type="checkbox"> Lun</label>
-                    <label class="chip-item"><input type="checkbox"> Mar</label>
-                    <label class="chip-item"><input type="checkbox"> Mié</label>
-                    <label class="chip-item"><input type="checkbox"> Jue</label>
-                    <label class="chip-item"><input type="checkbox"> Vie</label>
-                    <label class="chip-item"><input type="checkbox"> Sáb</label>
-                    <label class="chip-item"><input type="checkbox"> Dom</label>
-                </div>
-                
-                <label style="font-size:0.75rem;">Horarios específicos:</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Territorio</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div id="modalGrupo" class="modal">
-    <div class="modal-content">
-        <h2 class="module-title" id="tituloModalGrupo">Registrar Grupo de Predicación</h2>
-        <form id="formGrupo">
-            <input type="hidden" id="editIndexGrupo" value="">
-            <div class="input-group">
-                <label>Número del Grupo</label>
-                <select id="gNumero" required>
-                    <option value="">Seleccione número...</option>
-                    <option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option>
-                    <option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Anciano Responsable</label>
-                <select id="gAnciano" required>
-                    <option value="">Seleccione un conductor registrado...</option>
-                </select>
-                <p style="font-size:0.7rem; color:#1a73e8; margin-top:8px;">
-                    * Este anciano conducirá el grupo automáticamente el último sábado de cada mes.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Cambios</button>
-            </div>
-        </form>
-    </div>
-</div>
+<div id="modalHistorial" class="modal"><div class="modal-content"><h2 class="module-title">Historial de Agendas</h2><div id="listaHistorial"></div><div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-    let conductores = [];
-    let territorios = [];
-    let grupos = [];
-    let agendaDatos = [];
+    let conductores = [], territorios = [], grupos = [], agendasMaestras = {};
 
     window.addEventListener('DOMContentLoaded', () => {
         conductores = JSON.parse(localStorage.getItem('vdm_conductores') || '[]');
         territorios = JSON.parse(localStorage.getItem('vdm_territorios') || '[]');
         grupos = JSON.parse(localStorage.getItem('vdm_grupos') || '[]');
-        agendaDatos = JSON.parse(localStorage.getItem('agendaVistaAlMar') || '[]');
+        agendasMaestras = JSON.parse(localStorage.getItem('vdm_agendas') || {});
         
         renderListaConductores();
         renderListaTerritorios();
         renderListaGrupos();
-        renderContactos();
-        actualizarSelectAncianos();
+        cargarAgendaDelMes();
     });
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function toggleVisibility(id) { 
-        if(id === 'resultadoAgenda') updateExportHeader();
-        document.getElementById(id).classList.toggle('hidden'); 
-    }
-    function updateExportHeader() {
-        const selectMes = document.getElementById('mesAgenda');
-        document.getElementById('fechaActualDisplay').innerText = `${selectMes.options[selectMes.selectedIndex].text} 2026`;
-    }
-    window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
+    function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
 
-    // CONDUCTORES
-    function openModalConductor() {
-        document.getElementById('formConductor').reset();
-        document.getElementById('editIndexConductor').value = "";
-        document.getElementById('tituloModalConductor').innerText = "Registro de Conductor";
-        openModal('modalConductor');
-    }
-
-    document.getElementById('formConductor').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const index = document.getElementById('editIndexConductor').value;
-        const nuevo = {
-            nombre: document.getElementById('cNombre').value,
-            apellido: document.getElementById('cApellido').value,
-            telefono: document.getElementById('cTelefono').value,
-            esAnciano: document.getElementById('cEsAnciano').value === 'si',
-            grupo: document.getElementById('cEsAnciano').value === 'si' ? document.getElementById('cGrupoAsignado').value : null
-        };
-        if(index === "") conductores.push(nuevo); else conductores[index] = nuevo;
-        localStorage.setItem('vdm_conductores', JSON.stringify(conductores));
-        renderListaConductores();
-        actualizarSelectAncianos();
-        closeModal('modalConductor');
-    });
-
-    function renderListaConductores() {
-        const container = document.getElementById('listaConductores');
-        container.innerHTML = conductores.length ? '' : '<p style="font-size:0.8rem;">No hay conductores.</p>';
-        conductores.forEach((c, index) => {
-            const div = document.createElement('div');
-            div.className = 'group-card';
-            div.innerHTML = `<div><strong>${c.nombre} ${c.apellido}</strong><br><small>${c.esAnciano ? 'Grupo '+c.grupo+' (Anciano)' : 'Publicador'}</small></div>
-            <div><button class="btn-edit-outline" onclick="editarConductor(${index})">Editar</button><button class="btn-danger-outline" onclick="eliminarConductor(${index})">Eliminar</button></div>`;
-            container.appendChild(div);
-        });
+    // --- Lógica de Agenda con Persistencia Total ---
+    function generarNuevaAgenda() {
+        const mes = document.getElementById('mesAgenda').value;
+        const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
+        const diasSemana = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+        const diasEnMes = new Date(2026, mes, 0).getDate();
+        
+        let nuevaAgenda = [];
+        for (let i = 1; i <= diasEnMes; i++) {
+            const fecha = new Date(2026, mes - 1, i);
+            nuevaAgenda.push({
+                diaSemana: diasSemana[fecha.getDay()],
+                diaMes: i,
+                hora: "09:00 AM",
+                conductor: "Sin Asignar",
+                territorio: "Sin Territorio",
+                lugar: "Por Definir",
+                grupos: "Todos"
+            });
+        }
+        agendasMaestras[mes] = nuevaAgenda;
+        guardarTodo();
+        renderAgenda(nuevaAgenda, nombreMes);
+        document.getElementById('resultadoAgenda').classList.remove('hidden');
     }
 
-    function editarConductor(index) {
-        const c = conductores[index];
-        document.getElementById('editIndexConductor').value = index;
-        document.getElementById('cNombre').value = c.nombre;
-        document.getElementById('cApellido').value = c.apellido;
-        document.getElementById('cTelefono').value = c.telefono;
-        document.getElementById('cEsAnciano').value = c.esAnciano ? 'si' : 'no';
-        document.getElementById('grupoSugerido').classList.toggle('hidden', !c.esAnciano);
-        openModal('modalConductor');
-    }
-
-    function eliminarConductor(index) {
-        if(confirm("¿Eliminar?")) { conductores.splice(index, 1); localStorage.setItem('vdm_conductores', JSON.stringify(conductores)); renderListaConductores(); actualizarSelectAncianos(); }
-    }
-
-    // TERRITORIOS
-    function openModalTerritorio() {
-        document.getElementById('formTerritorio').reset();
-        document.getElementById('editIndexTerritorio').value = "";
-        document.getElementById('tituloModalTerritorio').innerText = "Nuevo Territorio";
-        openModal('modalTerritorio');
-    }
-
-    document.getElementById('formTerritorio').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const index = document.getElementById('editIndexTerritorio').value;
-        const nuevo = {
-            nombre: document.getElementById('tNombre').value,
-            lugar: document.getElementById('tLugar').value,
-            subNombre: document.getElementById('tsNombre').value
-        };
-        if(index === "") territorios.push(nuevo); else territorios[index] = nuevo;
-        localStorage.setItem('vdm_territorios', JSON.stringify(territorios));
-        renderListaTerritorios();
-        closeModal('modalTerritorio');
-    });
-
-    function renderListaTerritorios() {
-        const container = document.getElementById('listaTerritorios');
-        container.innerHTML = territorios.length ? '' : '<p style="font-size:0.8rem;">No hay territorios.</p>';
-        territorios.forEach((t, i) => {
-            const div = document.createElement('div');
-            div.className = 'group-card';
-            div.innerHTML = `<div><strong>${t.nombre}</strong><br><small>${t.lugar}</small></div>
-            <div><button class="btn-edit-outline" onclick="editarTerritorio(${i})">Editar</button><button class="btn-danger-outline" onclick="eliminarTerritorio(${i})">Eliminar</button></div>`;
-            container.appendChild(div);
-        });
-    }
-
-    function editarTerritorio(i) {
-        const t = territorios[i];
-        document.getElementById('editIndexTerritorio').value = i;
-        document.getElementById('tNombre').value = t.nombre;
-        document.getElementById('tLugar').value = t.lugar;
-        document.getElementById('tsNombre').value = t.subNombre;
-        openModal('modalTerritorio');
-    }
-
-    function eliminarTerritorio(i) {
-        if(confirm("¿Eliminar?")) { territorios.splice(i, 1); localStorage.setItem('vdm_territorios', JSON.stringify(territorios)); renderListaTerritorios(); }
-    }
-
-    // GRUPOS
-    function openModalGrupo() {
-        actualizarSelectAncianos();
-        document.getElementById('formGrupo').reset();
-        document.getElementById('editIndexGrupo').value = "";
-        openModal('modalGrupo');
-    }
-
-    function actualizarSelectAncianos() {
-        const select = document.getElementById('gAnciano');
-        select.innerHTML = '<option value="">Seleccione un anciano...</option>';
-        conductores.filter(c => c.esAnciano).forEach(c => {
-            const n = `${c.nombre} ${c.apellido}`;
-            select.innerHTML += `<option value="${n}">${n}</option>`;
-        });
-    }
-
-    document.getElementById('formGrupo').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const index = document.getElementById('editIndexGrupo').value;
-        const nuevo = { numero: document.getElementById('gNumero').value, anciano: document.getElementById('gAnciano').value };
-        if(index === "") grupos.push(nuevo); else grupos[index] = nuevo;
-        localStorage.setItem('vdm_grupos', JSON.stringify(grupos));
-        renderListaGrupos();
-        closeModal('modalGrupo');
-    });
-
-    function renderListaGrupos() {
-        const container = document.getElementById('listaGrupos');
-        container.innerHTML = grupos.length ? '' : '<p style="font-size:0.8rem;">No hay grupos.</p>';
-        grupos.forEach((g, i) => {
-            const div = document.createElement('div');
-            div.className = 'group-card';
-            div.innerHTML = `<div><strong>Grupo ${g.numero}</strong><br><small>Resp: ${g.anciano}</small></div>
-            <div><button class="btn-danger-outline" onclick="eliminarGrupo(${i})">Eliminar</button></div>`;
-            container.appendChild(div);
-        });
-    }
-
-    function eliminarGrupo(i) { grupos.splice(i, 1); localStorage.setItem('vdm_grupos', JSON.stringify(grupos)); renderListaGrupos(); }
-
-    // AGENDA Y CONTACTO
-    function guardarTablaDatos() {
-        const filas = document.querySelectorAll('#tablaCuerpoAgenda tr');
-        agendaDatos = Array.from(filas).map(fila => {
-            const tds = fila.querySelectorAll('td');
-            return {
-                diaSemana: tds[0].innerText.trim(), diaMes: tds[1].innerText.trim(),
-                mes: parseInt(document.getElementById('mesAgenda').value),
-                hora: tds[2].innerText.trim(), conductor: tds[3].innerText.trim(),
-                territorio: tds[4].innerText.trim(), lugar: tds[5].innerText.trim()
-            };
-        });
-        localStorage.setItem('agendaVistaAlMar', JSON.stringify(agendaDatos));
+    function cargarAgendaDelMes() {
+        const mes = document.getElementById('mesAgenda').value;
+        const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
+        if (agendasMaestras[mes]) {
+            renderAgenda(agendasMaestras[mes], nombreMes);
+            document.getElementById('resultadoAgenda').classList.remove('hidden');
+        } else {
+            document.getElementById('resultadoAgenda').classList.add('hidden');
+        }
         renderContactos();
-        alert("¡Guardado!");
     }
 
+    function renderAgenda(datos, nombreMes) {
+        document.getElementById('fechaActualDisplay').innerText = `${nombreMes} 2026`;
+        const cuerpo = document.getElementById('tablaCuerpoAgenda');
+        cuerpo.innerHTML = '';
+        datos.forEach((fila, i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${fila.diaSemana}</td>
+                <td>${fila.diaMes}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i}, 'hora', this.innerText)">${fila.hora}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i}, 'conductor', this.innerText)">${fila.conductor}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i}, 'territorio', this.innerText)">${fila.territorio}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i}, 'lugar', this.innerText)">${fila.lugar}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i}, 'grupos', this.innerText)">${fila.grupos}</td>
+            `;
+            cuerpo.appendChild(tr);
+        });
+    }
+
+    function actualizarCelda(index, campo, valor) {
+        const mes = document.getElementById('mesAgenda').value;
+        agendasMaestras[mes][index][campo] = valor.trim();
+        guardarTodo();
+        renderContactos();
+    }
+
+    function guardarTodo() {
+        localStorage.setItem('vdm_agendas', JSON.stringify(agendasMaestras));
+        localStorage.setItem('vdm_conductores', JSON.stringify(conductores));
+        localStorage.setItem('vdm_territorios', JSON.stringify(territorios));
+        localStorage.setItem('vdm_grupos', JSON.stringify(grupos));
+    }
+
+    // --- Mensajería ---
     function renderContactos() {
         const container = document.getElementById('listaContactos');
         const hoy = new Date();
         const d = hoy.getDate(), m = hoy.getMonth() + 1;
-        const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
+        const mesAct = agendasMaestras[m];
+        if (!mesAct) { container.innerHTML = '<p>Sin datos del mes actual.</p>'; return; }
         
-        const prox = agendaDatos.filter(i => i.mes === m && (parseInt(i.diaMes) === d || parseInt(i.diaMes) === d + 1));
-        if (!prox.length) { container.innerHTML = '<p>No hay asignaciones próximas.</p>'; return; }
+        const prox = mesAct.filter(i => i.diaMes === d || i.diaMes === d + 1);
         container.innerHTML = '';
         prox.forEach((asig, i) => {
-            const c = conductores.find(c => (c.nombre + " " + c.apellido).toLowerCase() === asig.conductor.toLowerCase());
-            const telf = c ? c.telefono.replace(/\s/g, '') : "+58";
-            const msg = `¡Hola! ¿Cómo estás?. Este mensaje es para notificarte que tienes el privilegio de dirigir el grupo del ${asig.diaSemana.toLowerCase()} ${asig.diaMes} de ${nombreMes} a las ${asig.hora}. Ese día estarán abarcando el territorio ${asig.territorio}. El lugar de encuentro será en ${asig.lugar}. ¿Podrías confirmarme si vas a asistir? Estaré atento a tu respuesta. ¡Muchas gracias!`;
+            const cond = conductores.find(c => (c.nombre + " " + c.apellido).toLowerCase() === asig.conductor.toLowerCase());
+            const telf = cond ? cond.telefono.replace(/\s/g, '') : "+58";
+            const msg = `¡Hola! ¿Cómo estás?. Este mensaje es para notificarte que tienes el privilegio de dirigir el grupo del ${asig.diaSemana.toLowerCase()} ${asig.diaMes} a las ${asig.hora}. Ese día estarán abarcando el territorio ${asig.territorio}. El lugar de encuentro será en ${asig.lugar}. ¿Podrías confirmarme si vas a asistir? Estaré atento a tu respuesta. ¡Muchas gracias!`;
+            
             const div = document.createElement('div');
             div.className = 'contact-item';
-            div.innerHTML = `<div class="contact-info"><strong>${asig.conductor}</strong><br><small>${asig.diaSemana} ${asig.diaMes} - ${asig.hora}</small></div>
-            <div class="contact-actions"><span id="check-${i}" class="check-icon">✓</span><a href="https://wa.me/${telf}?text=${encodeURIComponent(msg)}" target="_blank" class="btn-whatsapp" onclick="document.getElementById('check-${i}').style.display='inline'">WhatsApp</a></div>`;
+            div.innerHTML = `<div><strong>${asig.conductor}</strong><br><small>${asig.diaMes} - ${asig.hora}</small></div>
+            <div class="contact-actions"><span id="chk-${i}" class="check-icon">✓</span><a href="https://wa.me/${telf}?text=${encodeURIComponent(msg)}" target="_blank" class="btn-whatsapp" onclick="document.getElementById('chk-${i}').style.display='inline'">WhatsApp</a></div>`;
             container.appendChild(div);
         });
     }
 
+    // --- Conductores, Territorios y Grupos (CRUD Restaurado) ---
+    function openModalConductor() { document.getElementById('formConductor').reset(); document.getElementById('editIndexConductor').value = ""; openModal('modalConductor'); }
+    document.getElementById('formConductor').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const index = document.getElementById('editIndexConductor').value;
+        const c = { nombre: document.getElementById('cNombre').value, apellido: document.getElementById('cApellido').value, telefono: document.getElementById('cTelefono').value, esAnciano: document.getElementById('cEsAnciano').value === 'si', grupo: document.getElementById('cGrupoAsignado').value };
+        if(index === "") conductores.push(c); else conductores[index] = c;
+        guardarTodo(); renderListaConductores(); actualizarSelectAncianos(); closeModal('modalConductor');
+    });
+
+    function renderListaConductores() {
+        const cont = document.getElementById('listaConductores'); cont.innerHTML = '';
+        conductores.forEach((c, i) => {
+            const d = document.createElement('div'); d.className = 'group-card';
+            d.innerHTML = `<div><strong>${c.nombre} ${c.apellido}</strong></div><div><button class="btn-edit-outline" onclick="editarConductor(${i})">Edit</button><button class="btn-danger-outline" onclick="eliminarConductor(${i})">X</button></div>`;
+            cont.appendChild(d);
+        });
+    }
+
+    function editarConductor(i) {
+        const c = conductores[i]; document.getElementById('editIndexConductor').value = i;
+        document.getElementById('cNombre').value = c.nombre; document.getElementById('cApellido').value = c.apellido; document.getElementById('cTelefono').value = c.telefono;
+        openModal('modalConductor');
+    }
+
+    function eliminarConductor(i) { if(confirm("¿Eliminar?")) { conductores.splice(i,1); guardarTodo(); renderListaConductores(); } }
+
+    function openModalTerritorio() { document.getElementById('formTerritorio').reset(); document.getElementById('editIndexTerritorio').value = ""; openModal('modalTerritorio'); }
+    document.getElementById('formTerritorio').addEventListener('submit', e => {
+        e.preventDefault(); const i = document.getElementById('editIndexTerritorio').value;
+        const t = { nombre: document.getElementById('tNombre').value, lugar: document.getElementById('tLugar').value };
+        if(i === "") territorios.push(t); else territorios[i] = t;
+        guardarTodo(); renderListaTerritorios(); closeModal('modalTerritorio');
+    });
+
+    function renderListaTerritorios() {
+        const cont = document.getElementById('listaTerritorios'); cont.innerHTML = '';
+        territorios.forEach((t, i) => {
+            const d = document.createElement('div'); d.className = 'group-card';
+            d.innerHTML = `<div><strong>${t.nombre}</strong></div><div><button class="btn-edit-outline" onclick="editarTerritorio(${i})">Edit</button></div>`;
+            cont.appendChild(d);
+        });
+    }
+
+    function editarTerritorio(i) { const t = territorios[i]; document.getElementById('editIndexTerritorio').value = i; document.getElementById('tNombre').value = t.nombre; openModal('modalTerritorio'); }
+
+    function openModalGrupo() { actualizarSelectAncianos(); openModal('modalGrupo'); }
+    function actualizarSelectAncianos() {
+        const s = document.getElementById('gAnciano'); s.innerHTML = '';
+        conductores.filter(c => c.esAnciano).forEach(c => s.innerHTML += `<option value="${c.nombre} ${c.apellido}">${c.nombre} ${c.apellido}</option>`);
+    }
+
+    document.getElementById('formGrupo').addEventListener('submit', e => {
+        e.preventDefault(); grupos.push({ numero: document.getElementById('gNumero').value, anciano: document.getElementById('gAnciano').value });
+        guardarTodo(); renderListaGrupos(); closeModal('modalGrupo');
+    });
+
+    function renderListaGrupos() {
+        const cont = document.getElementById('listaGrupos'); cont.innerHTML = '';
+        grupos.forEach(g => cont.innerHTML += `<div class="group-card">Grupo ${g.numero} - ${g.anciano}</div>`);
+    }
+
+    // --- Exportación ---
     document.getElementById('btnImagen').addEventListener('click', async () => {
         const canvas = await html2canvas(document.getElementById('areaExportar'), { scale: 3 });
         const link = document.createElement('a'); link.download = 'agenda.png'; link.href = canvas.toDataURL(); link.click();
