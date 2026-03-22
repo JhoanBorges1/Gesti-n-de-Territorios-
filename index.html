@@ -33,24 +33,23 @@
         .btn-outline { background: white; border: 1px solid #dadce0; color: var(--google-blue); }
         .btn-danger-outline { background: white; border: 1px solid #f5c2c7; color: var(--google-red); width: auto; padding: 6px 12px; font-size: 0.75rem; }
 
-        /* Formulario Layout */
         .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
         label { font-size: 0.85rem; font-weight: 500; color: var(--text-sub); }
-        input, select, textarea { padding: 12px; border-radius: 12px; border: 1px solid #dadce0; font-size: 0.95rem; }
+        input, select, textarea { padding: 12px; border-radius: 12px; border: 1px solid #dadce0; font-size: 0.95rem; background: white; }
 
-        /* Selectores de Chips/Checkboxes */
         .chip-group { display: flex; flex-wrap: wrap; gap: 8px; background: #f8f9fa; padding: 12px; border-radius: 12px; border: 1px solid #eee; }
         .chip-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; background: white; padding: 4px 10px; border-radius: 16px; border: 1px solid #dadce0; cursor: pointer; }
-        .chip-item input { margin: 0; width: auto; }
 
-        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(32, 33, 36, 0.7); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .modal-content { background: white; width: 90%; max-width: 650px; max-height: 90vh; border-radius: 28px; padding: 32px; overflow-y: auto; }
+        .modal-content { background: white; width: 90%; max-width: 600px; max-height: 90vh; border-radius: 28px; padding: 32px; overflow-y: auto; }
         
         .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
         .modal-footer button { width: auto; }
 
         .hidden { display: none; }
+        
+        /* Estilo para los grupos ya listados */
+        .group-card { border: 1px solid #eee; padding: 16px; border-radius: 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -64,12 +63,7 @@
             <button class="btn-primary" onclick="openModal('modalConductor')">Agregar Conductor</button>
             <button class="btn-outline" onclick="toggleVisibility('listaConductores')">Ver Lista y Editar</button>
         </div>
-        <div id="listaConductores" class="hidden" style="margin-top:16px;">
-            <div style="padding:16px; border:1px solid #eee; border-radius:16px; display:flex; justify-content:space-between; align-items:center;">
-                <div><strong>Ejemplo: Jhoan Borges</strong><br><small>Grupo 3 (Anciano)</small></div>
-                <button class="btn-danger-outline">Eliminar</button>
-            </div>
-        </div>
+        <div id="listaConductores" class="hidden" style="margin-top:16px;"></div>
     </section>
 
     <section class="module-section">
@@ -79,6 +73,20 @@
             <button class="btn-outline" onclick="toggleVisibility('listaTerritorios')">Ver Lista y Editar</button>
         </div>
         <div id="listaTerritorios" class="hidden"></div>
+    </section>
+
+    <section class="module-section">
+        <div class="module-title">Grupos de Predicación</div>
+        <div class="btn-vertical-group">
+            <button class="btn-primary" onclick="openModal('modalGrupo')">Agregar Grupo</button>
+            <button class="btn-outline" onclick="toggleVisibility('listaGrupos')">Ver Grupos Registrados</button>
+        </div>
+        <div id="listaGrupos" class="hidden" style="margin-top:16px;">
+            <div class="group-card">
+                <div><strong>Grupo 1</strong><br><small>Anciano: Hermano Pérez</small></div>
+                <button class="btn-danger-outline">Eliminar</button>
+            </div>
+        </div>
     </section>
 </div>
 
@@ -91,53 +99,20 @@
                 <div class="input-group"><label>Apellido</label><input type="text" required></div>
             </div>
             <div class="input-group"><label>Teléfono</label><input type="tel" value="+58 " required></div>
-
             <div class="input-group">
                 <label>¿Es Anciano?</label>
-                <select id="selectAnciano" onchange="checkAnciano(this.value)">
+                <select onchange="document.getElementById('grupoSugerido').classList.toggle('hidden', this.value !== 'si')">
                     <option value="no">No</option>
                     <option value="si">Sí</option>
                 </select>
             </div>
-
-            <div id="grupoAnciano" class="input-group hidden">
-                <label>Asignar a Grupo:</label>
-                <select>
-                    <option value="">Seleccionar Grupo...</option>
-                    <script>for(let i=1;i<=8;i++) document.write(`<option value="${i}">Grupo ${i}</option>`);</script>
-                </select>
+            <div id="grupoSugerido" class="input-group hidden">
+                <label>Grupo al que pertenece:</label>
+                <select><script>for(let i=1;i<=8;i++) document.write(`<option value="${i}">Grupo ${i}</option>`);</script></select>
             </div>
-
-            <div class="input-group">
-                <label>Días de conducción habituales</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> Lun</label>
-                    <label class="chip-item"><input type="checkbox"> Mar</label>
-                    <label class="chip-item"><input type="checkbox"> Mié</label>
-                    <label class="chip-item"><input type="checkbox"> Jue</label>
-                    <label class="chip-item"><input type="checkbox"> Vie</label>
-                    <label class="chip-item"><input type="checkbox"> Sáb</label>
-                    <label class="chip-item"><input type="checkbox"> Dom</label>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>Horarios Disponibles (Selecciona varios)</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                    <label class="chip-item"><input type="checkbox"> 6:30 pm (TG Lun/Vie)</label>
-                </div>
-            </div>
-
-            <div class="input-group"><label>Fecha en particular con disponibilidad</label><input type="date"></div>
-            <div class="input-group"><label>Fecha no disponible</label><input type="date"></div>
-
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Conductor</button>
+                <button type="submit" class="btn-primary">Guardar</button>
             </div>
         </form>
     </div>
@@ -147,46 +122,42 @@
     <div class="modal-content">
         <h2 class="module-title">Nuevo Territorio</h2>
         <form>
-            <div class="input-group"><label>Nombre del Territorio</label><input type="text" required></div>
-            
+            <div class="input-group"><label>Nombre</label><input type="text" required></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalGrupo" class="modal">
+    <div class="modal-content">
+        <h2 class="module-title">Registrar Grupo de Predicación</h2>
+        <form>
             <div class="input-group">
-                <label>Días de Predicación</label>
-                <div class="chip-group">
-                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
-                </div>
+                <label>Número del Grupo</label>
+                <select required>
+                    <option value="">Seleccione número...</option>
+                    <script>for(let i=1;i<=8;i++) document.write(`<option value="${i}">Grupo ${i}</option>`);</script>
+                </select>
             </div>
 
             <div class="input-group">
-                <label>Horarios Sugeridos</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                </div>
-            </div>
-
-            <div class="input-group"><label>Lugares de encuentro</label><textarea rows="2"></textarea></div>
-
-            <div style="background:#f1f3f4; padding:20px; border-radius:20px; margin-top:10px;">
-                <label style="color:var(--google-blue); font-weight:700;">Subterritorio</label>
-                <div class="input-group" style="margin-top:10px;"><input type="text" placeholder="Nombre del subterritorio"></div>
-                <label style="font-size:0.75rem;">Días para este subterritorio:</label>
-                <div class="chip-group" style="margin-bottom:12px;">
-                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
-                </div>
-                <label style="font-size:0.75rem;">Horarios:</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                </div>
+                <label>Seleccionar Anciano Responsable</label>
+                <select required>
+                    <option value="">Cargando conductores...</option>
+                    <option value="1">Hermano Pérez (Anciano)</option>
+                    <option value="2">Hermano García (Anciano)</option>
+                </select>
+                <p style="font-size:0.7rem; color:var(--google-blue); margin-top:8px;">
+                    * Este anciano conducirá el grupo automáticamente el último sábado de cada mes.
+                </p>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Territorio</button>
+                <button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar Cambios</button>
             </div>
         </form>
     </div>
@@ -196,12 +167,6 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
-    
-    function checkAnciano(val) {
-        const div = document.getElementById('grupoAnciano');
-        val === 'si' ? div.classList.remove('hidden') : div.classList.add('hidden');
-    }
-
     window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
 </script>
 
