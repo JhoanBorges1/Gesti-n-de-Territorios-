@@ -16,237 +16,128 @@
             --text-main: #202124;
             --text-sub: #5f6368;
             --border-radius: 24px;
-            --shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
         }
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--gemini-bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-        }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--gemini-bg); color: var(--text-main); margin: 0; }
+        header { background: var(--gemini-card); padding: 20px; box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3); text-align: center; }
+        h1 { font-family: 'Google Sans', sans-serif; color: var(--google-blue); margin: 0; font-size: 1.4rem; }
+        
+        .container { max-width: 800px; margin: 32px auto; padding: 0 16px; }
+        .module-section { background: var(--gemini-card); border-radius: var(--border-radius); padding: 24px; margin-bottom: 24px; border: 1px solid #dadce0; }
+        .module-title { font-family: 'Google Sans', sans-serif; font-size: 1.2rem; margin-bottom: 20px; color: var(--text-main); border-bottom: 1px solid #f1f3f4; padding-bottom: 10px; }
 
-        header {
-            background: var(--gemini-card);
-            padding: 20px 32px;
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        h1 {
-            font-family: 'Google Sans', sans-serif;
-            color: var(--google-blue);
-            margin: 0;
-            font-size: 1.4rem;
-            text-align: center;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 32px auto;
-            padding: 0 16px;
-        }
-
-        .module-section {
-            background: var(--gemini-card);
-            border-radius: var(--border-radius);
-            padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid #dadce0;
-        }
-
-        .module-header {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #f1f3f4;
-            padding-bottom: 12px;
-        }
-
-        .module-title {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 1.2rem;
-            color: var(--text-main);
-            font-weight: 500;
-        }
-
-        /* Botones en Cascada (Ordenados uno debajo de otro) */
-        .btn-vertical-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        button {
-            padding: 12px 24px;
-            border-radius: 28px;
-            border: none;
-            font-family: 'Google Sans', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.9rem;
-            width: 100%; /* Ocupa todo el ancho disponible para orden visual */
-            max-width: 300px; /* Evita que sean demasiado largos en pantallas grandes */
-        }
-
+        .btn-vertical-group { display: flex; flex-direction: column; gap: 12px; }
+        button { padding: 12px 24px; border-radius: 28px; border: none; font-family: 'Google Sans', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; width: 100%; max-width: 300px; }
+        
         .btn-primary { background: var(--google-blue); color: white; }
-        .btn-primary:hover { background: #1557b0; box-shadow: var(--shadow); }
-
         .btn-outline { background: white; border: 1px solid #dadce0; color: var(--google-blue); }
-        .btn-outline:hover { background: #f8f9fa; border-color: var(--google-blue); }
+        .btn-danger-outline { background: white; border: 1px solid #f5c2c7; color: var(--google-red); width: auto; padding: 6px 12px; font-size: 0.75rem; }
 
-        .btn-danger-outline { background: white; border: 1px solid #f5c2c7; color: var(--google-red); }
-        .btn-danger-outline:hover { background: #fce8e6; }
-
-        /* Formulario y Modales */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
+        /* Formulario Layout */
         .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
         label { font-size: 0.85rem; font-weight: 500; color: var(--text-sub); }
+        input, select, textarea { padding: 12px; border-radius: 12px; border: 1px solid #dadce0; font-size: 0.95rem; }
+
+        /* Selectores de Chips/Checkboxes */
+        .chip-group { display: flex; flex-wrap: wrap; gap: 8px; background: #f8f9fa; padding: 12px; border-radius: 12px; border: 1px solid #eee; }
+        .chip-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; background: white; padding: 4px 10px; border-radius: 16px; border: 1px solid #dadce0; cursor: pointer; }
+        .chip-item input { margin: 0; width: auto; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(32, 33, 36, 0.7); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal-content { background: white; width: 90%; max-width: 650px; max-height: 90vh; border-radius: 28px; padding: 32px; overflow-y: auto; }
         
-        input, select, textarea {
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #dadce0;
-            font-size: 0.95rem;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(32, 33, 36, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            background: white;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            border-radius: 28px;
-            padding: 32px;
-            overflow-y: auto;
-        }
-
-        /* Listas con botón de eliminar interno */
-        .list-item {
-            padding: 16px;
-            border: 1px solid #f1f3f4;
-            border-radius: 16px;
-            margin-top: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-        }
-
-        .item-actions { display: flex; gap: 8px; }
-        .btn-small { padding: 6px 12px; font-size: 0.75rem; width: auto; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+        .modal-footer button { width: auto; }
 
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Gestión de Territorios Vista Al Mar</h1>
-</header>
+<header><h1>Gestión de Territorios Vista Al Mar</h1></header>
 
 <div class="container">
-    
     <section class="module-section">
-        <div class="module-header">
-            <div class="module-title">Conductores</div>
-        </div>
+        <div class="module-title">Conductores</div>
         <div class="btn-vertical-group">
             <button class="btn-primary" onclick="openModal('modalConductor')">Agregar Conductor</button>
             <button class="btn-outline" onclick="toggleVisibility('listaConductores')">Ver Lista y Editar</button>
         </div>
-        
-        <div id="listaConductores" class="hidden">
-            <div class="list-item">
-                <div>
-                    <strong>Hermano de Ejemplo</strong>
-                    <p style="margin:4px 0; font-size:0.8rem; color:var(--text-sub);">+58 412 1234567</p>
-                </div>
-                <div class="item-actions">
-                    <button class="btn-outline btn-small">Editar</button>
-                    <button class="btn-danger-outline btn-small">Eliminar</button>
-                </div>
+        <div id="listaConductores" class="hidden" style="margin-top:16px;">
+            <div style="padding:16px; border:1px solid #eee; border-radius:16px; display:flex; justify-content:space-between; align-items:center;">
+                <div><strong>Ejemplo: Jhoan Borges</strong><br><small>Grupo 3 (Anciano)</small></div>
+                <button class="btn-danger-outline">Eliminar</button>
             </div>
         </div>
     </section>
 
     <section class="module-section">
-        <div class="module-header">
-            <div class="module-title">Territorios</div>
-        </div>
+        <div class="module-title">Territorios</div>
         <div class="btn-vertical-group">
             <button class="btn-primary" onclick="openModal('modalTerritorio')">Agregar Territorio</button>
             <button class="btn-outline" onclick="toggleVisibility('listaTerritorios')">Ver Lista y Editar</button>
         </div>
-        <div id="listaTerritorios" class="hidden">
-            </div>
+        <div id="listaTerritorios" class="hidden"></div>
     </section>
-
-    <section class="module-section">
-        <div class="module-header">
-            <div class="module-title">Grupos de Predicación</div>
-        </div>
-        <div id="gridGrupos" style="display:grid; gap:12px;">
-            </div>
-        <button class="btn-primary" style="margin-top:20px; max-width: none;">Guardar Configuración</button>
-    </section>
-
 </div>
 
 <div id="modalConductor" class="modal">
     <div class="modal-content">
-        <h2 class="module-title">Nuevo Conductor</h2>
+        <h2 class="module-title">Registro de Conductor</h2>
         <form>
-            <div class="form-grid">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <div class="input-group"><label>Nombre</label><input type="text" required></div>
                 <div class="input-group"><label>Apellido</label><input type="text" required></div>
             </div>
             <div class="input-group"><label>Teléfono</label><input type="tel" value="+58 " required></div>
-            
+
             <div class="input-group">
-                <label>Días de conducción</label>
-                <div style="display:flex; flex-wrap:wrap; gap:8px; background:#f8f9fa; padding:12px; border-radius:12px;">
-                    <label style="font-size:0.7rem;"><input type="checkbox"> Lun</label>
-                    <label style="font-size:0.7rem;"><input type="checkbox"> Mar</label>
-                    <label style="font-size:0.7rem;"><input type="checkbox"> Mié</label>
-                    <label style="font-size:0.7rem;"><input type="checkbox"> Jue</label>
-                    <label style="font-size:0.7rem;"><input type="checkbox"> Vie</label>
-                    <label style="font-size:0.7rem;"><input type="checkbox"> Sáb</label>
-                    <label style="font-size:0.7rem;"><input type="checkbox"> Dom</label>
+                <label>¿Es Anciano?</label>
+                <select id="selectAnciano" onchange="checkAnciano(this.value)">
+                    <option value="no">No</option>
+                    <option value="si">Sí</option>
+                </select>
+            </div>
+
+            <div id="grupoAnciano" class="input-group hidden">
+                <label>Asignar a Grupo:</label>
+                <select>
+                    <option value="">Seleccionar Grupo...</option>
+                    <script>for(let i=1;i<=8;i++) document.write(`<option value="${i}">Grupo ${i}</option>`);</script>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Días de conducción habituales</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> Lun</label>
+                    <label class="chip-item"><input type="checkbox"> Mar</label>
+                    <label class="chip-item"><input type="checkbox"> Mié</label>
+                    <label class="chip-item"><input type="checkbox"> Jue</label>
+                    <label class="chip-item"><input type="checkbox"> Vie</label>
+                    <label class="chip-item"><input type="checkbox"> Sáb</label>
+                    <label class="chip-item"><input type="checkbox"> Dom</label>
                 </div>
             </div>
 
-            <div class="input-group"><label>Horarios</label><input type="text" placeholder="Ej: 8:30 AM"></div>
-            
             <div class="input-group">
-                <label>Fecha en particular con disponibilidad <small>(Opcional)</small></label>
-                <input type="date">
-            </div>
-            <div class="input-group">
-                <label>Fecha no disponible <small>(Opcional)</small></label>
-                <input type="date">
+                <label>Horarios Disponibles (Selecciona varios)</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
+                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
+                    <label class="chip-item"><input type="checkbox"> 6:30 pm (TG Lun/Vie)</label>
+                </div>
             </div>
 
-            <div style="display:flex; gap:12px; margin-top:20px;">
-                <button type="submit" class="btn-primary">Guardar</button>
+            <div class="input-group"><label>Fecha en particular con disponibilidad</label><input type="date"></div>
+            <div class="input-group"><label>Fecha no disponible</label><input type="date"></div>
+
+            <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar Conductor</button>
             </div>
         </form>
     </div>
@@ -257,23 +148,45 @@
         <h2 class="module-title">Nuevo Territorio</h2>
         <form>
             <div class="input-group"><label>Nombre del Territorio</label><input type="text" required></div>
-            <div class="form-grid">
-                <div class="input-group"><label>Días</label><input type="text"></div>
-                <div class="input-group"><label>Horarios</label><input type="text"></div>
-            </div>
-            <div class="input-group"><label>Lugares de encuentro</label><textarea rows="2"></textarea></div>
             
-            <div style="background:#f1f3f4; padding:16px; border-radius:16px; margin-bottom:16px;">
-                <label style="color:var(--google-blue)">Subterritorios</label>
-                <div class="form-grid" style="margin-top:8px;">
-                    <input type="text" placeholder="Nombre">
-                    <input type="text" placeholder="Horarios">
+            <div class="input-group">
+                <label>Días de Predicación</label>
+                <div class="chip-group">
+                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
                 </div>
             </div>
 
-            <div style="display:flex; gap:12px;">
-                <button type="submit" class="btn-primary">Guardar</button>
+            <div class="input-group">
+                <label>Horarios Sugeridos</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
+                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
+                </div>
+            </div>
+
+            <div class="input-group"><label>Lugares de encuentro</label><textarea rows="2"></textarea></div>
+
+            <div style="background:#f1f3f4; padding:20px; border-radius:20px; margin-top:10px;">
+                <label style="color:var(--google-blue); font-weight:700;">Subterritorio</label>
+                <div class="input-group" style="margin-top:10px;"><input type="text" placeholder="Nombre del subterritorio"></div>
+                <label style="font-size:0.75rem;">Días para este subterritorio:</label>
+                <div class="chip-group" style="margin-bottom:12px;">
+                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
+                </div>
+                <label style="font-size:0.75rem;">Horarios:</label>
+                <div class="chip-group">
+                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
+                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
+                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar Territorio</button>
             </div>
         </form>
     </div>
@@ -283,20 +196,10 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
-
-    const gridGrupos = document.getElementById('gridGrupos');
-    for (let i = 1; i <= 8; i++) {
-        const item = document.createElement('div');
-        item.style.cssText = "padding:16px; border:1px solid #dadce0; border-radius:16px; background:white;";
-        item.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:500; color:var(--google-blue);">Grupo ${i}</span>
-                <select style="width:60%; font-size:0.8rem;">
-                    <option>Seleccionar Anciano...</option>
-                </select>
-            </div>
-        `;
-        gridGrupos.appendChild(item);
+    
+    function checkAnciano(val) {
+        const div = document.getElementById('grupoAnciano');
+        val === 'si' ? div.classList.remove('hidden') : div.classList.add('hidden');
     }
 
     window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
@@ -304,3 +207,4 @@
 
 </body>
 </html>
+ 
