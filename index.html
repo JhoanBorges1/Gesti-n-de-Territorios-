@@ -52,13 +52,14 @@
         .group-card { border: 1px solid #eee; padding: 16px; border-radius: 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
         .sub-section { background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid var(--google-blue); }
 
-        /* AJUSTES PARA EXPORTACIÓN */
+        /* ESTILOS DE EXPORTACIÓN REPARADOS */
         #areaExportar {
-            padding: 20px 10px;
+            padding: 20px;
             background: #ffffff;
             border-radius: 12px;
-            width: fit-content;
-            min-width: 100%;
+            width: fit-content; /* Obliga al contenedor a crecer con la tabla */
+            min-width: 800px;   /* Asegura un ancho mínimo para que nada se encime en la captura */
+            display: block;
             box-sizing: border-box;
         }
 
@@ -72,17 +73,18 @@
         .export-header h2 {
             font-family: 'Google Sans', sans-serif;
             color: var(--google-blue);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             margin: 0;
         }
 
         .export-header p {
             margin: 3px 0 0 0;
             color: var(--text-sub);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 500;
         }
 
+        /* Contenedor responsivo solo para vista web móvil */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -93,7 +95,7 @@
             width: 100%;
             border-collapse: separate; 
             border-spacing: 0;
-            font-size: 0.65rem; 
+            font-size: 0.75rem; 
             font-family: 'Google Sans', sans-serif;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
@@ -102,17 +104,17 @@
 
         .agenda-table th { 
             background: #f1f3f4; 
-            padding: 8px 4px; 
+            padding: 10px 8px; 
             text-align: center; 
             color: #3c4043;
             font-weight: 700;
             text-transform: uppercase;
             border-bottom: 1px solid #e0e0e0;
-            white-space: nowrap;
+            white-space: nowrap; /* Evita que los títulos se corten */
         }
 
         .agenda-table td { 
-            padding: 8px 4px; 
+            padding: 10px 8px; 
             border-bottom: 1px solid #f1f3f4;
             color: #202124;
             vertical-align: middle;
@@ -124,22 +126,24 @@
         .agenda-table input { 
             border: none; 
             width: 100%; 
-            padding: 2px 0; 
+            padding: 4px 0; 
             background: transparent; 
             font-family: inherit; 
-            font-size: inherit;
+            font-size: 0.75rem;
             color: inherit;
             text-align: center;
             outline: none;
             display: block;
-            min-width: fit-content;
+            min-width: 50px; /* Evita colapso del input */
         }
 
-        /* Columnas con anchos mínimos para asegurar visibilidad total */
-        .col-dia { min-width: 40px; }
-        .col-fecha { min-width: 35px; }
-        .col-hora { font-weight: 500; color: var(--google-blue); min-width: 75px; }
-        .col-texto { min-width: 100px; }
+        /* Anchos mínimos fijos para asegurar que el texto NO se corte en la captura */
+        .col-dia { min-width: 45px; }
+        .col-fecha { min-width: 40px; }
+        .col-hora { font-weight: 500; color: var(--google-blue); min-width: 85px; }
+        .col-nombre { min-width: 130px; }
+        .col-lugar { min-width: 150px; }
+        .col-grupos { min-width: 60px; }
         
     </style>
 </head>
@@ -216,10 +220,10 @@
                                 <th class="col-dia">Día</th>
                                 <th class="col-fecha">Fecha</th>
                                 <th class="col-hora">Hora</th>
-                                <th class="col-texto">Conductor</th>
-                                <th class="col-texto">Territorio</th>
-                                <th class="col-texto">Lugar de encuentro</th>
-                                <th class="col-texto">Grupos</th>
+                                <th class="col-nombre">Conductor</th>
+                                <th class="col-nombre">Territorio</th>
+                                <th class="col-lugar">Lugar de encuentro</th>
+                                <th class="col-grupos">Grupos</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -227,10 +231,10 @@
                                 <td class="col-dia"><input type="text" value="SAB"></td>
                                 <td class="col-fecha"><input type="text" value="04"></td>
                                 <td class="col-hora"><input type="text" value="09:00 AM"></td>
-                                <td class="col-texto"><input type="text" value="Jhoan Borges"></td>
-                                <td class="col-texto"><input type="text" value="Sector 1"></td>
-                                <td class="col-texto"><input type="text" value="Plaza Central"></td>
-                                <td class="col-texto"><input type="text" value="Todos"></td>
+                                <td class="col-nombre"><input type="text" value="Jhoan Borges"></td>
+                                <td class="col-nombre"><input type="text" value="Sector 1"></td>
+                                <td class="col-lugar"><input type="text" value="Plaza Central"></td>
+                                <td class="col-grupos"><input type="text" value="Todos"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -388,7 +392,15 @@
 
     document.getElementById('btnImagen').addEventListener('click', async () => {
         const area = document.getElementById('areaExportar');
-        const canvas = await html2canvas(area, { scale: 3, useCORS: true, scrollX: 0, scrollY: 0 });
+        // Captura el elemento ignorando el scroll de la ventana para evitar cortes
+        const canvas = await html2canvas(area, { 
+            scale: 3, 
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            windowWidth: area.scrollWidth + 100, // Fuerza ancho de renderizado amplio
+            width: area.scrollWidth,
+            height: area.scrollHeight
+        });
         const link = document.createElement('a');
         link.download = 'agenda-territorios.png';
         link.href = canvas.toDataURL('image/png');
@@ -398,9 +410,14 @@
     document.getElementById('btnPDF').addEventListener('click', async () => {
         const { jsPDF } = window.jspdf;
         const area = document.getElementById('areaExportar');
-        const canvas = await html2canvas(area, { scale: 3, useCORS: true, scrollX: 0, scrollY: 0 });
+        const canvas = await html2canvas(area, { 
+            scale: 3, 
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            width: area.scrollWidth,
+            height: area.scrollHeight
+        });
         const imgData = canvas.toDataURL('image/png');
-        // Usamos orientación horizontal (landscape) para que quepa la tabla ancha
         const pdf = new jsPDF('l', 'mm', 'a4');
         const imgProps = pdf.getImageProperties(imgData);
         const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
