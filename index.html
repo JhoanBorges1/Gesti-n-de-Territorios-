@@ -52,12 +52,86 @@
         .group-card { border: 1px solid #eee; padding: 16px; border-radius: 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
         .sub-section { background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid var(--google-blue); }
 
-        /* Estilos Agenda */
-        .agenda-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 16px; background: white; }
-        .agenda-table th { background: #f8f9fa; padding: 12px; border-bottom: 2px solid #eee; text-align: left; color: var(--text-sub); }
-        .agenda-table td { padding: 8px; border-bottom: 1px solid #eee; }
-        .agenda-table input { border: none; width: 100%; padding: 4px; background: transparent; font-family: inherit; font-size: inherit; }
-        .agenda-table input:focus { outline: 1px solid var(--google-blue); border-radius: 4px; background: #fff; }
+        /* --- MEJORA ESTÉTICA ÁREA DE EXPORTACIÓN (ESTILO GEMINI) --- */
+        #areaExportar { 
+            padding: 40px; 
+            background: white; 
+            border-radius: 16px;
+        }
+
+        .export-header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+
+        .export-header h2 {
+            font-family: 'Google Sans', sans-serif;
+            font-size: 22px;
+            color: #1f1f1f;
+            margin: 0;
+        }
+
+        .export-header p {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin: 5px 0 0 0;
+        }
+
+        .agenda-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+        }
+
+        .agenda-table th { 
+            background: #ffffff; 
+            padding: 16px 12px; 
+            border-bottom: 2px solid #f1f3f4; 
+            text-align: left; 
+            color: #444746; 
+            font-weight: 500;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .agenda-table td { 
+            padding: 18px 12px; 
+            border-bottom: 1px solid #f1f3f4; 
+            font-size: 14px;
+            color: #1f1f1f;
+        }
+
+        .agenda-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .agenda-table input { 
+            border: none; 
+            width: 100%; 
+            padding: 4px 0; 
+            background: transparent; 
+            font-family: inherit; 
+            font-size: inherit; 
+            color: inherit;
+        }
+
+        .agenda-table input:focus { 
+            outline: none;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .badge-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8f0fe;
+            color: #1967d2;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -121,28 +195,40 @@
         </div>
 
         <div id="resultadoAgenda" class="hidden" style="margin-top: 24px;">
-            <div id="areaExportar" style="padding: 10px; background: white;">
+            <div id="areaExportar">
+                <div class="export-header">
+                    <h2>Agenda de Predicación</h2>
+                    <p>Congregación Vista Al Mar • Año 2026</p>
+                </div>
                 <table class="agenda-table">
                     <thead>
                         <tr>
                             <th>Día / Fecha</th>
                             <th>Conductor</th>
                             <th>Territorio</th>
-                            <th>Lugar de encuentro</th>
+                            <th>Lugar</th>
                             <th>Grupos</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><input type="text" value="Sábado 04/04"></td>
-                            <td><input type="text" value="Jhoan Borges"></td>
+                            <td><strong>Jhoan Borges</strong></td>
                             <td><input type="text" value="Sector 1"></td>
                             <td><input type="text" value="Plaza Central"></td>
-                            <td><input type="text" value="Todos"></td>
+                            <td><span class="badge-pill">Todos</span></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="Domingo 05/04"></td>
+                            <td><strong>Conductor 2</strong></td>
+                            <td><input type="text" value="Sector 4"></td>
+                            <td><input type="text" value="Salón del Reino"></td>
+                            <td><span class="badge-pill">G1, G2</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
             <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <button id="btnPDF" class="btn-outline" style="max-width: 200px;">Guardar en PDF</button>
                 <button id="btnImagen" class="btn-outline" style="max-width: 200px;">Guardar Imagen</button>
@@ -159,41 +245,9 @@
                 <div class="input-group"><label>Nombre</label><input type="text" placeholder="Ej: Jhoan" required></div>
                 <div class="input-group"><label>Apellido</label><input type="text" placeholder="Ej: Borges" required></div>
             </div>
-            <div class="input-group"><label>Teléfono</label><input type="tel" value="+58 " required></div>
-            <div class="input-group">
-                <label>¿Es Anciano?</label>
-                <select onchange="document.getElementById('grupoSugerido').classList.toggle('hidden', this.value !== 'si')">
-                    <option value="no">No</option>
-                    <option value="si">Sí</option>
-                </select>
-            </div>
-            <div id="grupoSugerido" class="input-group hidden">
-                <label>Asignar a Grupo:</label>
-                <select><script>for(let i=1;i<=8;i++) document.write(`<option value="${i}">Grupo ${i}</option>`);</script></select>
-            </div>
-            <div class="input-group">
-                <label>Días de conducción habituales</label>
-                <div class="chip-group">
-                    <script>['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(d => document.write(`<label class="chip-item"><input type="checkbox"> ${d}</label>`));</script>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Horarios Disponibles</label>
-                <div class="chip-group">
-                    <label class="chip-item"><input type="checkbox"> 7:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 9:00 am</label>
-                    <label class="chip-item"><input type="checkbox"> 11:00 am (Dom)</label>
-                    <label class="chip-item"><input type="checkbox"> 4:00 pm</label>
-                    <label class="chip-item"><input type="checkbox"> 6:30 pm (TG Lun/Vie)</label>
-                </div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div class="input-group"><label>Fecha con disponibilidad</label><input type="date"></div>
-                <div class="input-group"><label>Fecha no disponible</label><input type="date"></div>
-            </div>
             <div class="modal-footer">
                 <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Conductor</button>
+                <button type="submit" class="btn-primary">Guardar</button>
             </div>
         </form>
     </div>
@@ -206,35 +260,33 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
-    window.onclick = function(e) { if (e.target.className === 'modal') e.target.style.display = 'none'; }
 
-    // Lógica para exportar Imagen
     document.getElementById('btnImagen').addEventListener('click', async () => {
         const area = document.getElementById('areaExportar');
-        const canvas = await html2canvas(area, { scale: 2 });
+        const canvas = await html2canvas(area, { scale: 3, backgroundColor: '#ffffff' });
         const link = document.createElement('a');
-        link.download = 'agenda-territorios.png';
+        link.download = 'agenda-territorios-vista-al-mar.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
     });
 
-    // Lógica para exportar PDF
     document.getElementById('btnPDF').addEventListener('click', async () => {
         const { jsPDF } = window.jspdf;
         const area = document.getElementById('areaExportar');
-        const canvas = await html2canvas(area, { scale: 2 });
+        const canvas = await html2canvas(area, { scale: 3 });
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
         const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const imgWidth = pdfWidth - 20;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
         
-        pdf.text("Agenda de Predicación - Vista Al Mar", 10, 10);
-        pdf.addImage(imgData, 'PNG', 10, 20, pdfWidth, pdfHeight);
-        pdf.save('agenda-territorios.pdf');
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+        pdf.save('agenda-territorios-vista-al-mar.pdf');
     });
 </script>
 
 </body>
 </html>
+ 
