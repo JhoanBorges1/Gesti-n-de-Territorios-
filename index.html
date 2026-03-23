@@ -507,7 +507,8 @@ actualizarDatalists();  closeModal('modalTerritorio');
                     conductor: c ? `${c.nombre} ${c.apellido}` : "Sin Asignar",
                     territorio: t ? `${t.numero}. ${t.nombre}${t.subNombre ? ' ('+t.subNombre+')' : ''}` : "Sin Territorio",
                     lugar: t ? t.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Por Definir"),
-                    grupos: (hora === "06:30 PM") ? "Telegram" : "Todos"
+                    grupos: (hora === "06:30 PM") ? "Telegram" : "Todos",
+                    avisado: false
                 });
             });
         }
@@ -535,6 +536,15 @@ actualizarDatalists();  closeModal('modalTerritorio');
          <td contenteditable="true" onblur="actualizarCelda(${i},'conductor',this.innerText)" list="listaSugerenciasConductores">${f.conductor}</td>
           <td contenteditable="true" onblur="actualizarCelda(${i},'territorio',this.innerText)" list="listaSugerenciasTerritorios">${f.territorio}</td>
 
+function marcarComoAvisado(idx) {
+    const mes = document.getElementById('mesAgenda').value;
+    if (agendasMaestras[mes] && agendasMaestras[mes][idx]) {
+        agendasMaestras[mes][idx].avisado = true;
+        guardarLocal();
+        // Esto actualiza la lista de contactos para que el check aparezca de una vez
+        renderContactos();
+    }
+}
 
             <td contenteditable="true" onblur="actualizarCelda(${i},'lugar',this.innerText)">${f.lugar}</td>
             <td contenteditable="true" onblur="actualizarCelda(${i},'grupos',this.innerText)">${f.grupos}</td>`;
@@ -556,10 +566,16 @@ actualizarDatalists();  closeModal('modalTerritorio');
     
     // --- WHATSAPP MEJORADO (VERSIÓN B) ---
     function renderContactos() {
-        const cont = document.getElementById('listaContactos'); cont.innerHTML = '';
-        const mesActivo = document.getElementById('mesAgenda').value;
-        const hoy = new Date().getDate();
-        if (!agendasMaestras[mesActivo]) { cont.innerHTML = '<p>Sin datos para este mes.</p>'; return; }
+                 cont.innerHTML += `<div class="contact-item">
+                <div><strong>${asig.conductor}</strong><br><small>${asig.diaMes} - ${asig.hora}</small></div>
+                <div class="contact-actions">
+                    <span class="check-icon" style="display: ${asig.avisado ? 'inline' : 'none'}">✓</span>
+                    <a href="https://wa.me/${telf}?text=${encodeURIComponent(msg)}" 
+                       target="_blank" class="btn-whatsapp" 
+                       onclick="marcarComoAvisado(${i})">WhatsApp</a>
+                </div>
+            </div>`;
+
         
         const prox = agendasMaestras[mesActivo].filter(a => a.diaMes === hoy || a.diaMes === hoy + 1);
         
