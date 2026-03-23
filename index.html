@@ -357,6 +357,7 @@
     function guardarTodo() {
         conductores.sort((a,b) => a.nombre.localeCompare(b.nombre));
         territorios.sort((a,b) => (parseInt(a.numero) || 999) - (parseInt(b.numero) || 999));
+        grupos.sort((a,b) => (parseInt(a.numero) || 99) - (parseInt(b.numero) || 99));
         localStorage.setItem('vdm_conductores', JSON.stringify(conductores)); localStorage.setItem('vdm_territorios', JSON.stringify(territorios));
         localStorage.setItem('vdm_grupos', JSON.stringify(grupos)); localStorage.setItem('vdm_agendas', JSON.stringify(agendasMaestras));
         localStorage.setItem('vdm_historial', JSON.stringify(historialAgendas));
@@ -391,16 +392,7 @@
         const horas = Array.from(document.querySelectorAll('#tHoras input:checked')).map(cb => cb.value);
         const subDias = Array.from(document.querySelectorAll('#tsDias input:checked')).map(cb => cb.value);
         const subHoras = Array.from(document.querySelectorAll('#tsHoras input:checked')).map(cb => cb.value);
-        const t = { 
-            numero: document.getElementById('tNumero').value, 
-            nombre: document.getElementById('tNombre').value, 
-            lugar: document.getElementById('tLugar').value, 
-            disponibilidadDias: dias, 
-            disponibilidadHoras: horas,
-            subNombre: document.getElementById('tsNombre').value,
-            subDias: subDias,
-            subHoras: subHoras
-        };
+        const t = { numero: document.getElementById('tNumero').value, nombre: document.getElementById('tNombre').value, lugar: document.getElementById('tLugar').value, disponibilidadDias: dias, disponibilidadHoras: horas, subNombre: document.getElementById('tsNombre').value, subDias: subDias, subHoras: subHoras };
         if(i === "") territorios.push(t); else territorios[i] = t; guardarTodo(); renderListaTerritorios(); closeModal('modalTerritorio');
     });
     function renderListaTerritorios() {
@@ -413,8 +405,7 @@
     }
     function editarTerritorio(i) {
         const t = territorios[i]; document.getElementById('editIndexTerritorio').value = i;
-        document.getElementById('tNumero').value = t.numero || ""; document.getElementById('tNombre').value = t.nombre; document.getElementById('tLugar').value = t.lugar;
-        document.getElementById('tsNombre').value = t.subNombre || "";
+        document.getElementById('tNumero').value = t.numero || ""; document.getElementById('tNombre').value = t.nombre; document.getElementById('tLugar').value = t.lugar; document.getElementById('tsNombre').value = t.subNombre || "";
         document.querySelectorAll('#tDias input').forEach(cb => cb.checked = t.disponibilidadDias?.includes(cb.value));
         document.querySelectorAll('#tHoras input').forEach(cb => cb.checked = t.disponibilidadHoras?.includes(cb.value));
         document.querySelectorAll('#tsDias input').forEach(cb => cb.checked = t.subDias?.includes(cb.value));
@@ -457,3 +448,4 @@
 </script>
 </body>
 </html>
+ 
