@@ -59,6 +59,16 @@
     </style>
 </head>
 <body>
+
+<div id="auth-container" style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; font-family: 'Google Sans', sans-serif; gap: 20px; background: #f8f9fa;">
+    <h2 style="color: #1a73e8;">Gestión Vista Al Mar</h2>
+    <p style="color: #5f6368; font-size: 0.9rem;">Introduce tu correo autorizado para entrar</p>
+    <input type="email" id="email" placeholder="ejemplo@gmail.com" style="padding: 12px; border-radius: 12px; border: 1px solid #dadce0; width: 280px; font-size: 1rem;">
+    <button onclick="loginMagicLink()" class="btn-primary" style="width: 280px; padding: 14px; cursor: pointer;">Recibir Enlace de Acceso</button>
+    <p id="auth-msg" style="font-size: 0.85rem; margin-top: 10px; font-weight: 500;"></p>
+</div>
+
+<div id="app-content" class="hidden">
 <header><h1>Gestión de Territorios Vista Al Mar</h1></header>
 <div class="container">
     <section class="module-section">
@@ -254,8 +264,64 @@
 </div>
 <div id="modalGrupo" class="modal"><div class="modal-content"><h2 class="module-title">Registrar Grupo de Predicación</h2><form id="formGrupo"><input type="hidden" id="editIndexGrupo"><div class="input-group"><label>Número del Grupo</label><select id="gNumero" required><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option></select></div><div class="input-group"><label>Anciano Responsable</label><select id="gAnciano" required></select></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button><button type="submit" class="btn-primary">Guardar Cambios</button></div></form></div></div>
 <div id="modalHistorial" class="modal"><div class="modal-content"><h2 class="module-title">Historial de Agendas</h2><div id="listaHistorial"></div><div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div></div></div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+    const SUPABASE_URL = 'https://gbuqjbuwpdovuxzuysml.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const correosAutorizados = ['jhoanborges2004@gmail.com'];
+
+    async function loginMagicLink() {
+        const email = document.getElementById('email').value.trim().toLowerCase();
+        const msgElement = document.getElementById('auth-msg');
+
+        if (!email) {
+            msgElement.innerText = "Por favor, escribe un correo.";
+            msgElement.style.color = "#ea4335";
+            return;
+        }
+
+        if (!correosAutorizados.includes(email)) {
+            msgElement.innerText = "Acceso denegado. Correo no autorizado.";
+            msgElement.style.color = "#ea4335";
+            return;
+        }
+
+        msgElement.innerText = "Enviando enlace...";
+        msgElement.style.color = "#1a73e8";
+
+        const { error } = await supabase.auth.signInWithOtp({ 
+            email,
+            options: { emailRedirectTo: window.location.href }
+        });
+        
+        if (error) {
+            msgElement.innerText = "Error: " + error.message;
+            msgElement.style.color = "#ea4335";
+        } else {
+            msgElement.innerText = "¡Listo! Revisa tu bandeja de entrada.";
+            msgElement.style.color = "#34a853";
+        }
+    }
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        const authContainer = document.getElementById('auth-container');
+        const appContent = document.getElementById('app-content');
+
+        if (session && correosAutorizados.includes(session.user.email)) {
+            authContainer.style.display = 'none';
+            appContent.classList.remove('hidden');
+        } else {
+            authContainer.style.display = 'flex';
+            appContent.classList.add('hidden');
+        }
+    });
+
     let conductores = [], territorios = [], grupos = [], agendasMaestras = {}, historialAgendas = {};
     const MATRIZ_HORARIOS = { 'LUN': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 'MAR': ['07:00 AM', '09:00 AM', '04:00 PM'], 'MIÉ': ['07:00 AM', '09:00 AM'], 'JUE': ['07:00 AM', '09:00 AM', '04:00 PM'], 'VIE': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 'SÁB': ['07:00 AM', '09:00 AM'], 'DOM': ['11:00 AM'] };
     window.addEventListener('DOMContentLoaded', () => {
@@ -443,4 +509,3 @@
 </script>
 </body>
 </html>
- 
