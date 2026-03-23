@@ -60,6 +60,39 @@
 </head>
 <body>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    (async function protectRoute() {
+        // 1. Configuración de credenciales
+        const SUPABASE_URL = 'https://gbuqjbuwpdovuxzuysml.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 2. Verificación de Sesión Inmediata
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error || !session) {
+            // Si no hay sesión o hay error, expulsar al login
+            window.location.replace('index.html');
+            return;
+        }
+
+        // 3. Observer de estado (opcional, para cambios en tiempo real)
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                window.location.replace('index.html');
+            }
+        });
+
+        // 4. Función Global de Cierre de Sesión
+        window.handleLogout = async function() {
+            const { error } = await supabase.auth.signOut();
+            if (error) console.error('Error al cerrar sesión:', error.message);
+            window.location.replace('index.html');
+        };
+    })();
+</script>
+
 <div id="auth-container" style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; font-family: 'Google Sans', sans-serif; gap: 15px; background: #f8f9fa;">
     <div style="background: white; padding: 40px; border-radius: 28px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #dadce0; width: 100%; max-width: 350px; text-align: center;">
         <h2 style="color: #1a73e8; margin-bottom: 5px;">Iniciar Sesión</h2>
@@ -243,11 +276,7 @@
         }
     });
 
-    async function handleLogout() {
-        await supabaseClient.auth.signOut();
-    }
-
-    // AUTH OBSERVER
+    // AUTH OBSERVER (Maneja la visibilidad de la App basado en la sesión)
     supabaseClient.auth.onAuthStateChange((event, session) => {
         const authContainer = document.getElementById('auth-container');
         const appContent = document.getElementById('app-content');
@@ -255,14 +284,14 @@
         if (session) {
             authContainer.classList.add('hidden');
             appContent.classList.remove('hidden');
-            initApp(); // Carga los datos solo si hay sesión
+            initApp(); 
         } else {
             authContainer.classList.remove('hidden');
             appContent.classList.add('hidden');
         }
     });
 
-    // BUSINESS LOGIC (Pristine state)
+    // BUSINESS LOGIC
     let conductores = [], territorios = [], grupos = [], agendasMaestras = {}, historialAgendas = {};
     const MATRIZ_HORARIOS = { 'LUN': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 'MAR': ['07:00 AM', '09:00 AM', '04:00 PM'], 'MIÉ': ['07:00 AM', '09:00 AM'], 'JUE': ['07:00 AM', '09:00 AM', '04:00 PM'], 'VIE': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 'SÁB': ['07:00 AM', '09:00 AM'], 'DOM': ['11:00 AM'] };
 
