@@ -147,7 +147,6 @@
         <div id="listaContactos"></div>
     </section>
 </div>
-
 <div id="modalConductor" class="modal">
     <div class="modal-content">
         <h2 class="module-title" id="tituloModalConductor">Registro de Conductor</h2>
@@ -205,7 +204,6 @@
         </form>
     </div>
 </div>
-
 <div id="modalTerritorio" class="modal">
     <div class="modal-content">
         <h2 class="module-title" id="tituloModalTerritorio">Nuevo Territorio</h2>
@@ -254,10 +252,8 @@
         </form>
     </div>
 </div>
-
 <div id="modalGrupo" class="modal"><div class="modal-content"><h2 class="module-title">Registrar Grupo de Predicación</h2><form id="formGrupo"><input type="hidden" id="editIndexGrupo"><div class="input-group"><label>Número del Grupo</label><select id="gNumero" required><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option></select></div><div class="input-group"><label>Anciano Responsable</label><select id="gAnciano" required></select></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cancelar</button><button type="submit" class="btn-primary">Guardar Cambios</button></div></form></div></div>
 <div id="modalHistorial" class="modal"><div class="modal-content"><h2 class="module-title">Historial de Agendas</h2><div id="listaHistorial"></div><div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div></div></div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
     let conductores = [], territorios = [], grupos = [], agendasMaestras = {}, historialAgendas = {};
@@ -273,7 +269,6 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
-    
     function generarNuevaAgenda() {
         const mes = document.getElementById('mesAgenda').value;
         const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
