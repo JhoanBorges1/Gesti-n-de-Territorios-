@@ -56,6 +56,58 @@
         .contact-actions { display: flex; align-items: center; gap: 10px; }
         .btn-whatsapp { background: #25D366; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
         .check-icon { color: var(--google-green); font-weight: bold; display: none; }
+        /* --- NAVEGACIÓN RESPONSIVA V2 --- */
+        .tab-bar {
+            display: flex;
+            justify-content: space-around;
+            background: var(--gemini-card);
+            border-bottom: 1px solid #dadce0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0;
+            width: 100%;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 14px 5px;
+            border: none;
+            background: none;
+            font-family: 'Google Sans', sans-serif;
+            font-weight: 500;
+            color: var(--text-sub);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            text-align: center;
+            border-radius: 0;
+            width: auto;
+            max-width: none;
+        }
+        .tab-btn.active {
+            color: var(--google-blue);
+            border-bottom: 3px solid var(--google-blue);
+            background: rgba(26, 115, 232, 0.04);
+        }
+        .tab-content { display: none; padding: 16px 0; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+
+        /* Ajustes para Desktop */
+        @media (min-width: 768px) {
+            .tab-btn { font-size: 1rem; padding: 16px 24px; flex: none; }
+            .container { padding: 0 24px; max-width: 900px; }
+        }
+
+        /* Optimización de tablas para móvil */
+        @media (max-width: 600px) {
+            .agenda-table { font-size: 0.75rem; }
+            .agenda-table th, .agenda-table td { padding: 8px 4px; }
+            .module-section { padding: 16px; border-radius: 16px; margin-bottom: 16px; }
+            header h1 { font-size: 1rem; }
+            #areaExportar { min-width: 100%; padding: 10px; }
+        }
+
     </style>
 </head>
 <body>
@@ -92,8 +144,15 @@
         <div style="width: 80px;"></div> <h1>Gestión de Territorios Vista Al Mar</h1>
         <button class="btn-danger-outline" onclick="handleLogout()" style="width: auto; margin-right: 10px;">Salir</button>
     </header>
-    
-    <div class="container">
+        <nav class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('tab-agenda')">Agenda</button>
+        <button class="tab-btn" onclick="switchTab('tab-personal')">Personal</button>
+        <button class="tab-btn" onclick="switchTab('tab-territorios')">Territorios</button>
+        <button class="tab-btn" onclick="switchTab('tab-config')">Grupos</button>
+    </nav>
+
+    <div class="container">    <div id="tab-personal" class="tab-content">
+
         <section class="module-section">
             <div class="module-title">Conductores</div>
             <div class="btn-vertical-group">
@@ -103,6 +162,7 @@
             <div id="listaConductores" class="hidden" style="margin-top:16px;"></div>
         </section>
 
+</div> <div id="tab-territorios" class="tab-content">
         <section class="module-section">
             <div class="module-title">Territorios</div>
             <div class="btn-vertical-group">
@@ -111,7 +171,7 @@
             </div>
             <div id="listaTerritorios" class="hidden" style="margin-top:16px;"></div>
         </section>
-
+</div> <div id="tab-config" class="tab-content">
         <section class="module-section">
             <div class="module-title">Grupos de Predicación</div>
             <div class="btn-vertical-group">
@@ -120,7 +180,7 @@
             </div>
             <div id="listaGrupos" class="hidden" style="margin-top:16px;"></div>
         </section>
-
+</div> <div id="tab-agenda" class="tab-content active">
         <section class="module-section">
             <div class="module-title">Generación de Territorios</div>
             <div class="btn-vertical-group">
@@ -177,7 +237,7 @@
             <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Próximas asignaciones (2 días):</p>
             <div id="listaContactos"></div>
         </section>
-    </div>
+   </div></div>
 
     <div id="modalConductor" class="modal">
         <div class="modal-content">
@@ -210,7 +270,14 @@
                 </div>
                 <div class="input-group"><label>Lugares de encuentro</label><textarea id="tLugar" rows="2" placeholder="Describe puntos de reunión..."></textarea></div>
                 <div class="input-group"><label>Días Sugeridos</label><div class="chip-group" id="tDias"><label class="chip-item"><input type="checkbox" value="LUN"> Lun</label><label class="chip-item"><input type="checkbox" value="MAR"> Mar</label><label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label><label class="chip-item"><input type="checkbox" value="JUE"> Jue</label><label class="chip-item"><input type="checkbox" value="VIE"> Vie</label><label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label><label class="chip-item"><input type="checkbox" value="DOM"> Dom</label></div></div>
-                <div class="input-group"><label>Horarios Sugeridos</label><div class="chip-group" id="tHoras"><label class="chip-item"><input type="checkbox" value="07:00 AM"> 7 am</label><label class="chip-item"><input type="checkbox" value="09:00 AM"> 9 am</label><label class="chip-item"><input type="checkbox" value="11:00 AM"> 11 am</label><label class="chip-item"><input type="checkbox" value="04:00 PM"> 4 pm</label></div></div>
+                <div class="chip-group" id="tHoras">
+    <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7 am</label>
+    <label class="chip-item"><input type="checkbox" value="09:00 AM"> 9 am</label>
+    <label class="chip-item"><input type="checkbox" value="11:00 AM"> 11 am</label>
+    <label class="chip-item"><input type="checkbox" value="04:00 PM"> 4 pm</label>
+    <label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm</label>
+</div>
+
                 <div class="sub-section">
                     <label style="color:#1a73e8; font-weight:700;">Configuración de Subterritorio</label>
                     <div class="input-group" style="margin-top:10px;"><input type="text" id="tsNombre" placeholder="Nombre del subterritorio"></div>
@@ -221,6 +288,8 @@
                     <label style="font-size:0.75rem;">Horarios específicos:</label>
                     <div class="chip-group" id="tsHoras">
                         <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7 am</label><label class="chip-item"><input type="checkbox" value="09:00 AM"> 9 am</label><label class="chip-item"><input type="checkbox" value="04:00 PM"> 4 pm</label>
+                        <label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm</label>
+
                     </div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button><button type="submit" class="btn-primary">Guardar</button></div>
@@ -250,6 +319,19 @@
         else { auth.classList.remove('hidden'); app.classList.add('hidden'); }
     });
 
+function switchTab(tabId) {
+document.querySelectorAll('.tab-btn').forEach(btn => {
+btn.classList.remove('active');
+});
+document.querySelectorAll('.tab-content').forEach(content => {
+content.classList.remove('active');
+});
+const selectedBtn = Array.from(document.querySelectorAll('.tab-btn'))
+.find(btn => btn.getAttribute('onclick').includes(tabId));
+if (selectedBtn) selectedBtn.classList.add('active');
+document.getElementById(tabId).classList.add('active');
+localStorage.setItem('vdm_active_tab', tabId);
+}
     // --- VARIABLES ---
     let conductores = [], territorios = [], grupos = [], agendasMaestras = {}, historialAgendas = {};
     const MATRIZ_HORARIOS = { 'LUN': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 'MAR': ['07:00 AM', '09:00 AM', '04:00 PM'], 'MIÉ': ['07:00 AM', '09:00 AM'], 'JUE': ['07:00 AM', '09:00 AM', '04:00 PM'], 'VIE': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 'SÁB': ['07:00 AM', '09:00 AM'], 'DOM': ['11:00 AM'] };
@@ -281,7 +363,9 @@
         } catch (e) { console.warn("Error sincronización nube."); }
         
         renderListaConductores(); renderListaTerritorios(); renderListaGrupos(); renderHistorial(); cargarAgendaDelMes();
-    }
+        const lastTab = localStorage.getItem('vdm_active_tab') || 'tab-agenda';
+    switchTab(lastTab);
+}
 
     function guardarLocal() { 
         const payload = { conductores, territorios, grupos, registros: agendasMaestras, historial: historialAgendas };
