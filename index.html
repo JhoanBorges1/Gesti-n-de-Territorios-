@@ -81,8 +81,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-.sub-section { background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid var(--google-blue); text-align: left; }
-  .hidden {display: none !important;} 
+        .sub-section { background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid var(--google-blue); text-align: left; }
     </style>
 
 
@@ -647,27 +646,25 @@ async function descargarImagen() {
         tr.style.display = v ? '' : 'none';
     });
 
-    // 2. LA MAGIA: Forzar tamaño estándar ignorando el zoom del navegador
+       // 2. LA MAGIA: Forzar tamaño estándar ignorando el zoom del navegador
     const opciones = {
-            const opciones = {
-        scale: 3,             // MODIFICADO: Subimos de 2 a 3 para máxima nitidez (HD)
+        scale: 3,             // Máxima nitidez (HD)
         useCORS: true,
-        width: 850,           // MODIFICADO: Ajuste exacto al ancho del contenedor base
+        width: 850,           // Ajuste exacto al contenedor base
         windowWidth: 1000,    
         logging: false,
         backgroundColor: "#ffffff",
         onclone: (clonedDoc) => {
-            // INYECTADO: Ajuste quirúrgico para que la imagen no salga cortada en los bordes
             const areaClonada = clonedDoc.getElementById('areaExportar');
             if(areaClonada) {
-                areaClonada.style.padding = '40px'; // Añade aire profesional al clon
+                areaClonada.style.padding = '40px'; 
                 areaClonada.style.margin = '0';
             }
         }
     };
-    };
 
     try {
+
         const canvas = await html2canvas(area, opciones);
         const link = document.createElement('a'); 
         link.download = `Agenda_VistaAlMar_${rango}.png`; 
@@ -821,4 +818,4 @@ document.getElementById('tablaCuerpoAgenda').addEventListener('input', function(
 <datalist id="listaSugerenciasTerritorios"></datalist>
 
 </body>
-    </html> 
+</html>
