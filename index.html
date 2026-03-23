@@ -318,6 +318,7 @@
             disponibilidadHoras: Array.from(document.querySelectorAll('#cHoras input:checked')).map(cb => cb.value),
             fechaDisponible: document.getElementById('cFechaDisponible').value, fechaNoDisponible: document.getElementById('cFechaNoDisponible').value
         };
+if (!validarDatosConductor(c)) return;
         if (index === "") conductores.push(c); else conductores[index] = c;
         guardarLocal(); renderListaConductores(); actualizarSelectAncianos(); closeModal('modalConductor');
     });
@@ -383,12 +384,13 @@
     function generarNuevaAgenda() {
         const mes = document.getElementById('mesAgenda').value;
         const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
-        const diasEnMes = new Date(2026, mes, 0).getDate();
+        const anio = obtenerAnioTrabajo();
+        const diasEnMes = new Date(anio, mes, 0).getDate();
         const diasSemana = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
         let nuevaAgenda = [];
 
         for (let i = 1; i <= diasEnMes; i++) {
-            const fechaObj = new Date(2026, mes - 1, i);
+            const fechaObj = new Date(anio, mes - 1, i);
             const diaNombre = diasSemana[fechaObj.getDay()];
             const fechaIso = fechaObj.toISOString().split('T')[0];
             const horariosDelDia = MATRIZ_HORARIOS[diaNombre] || [];
@@ -410,7 +412,7 @@
                     !territoriosUsadosHoy.includes(t.nombre)
                 );
                 
-                const c = condsDisponibles.length > 0 ? condsDisponibles[Math.floor(Math.random() * condsDisponibles.length)] : null;
+                                const c = obtenerConductorMenosAsignado(condsDisponibles, nuevaAgenda);
                 const t = terrsDisponibles.length > 0 ? terrsDisponibles[Math.floor(Math.random() * terrsDisponibles.length)] : null;
 
                 if (t) territoriosUsadosHoy.push(t.nombre);
@@ -430,7 +432,7 @@
     }
 
     function renderAgenda(datos, nombreMes) {
-        document.getElementById('fechaActualDisplay').innerText = `${nombreMes} 2026`;
+                document.getElementById('fechaActualDisplay').innerText = `${nombreMes} ${anio}`;
         const cuerpo = document.getElementById('tablaCuerpoAgenda'); cuerpo.innerHTML = '';
         let ultimoDia = null;
         datos.forEach((f, i) => {
@@ -533,6 +535,69 @@
         else document.getElementById('resultadoAgenda').classList.add('hidden'); 
         renderContactos(); 
     }
+    
+    // --- FUNCIONES DE ROBUSTEZ VISTA AL MAR ---
+
+function limpiarTextoSeguro(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML.trim();
+}
+
+function validarDatosConductor(c) {
+    if (!c.nombre || c.nombre.trim().length < 2) {
+        alert("El nombre es obligatorio y debe ser válido.");
+        return false;
+    }
+    if (!c.telefono || c.telefono.length < 8) {
+        alert("Por favor, ingresa un número de teléfono completo.");
+        return false;
+    }
+    return true;
+}
+
+function obtenerAnioTrabajo() {
+    return new Date().getFullYear();
+}
+
+async function sincronizacionSegura() {
+    console.log("Iniciando respaldo...");
+    try {
+        await guardarSincronizar();
+        console.log("Sincronización exitosa.");
+    } catch (e) {
+        console.warn("Fallo de red, se mantiene copia local.");
+    }
+}
+
+// --- MOTOR DE EQUIDAD (ASIGNACIÓN JUSTA) ---
+
+function obtenerConductorMenosAsignado(disponibles, agendaActual) {
+    if (disponibles.length === 0) return null;
+    
+    // 1. Contar cuántas veces aparece cada conductor en la agenda generada hasta ahora
+    const conteo = {};
+    disponibles.forEach(c => {
+        const nombreCompleto = `${c.nombre} ${c.apellido}`;
+        conteo[nombreCompleto] = agendaActual.filter(a => a.conductor === nombreCompleto).length;
+    });
+
+    // 2. Ordenar a los disponibles por quien tiene menos asignaciones
+    disponibles.sort((a, b) => {
+        const nombreA = `${a.nombre} ${a.apellido}`;
+        const nombreB = `${b.nombre} ${b.apellido}`;
+        return conteo[nombreA] - conteo[nombreB];
+    });
+
+    // 3. Tomar a los que tienen el mínimo de asignaciones y elegir uno al azar entre ellos
+    const minAsignaciones = conteo[`${disponibles[0].nombre} ${disponibles[0].apellido}`];
+    const candidatosFinales = disponibles.filter(c => 
+        conteo[`${c.nombre} ${c.apellido}`] === minAsignaciones
+    );
+
+    return candidatosFinales[Math.floor(Math.random() * candidatosFinales.length)];
+}
+
 </script>
 </body>
 </html>
