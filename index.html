@@ -517,43 +517,31 @@ actualizarDatalists();  closeModal('modalTerritorio');
         document.getElementById('resultadoAgenda').classList.remove('hidden');
     }
 
-    function renderAgenda(datos, nombreMes) {
-    const anioActual = obtenerAnioTrabajo();
-    document.getElementById('fechaActualDisplay').innerText = `${nombreMes} ${anioActual}`;
-    const cuerpo = document.getElementById('tablaCuerpoAgenda');
-    cuerpo.innerHTML = '';
-    let ultimoDia = null;
+     function renderAgenda(datos, nombreMes) {
+        const anioActual = obtenerAnioTrabajo();
+        document.getElementById('fechaActualDisplay').innerText = `${nombreMes} ${anioActual}`;
+        const cuerpo = document.getElementById('tablaCuerpoAgenda');
+        cuerpo.innerHTML = '';
+        let ultimoDia = null;
 
-    datos.forEach((f, i) => {
-        const tr = document.createElement('tr');
-        if (ultimoDia && ultimoDia !== f.diaMes) tr.className = 'day-separator';
-        
-        // CORRECCIÓN: Uso de backticks (`) y llaves correctas
-        tr.innerHTML = `
-            <td class="bold-cell">${ultimoDia !== f.diaMes ? f.diaSemana : ''}</td>
-            <td class="bold-cell">${ultimoDia !== f.diaMes ? f.diaMes : ''}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'hora',this.innerText)">${f.hora}</td>
-         <td contenteditable="true" onblur="actualizarCelda(${i},'conductor',this.innerText)" list="listaSugerenciasConductores">${f.conductor}</td>
-          <td contenteditable="true" onblur="actualizarCelda(${i},'territorio',this.innerText)" list="listaSugerenciasTerritorios">${f.territorio}</td>
-
-function marcarComoAvisado(idx) {
-    const mes = document.getElementById('mesAgenda').value;
-    if (agendasMaestras[mes] && agendasMaestras[mes][idx]) {
-        agendasMaestras[mes][idx].avisado = true;
-        guardarLocal();
-        // Esto actualiza la lista de contactos para que el check aparezca de una vez
+        datos.forEach((f, i) => {
+            const tr = document.createElement('tr');
+            if (ultimoDia && ultimoDia !== f.diaMes) tr.className = 'day-separator';
+            
+            tr.innerHTML = `
+                <td class="bold-cell">${ultimoDia !== f.diaMes ? f.diaSemana : ''}</td>
+                <td class="bold-cell">${ultimoDia !== f.diaMes ? f.diaMes : ''}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i},'hora',this.innerText)">${f.hora}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i},'conductor',this.innerText)">${f.conductor}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i},'territorio',this.innerText)">${f.territorio}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i},'lugar',this.innerText)">${f.lugar}</td>
+                <td contenteditable="true" onblur="actualizarCelda(${i},'grupos',this.innerText)">${f.grupos}</td>`;
+            
+            cuerpo.appendChild(tr);
+            ultimoDia = f.diaMes;
+        });
         renderContactos();
     }
-}
-
-            <td contenteditable="true" onblur="actualizarCelda(${i},'lugar',this.innerText)">${f.lugar}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'grupos',this.innerText)">${f.grupos}</td>`;
-        
-        cuerpo.appendChild(tr);
-        ultimoDia = f.diaMes;
-    });
-    renderContactos();
-}
 
 
     function actualizarCelda(idx, campo, valor) { 
@@ -566,28 +554,55 @@ function marcarComoAvisado(idx) {
     
     // --- WHATSAPP MEJORADO (VERSIÓN B) ---
     function renderContactos() {
-                 cont.innerHTML += `<div class="contact-item">
-                <div><strong>${asig.conductor}</strong><br><small>${asig.diaMes} - ${asig.hora}</small></div>
-                <div class="contact-actions">
-                    <span class="check-icon" style="display: ${asig.avisado ? 'inline' : 'none'}">✓</span>
-                    <a href="https://wa.me/${telf}?text=${encodeURIComponent(msg)}" 
-                       target="_blank" class="btn-whatsapp" 
-                       onclick="marcarComoAvisado(${i})">WhatsApp</a>
-                </div>
-            </div>`;
+    const cont = document.getElementById('listaContactos'); 
+    if (!cont) return;
+    cont.innerHTML = '';
+    
+    const mesActivo = document.getElementById('mesAgenda').value;
+    const hoy = new Date().getDate();
+    
+    if (!agendasMaestras[mesActivo]) return;
 
+    // Filtramos las asignaciones de hoy y mañana
+    const prox = agendasMaestras[mesActivo].filter(a => a.diaMes === hoy || a.diaMes === hoy + 1);
+    
+    prox.forEach((asig) => {
+        // Buscamos el índice real en la agenda para que el check se guarde en la posición correcta
+        const idxReal = agendasMaestras[mesActivo].indexOf(asig);
         
-        const prox = agendasMaestras[mesActivo].filter(a => a.diaMes === hoy || a.diaMes === hoy + 1);
+        const cond = conductores.find(c => `${c.nombre} ${c.apellido}`.toLowerCase() === asig.conductor.toLowerCase());
+        const telf = cond ? cond.telefono.replace(/\s/g, '').replace('+', '') : "58";
         
-        prox.forEach((asig, i) => {
-            const cond = conductores.find(c => `${c.nombre} ${c.apellido}`.toLowerCase() === asig.conductor.toLowerCase());
-            const telf = cond ? cond.telefono.replace(/\s/g, '').replace('+', '') : "58";
+        const msg = `¡Hola! ¿Cómo estás?. Este mensaje es para notificarte que tienes el privilegio de dirigir el grupo del ${asig.diaSemana.toLowerCase()} ${asig.diaMes} a las ${asig.hora}. Ese día estarán abarcando el territorio ${asig.territorio}. El lugar de encuentro será en ${asig.lugar}. ¿Podrías confirmarme si vas a asistir? Estaré atento a tu respuesta. ¡Muchas gracias!`;
+        
+        cont.innerHTML += `<div class="contact-item">
+            <div><strong>${asig.conductor}</strong><br><small>${asig.diaMes} - ${asig.hora}</small></div>
+            <div class="contact-actions">
+                <span class="check-icon" style="display: ${asig.avisado ? 'inline' : 'none'}">✓</span>
+                <a href="https://wa.me/${telf}?text=${encodeURIComponent(msg)}" 
+                   target="_blank" class="btn-whatsapp" 
+                   onclick="marcarComoAvisado(${idxReal})">WhatsApp</a>
+            </div>
+        </div>`;
+    });
+}
+    function marcarComoAvisado(idx) {
+        const mes = document.getElementById('mesAgenda').value;
+        if (agendasMaestras[mes] && agendasMaestras[mes][idx]) {
+            // Actualizamos el estado lógico
+            agendasMaestras[mes][idx].avisado = true;
             
-            const msg = `¡Hola! ¿Cómo estás?. Este mensaje es para notificarte que tienes el privilegio de dirigir el grupo del ${asig.diaSemana.toLowerCase()} ${asig.diaMes} a las ${asig.hora}. Ese día estarán abarcando el territorio ${asig.territorio}. El lugar de encuentro será en ${asig.lugar}. ¿Podrías confirmarme si vas a asistir? Estaré atento a tu respuesta. ¡Muchas gracias!`;
+            // Guardamos el cambio en LocalStorage
+            guardarLocal();
             
-            cont.innerHTML += `<div class="contact-item"><div><strong>${asig.conductor}</strong><br><small>${asig.diaMes} - ${asig.hora}</small></div><div class="contact-actions"><span id="chk-${i}" class="check-icon">✓</span><a href="https://wa.me/${telf}?text=${encodeURIComponent(msg)}" target="_blank" class="btn-whatsapp" onclick="document.getElementById('chk-${i}').style.display='inline'">WhatsApp</a></div></div>`;
-        });
+            // Refrescamos la lista de contactos para mostrar el check verde
+            renderContactos();
+            
+            // Opcional: Sincronización automática si quieres que el check suba a la nube de una vez
+            // sincronizacionSegura(); 
+        }
     }
+
 
     // --- HISTORIAL ---
     function guardarEnHistorial() {
@@ -633,12 +648,22 @@ async function descargarImagen() {
 
     // 2. LA MAGIA: Forzar tamaño estándar ignorando el zoom del navegador
     const opciones = {
-        scale: 2,             // Alta calidad (Retina)
+            const opciones = {
+        scale: 3,             // MODIFICADO: Subimos de 2 a 3 para máxima nitidez (HD)
         useCORS: true,
-        width: 900,           // Ancho fijo estándar
-        windowWidth: 1000,    // Simula una ventana de este ancho
+        width: 850,           // MODIFICADO: Ajuste exacto al ancho del contenedor base
+        windowWidth: 1000,    
         logging: false,
-        backgroundColor: "#ffffff"
+        backgroundColor: "#ffffff",
+        onclone: (clonedDoc) => {
+            // INYECTADO: Ajuste quirúrgico para que la imagen no salga cortada en los bordes
+            const areaClonada = clonedDoc.getElementById('areaExportar');
+            if(areaClonada) {
+                areaClonada.style.padding = '40px'; // Añade aire profesional al clon
+                areaClonada.style.margin = '0';
+            }
+        }
+    };
     };
 
     try {
@@ -762,6 +787,32 @@ document.addEventListener('click', function(e) {
         actualizarDatalists();
     }
 });
+// --- MOTOR DE VINCULACIÓN DE SUGERENCIAS EN TABLA ---
+document.getElementById('tablaCuerpoAgenda').addEventListener('click', function(e) {
+    if (e.target.tagName === 'TD' && e.target.hasAttribute('contenteditable')) {
+        const celda = e.target;
+        const col = celda.cellIndex;
+        
+        // Columna 3 (Conductor) o Columna 4 (Territorio)
+        if (col === 3) {
+            celda.setAttribute('list', 'listaSugerenciasConductores');
+        } else if (col === 4) {
+            celda.setAttribute('list', 'listaSugerenciasTerritorios');
+        }
+        
+        actualizarDatalists(); // Actualiza las opciones antes de mostrar
+    }
+});
+
+// Validación visual al escribir (Si el nombre no existe, se pone rojo)
+document.getElementById('tablaCuerpoAgenda').addEventListener('input', function(e) {
+    if (e.target.cellIndex === 3) { // Solo para conductores
+        const valor = e.target.innerText.trim();
+        const existe = conductores.some(c => `${c.nombre} ${c.apellido}` === valor);
+        e.target.style.color = (existe || valor === "" || valor === "Sin Asignar") ? 'var(--text-main)' : 'var(--google-red)';
+    }
+});
+
 
 </script>
 
@@ -769,4 +820,4 @@ document.addEventListener('click', function(e) {
 <datalist id="listaSugerenciasTerritorios"></datalist>
 
 </body>
-</html>
+    </html> 
