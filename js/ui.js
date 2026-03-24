@@ -418,6 +418,17 @@ document.getElementById('formTerritorio')?.addEventListener('submit', (e) => {
     if (agregarOEditarTerritorio(datos)) closeModal('modalTerritorio');
 });
 
+/* Añadir esto al final de js/ui.js si no lo tienes */
+document.getElementById('formGrupo')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const g = { 
+        numero: document.getElementById('gNumero').value, 
+        encargado: document.getElementById('gEncargado').value 
+    };
+    guardarGrupo(g); // Esta función está en app.js
+    closeModal('modalGrupo');
+});
+
 
 
 
