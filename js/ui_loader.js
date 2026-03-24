@@ -1,4 +1,4 @@
-/* ARCHIVO: js/ui_loader.js - ESTRUCTURA DINÁMICA VISTA AL MAR */
+/* ARCHIVO: js/ui_loader.js - ESTRUCTURA DINÁMICA DETALLADA VISTA AL MAR */
 
 function inyectarEstructuraTab(tabId) {
     const tab = document.getElementById(tabId);
@@ -12,21 +12,23 @@ function inyectarEstructuraTab(tabId) {
             tab.innerHTML = `
                 <section class="module-section">
                     <div class="module-title">Generación de Territorios</div>
-                    <div class="input-group">
-                        <label style="font-weight:700;">Seleccionar mes (2026)</label>
-                        <select id="mesAgenda" onchange="cargarAgendaDelMes()">
-                            <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
-                            <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
-                            <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
-                            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-                        </select>
+                    <div class="btn-vertical-group" style="display: flex; flex-direction: column; gap: 16px;">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label style="font-weight:700;">Seleccionar mes (2026)</label>
+                            <select id="mesAgenda" onchange="cargarAgendaDelMes()">
+                                <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+                                <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+                                <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+                                <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn-primary" onclick="generarNuevaAgenda()">Generar Todo el Mes</button>
+                            <button class="btn-outline" onclick="openModal('modalHistorial')">Historial Guardado</button>
+                            <button id="btn-sync-save" class="btn-primary" onclick="guardarSincronizar()" style="background: var(--google-green);">Sincronizar Nube</button>
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top:10px;">
-                        <button class="btn-primary" onclick="generarNuevaAgenda()">Generar Todo el Mes</button>
-                        <button class="btn-outline" onclick="openModal('modalHistorial')">Historial Guardado</button>
-                        <button id="btn-sync-save" class="btn-primary" onclick="guardarSincronizar()" style="background: var(--google-green);">Sincronizar Nube</button>
-                    </div>
-
+                    
                     <div id="resultadoAgenda" class="hidden" style="margin-top: 24px;">
                         <div class="table-responsive">
                             <div id="areaExportar">
@@ -73,7 +75,7 @@ function inyectarEstructuraTab(tabId) {
             tab.innerHTML = `
                 <section class="module-section">
                     <div class="module-title">Conductores</div>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button class="btn-primary" onclick="openModalConductor()">Agregar Conductor</button>
                         <button class="btn-outline" onclick="toggleVisibility('listaConductores')">Ver Lista y Editar</button>
                     </div>
@@ -84,8 +86,8 @@ function inyectarEstructuraTab(tabId) {
         case 'tab-territorios':
             tab.innerHTML = `
                 <section class="module-section">
-                    <div class="module-title">Territorios</div>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="module-title">Territorios y Subterritorios</div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button class="btn-primary" onclick="openModalTerritorio()">Agregar Territorio</button>
                         <button class="btn-outline" onclick="toggleVisibility('listaTerritorios')">Ver Lista y Editar</button>
                     </div>
@@ -97,7 +99,7 @@ function inyectarEstructuraTab(tabId) {
             tab.innerHTML = `
                 <section class="module-section">
                     <div class="module-title">Grupos de Predicación</div>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button class="btn-primary" onclick="openModalGrupo()">Agregar Grupo</button>
                         <button class="btn-outline" onclick="toggleVisibility('listaGrupos')">Ver Grupos Registrados</button>
                     </div>
