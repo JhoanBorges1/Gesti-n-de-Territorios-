@@ -316,10 +316,9 @@ function actualizarSelectAncianos() {
 // --- 7. RENDERIZADO DE LA TABLA DE AGENDA (CON ESTÉTICA ORIGINAL) ---
 
 function renderAgenda(datos, nombreMes) {
+    const anioActual = 2026;
     const displayFecha = document.getElementById('fechaActualDisplay');
-    if (displayFecha) {
-        displayFecha.innerText = `${nombreMes} ${obtenerAnioTrabajo()}`;
-    }
+    if (displayFecha) displayFecha.innerText = `${nombreMes} ${anioActual}`;
     
     const cuerpo = document.getElementById('tablaCuerpoAgenda');
     if (!cuerpo) return;
@@ -330,28 +329,28 @@ function renderAgenda(datos, nombreMes) {
     datos.forEach((f, i) => {
         const tr = document.createElement('tr');
         
-        // Si cambia el día del mes, añadimos el separador visual (línea azul gruesa)
+        // Separador visual azul cuando cambia el día
         if (ultimoDia !== null && ultimoDia !== f.diaMes) {
             tr.className = 'day-separator';
         }
         
-        // Mantenemos las clases bold-cell para que el Día y la Fecha resalten
         tr.innerHTML = `
-            <td class="bold-cell">${ultimoDia !== f.diaMes ? f.diaSemana : ''}</td>
+            <td class="bold-cell" style="color: var(--google-blue)">${ultimoDia !== f.diaMes ? f.diaSemana : ''}</td>
             <td class="bold-cell">${ultimoDia !== f.diaMes ? f.diaMes : ''}</td>
             <td contenteditable="true" onblur="actualizarCelda(${i},'hora',this.innerText)">${f.hora}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'conductor',this.innerText)">${f.conductor}</td>
+            <td contenteditable="true" onblur="actualizarCelda(${i},'conductor',this.innerText)" style="font-weight: 500;">${f.conductor}</td>
             <td contenteditable="true" onblur="actualizarCelda(${i},'territorio',this.innerText)">${f.territorio}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'lugar',this.innerText)">${f.lugar}</td>
+            <td contenteditable="true" onblur="actualizarCelda(${i},'lugar',this.innerText)" style="font-size: 0.75rem; color: var(--text-sub);">${f.lugar}</td>
             <td contenteditable="true" onblur="actualizarCelda(${i},'grupos',this.innerText)">${f.grupos}</td>`;
         
         cuerpo.appendChild(tr);
         ultimoDia = f.diaMes;
     });
     
-    // Cada vez que renderizamos la agenda, refrescamos los recordatorios de WhatsApp
-    renderContactos();
+    // Actualizamos los botones de WhatsApp para los próximos 2 días
+    if (typeof renderContactos === 'function') renderContactos();
 }
+
 
 // --- 8. WHATSAPP Y RECORDATORIOS ---
 
