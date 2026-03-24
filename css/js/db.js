@@ -1,26 +1,56 @@
-// Configuración de Supabase
+// --- CONFIGURACIÓN DE SUPABASE ---
 const SUPABASE_URL = 'https://gbuqjbuwpdovuxzuysml.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
-// Usamos window para que el móvil no se pierda
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Objeto de datos global
-let data_app = {
-    conductores: [],
-    territorios: [],
-    grupos: [],
-    historial: {}
-};
+// --- VARIABLES GLOBALES DE DATOS ---
+let conductores = [], territorios = [], grupos = [], agendasMaestras = {}, historialAgendas = {};
 
-function guardarLocal() {
-    localStorage.setItem('vdm_data_v1', JSON.stringify(data_app));
+// --- PERSISTENCIA LOCAL ---
+function guardarLocal() { 
+    const payload = { 
+        conductores, 
+        territorios, 
+        grupos, 
+        registros: agendasMaestras, 
+        historial: historialAgendas 
+    };
+    localStorage.setItem('vdm_data', JSON.stringify(payload)); 
 }
 
 function cargarLocal() {
-    const localData = localStorage.getItem('vdm_data_v1');
-    if (localData) {
-        data_app = JSON.parse(localData);
-        return true;
+    const local = JSON.parse(localStorage.getItem('vdm_data') || '{}');
+    conductores = local.conductores || [];
+    territorios = local.territorios || [];
+    grupos = local.grupos || [];
+    agendasMaestras = local.registros || {};
+    historialAgendas = local.historial || {};
+}
+
+// --- SINCRONIZACIÓN NUBE ---
+async function descargarNube() {
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            const { data, error } = await supabaseClient
+                .from('registros_tablas')
+                .select('datos')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+            
+            if (data && data.datos) {
+                const d = data.datos;
+                conductores = d.conductores || conductores;
+                territorios = d.territorios || territorios;
+                grupos = d.grupos || grupos;
+                agendasMaestras = d.registros || agendasMaestras;
+                historialAgendas = d.historial || historialAgendas;
+                guardarLocal();
+                return true;
+            }
+        }
+    } catch (e) { 
+        console.warn("Error descargando de la nube:", e); 
     }
     return false;
 }
@@ -29,23 +59,26 @@ async function guardarSincronizar() {
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) return;
-        await supabaseClient.from('registros_tablas').upsert({ 
-            user_id: session.user.id, 
-            datos_json: data_app 
-        }, { onConflict: 'user_id' });
-    } catch (e) { console.error(e); }
-}
 
-async function descargarNube() {
-    try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) return;
-        const { data, error } = await supabaseClient.from('registros_tablas').select('datos_json').eq('user_id', session.user.id).maybeSingle();
-        if (data && data.datos_json) {
-            data_app = data.datos_json;
-            guardarLocal();
-            return true;
-        }
-    } catch (e) { console.error(e); }
-    return false;
+        const payload = { 
+            registros: agendasMaestras, 
+            conductores, 
+            territorios, 
+            grupos, 
+            historial: historialAgendas 
+        };
+
+        const { error } = await supabaseClient
+            .from('registros_tablas')
+            .upsert([{ 
+                user_id: session.user.id, 
+                datos: payload 
+            }]);
+
+        if (error) throw error;
+        return true;
+    } catch (e) {
+        console.error("Error al sincronizar:", e);
+        return false;
+    }
 }
