@@ -1,12 +1,13 @@
-/* ARCHIVO: js/app.js - PARTE 1: MOTOR LÓGICO Y SINCRONIZACIÓN */
+/* ARCHIVO: js/app.js - MOTOR LÓGICO, SINCRONIZACIÓN Y EQUIDAD VISTA AL MAR */
 
-// --- 1. ESTADO GLOBAL ---
+// --- 1. ESTADO GLOBAL Y CONFIGURACIÓN ---
 let conductores = [];
 let territorios = [];
 let grupos = [];
-let agendasMaestras = {}; // Memoria de trabajo (volátil)
-let historialAgendas = {}; // Memoria oficial (permanente)
+let agendasMaestras = {}; // Agendas generadas en la sesión actual
+let historialAgendas = {}; // Agendas guardadas oficialmente en la nube
 
+// Matriz de horarios oficiales (Incluyendo la mejora de las 11:00 AM)
 const MATRIZ_HORARIOS = { 
     'LUN': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 
     'MAR': ['07:00 AM', '09:00 AM', '04:00 PM'], 
@@ -14,22 +15,26 @@ const MATRIZ_HORARIOS = {
     'JUE': ['07:00 AM', '09:00 AM', '04:00 PM'], 
     'VIE': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 
     'SÁB': ['07:00 AM', '09:00 AM'], 
-    'DOM': ['07:00 AM', '09:00 AM', '11:00 AM'] // Agregado el horario de las 11am
+    'DOM': ['07:00 AM', '09:00 AM', '11:00 AM'] // Aquí está la mejora solicitada
 };
 
-// --- 2. INICIALIZACIÓN (Sincronización Multi-dispositivo) ---
+// --- 2. INICIALIZACIÓN Y SINCRONIZACIÓN (SISTEMA ANTIPÉRDIDA) ---
+
 async function initApp() {
-    // Carga inicial de LocalStorage (Rapidez)
+    console.log("Iniciando motor Vista Al Mar...");
+    
+    // 1. Cargamos lo que haya en LocalStorage para no mostrar la pantalla vacía
     const local = JSON.parse(localStorage.getItem('vdm_data') || '{}');
     conductores = local.conductores || [];
     territorios = local.territorios || [];
     grupos = local.grupos || [];
     historialAgendas = local.historial || {};
 
+    // 2. Sincronizamos con Supabase para traer los datos más recientes
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
-            const { data } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('registros_tablas')
                 .select('datos')
                 .eq('user_id', session.user.id)
@@ -37,56 +42,88 @@ async function initApp() {
             
             if (data && data.datos) {
                 const d = data.datos;
-                // La NUBE manda: sincronizamos los dispositivos
+                // La nube tiene la última palabra para evitar inconsistencias
                 conductores = d.conductores || conductores;
                 territorios = d.territorios || territorios;
                 grupos = d.grupos || grupos;
                 historialAgendas = d.historial || historialAgendas;
-                guardarLocal(); // Actualizamos el local con lo nuevo
+                
+                // Actualizamos el local con lo de la nube
+                guardarLocal();
             }
         }
-    } catch (e) { console.warn("Error de sincronización:", e); }
+    } catch (e) { 
+        console.warn("Fallo de conexión. Trabajando en modo offline.", e); 
+    }
     
-    // Dibujar todo
+    // 3. Renderizamos todas las listas con los datos actualizados
     renderListaConductores(); 
     renderListaTerritorios(); 
     renderListaGrupos(); 
     renderHistorial(); 
     
+    // 4. Restauramos la última pestaña y sugerencias
     const lastTab = localStorage.getItem('vdm_active_tab') || 'tab-agenda';
     switchTab(lastTab);
     actualizarDatalists();
 }
 
-// --- 3. PERSISTENCIA Y SINCRONIZACIÓN ---
+// --- 3. PERSISTENCIA DE DATOS ---
 
 function guardarLocal() { 
-    const payload = { conductores, territorios, grupos, historial: historialAgendas };
+    const payload = { 
+        conductores, 
+        territorios, 
+        grupos, 
+        historial: historialAgendas 
+    };
     localStorage.setItem('vdm_data', JSON.stringify(payload)); 
 }
 
 async function guardarSincronizar() {
     const btn = document.getElementById('btn-sync-save'); 
-    if (btn) btn.innerText = "⏳ Guardando...";
-    guardarLocal();
+    if (btn) btn.innerText = "⏳ Sincronizando...";
+    
+    guardarLocal(); // Respaldo local inmediato
+    
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        const payload = { conductores, territorios, grupos, historial: historialAgendas };
-        await supabaseClient.from('registros_tablas').upsert([{ user_id: session.user.id, datos: payload }]);
-        if (btn) btn.innerText = "✅ Sincronizado";
-    } catch (e) { if (btn) btn.innerText = "❌ Error Nube"; }
-    setTimeout(() => { if (btn) btn.innerText = "Sincronizar Nube"; }, 3000);
+        if (!session) throw new Error("No hay sesión activa");
+
+        const payload = { 
+            conductores, 
+            territorios, 
+            grupos, 
+            historial: historialAgendas 
+        };
+        
+        const { error } = await supabaseClient
+            .from('registros_tablas')
+            .upsert([{ 
+                user_id: session.user.id, 
+                datos: payload,
+                updated_at: new Date()
+            }]);
+
+        if (error) throw error;
+        if (btn) btn.innerText = "✅ ¡En la Nube!";
+    } catch (e) { 
+        console.error(e);
+        if (btn) btn.innerText = "❌ Error Nube"; 
+    }
+    
+    setTimeout(() => { 
+        if (btn) btn.innerText = "Sincronizar Nube"; 
+    }, 3000);
 }
 
-/* ARCHIVO: js/app.js - PARTE 2: MOTOR DE GENERACIÓN Y OFICIALIZACIÓN */
-
-// --- 4. MOTOR DE GENERACIÓN INTELIGENTE (Incluye 11:00 AM y Subterritorios) ---
+// --- 4. MOTOR DE GENERACIÓN INTELIGENTE (VERSIÓN VISTA AL MAR PRO) ---
 
 function generarNuevaAgenda() {
     const mesSelect = document.getElementById('mesAgenda');
     const mes = mesSelect.value;
     const nombreMes = mesSelect.options[mesSelect.selectedIndex].text;
-    const anio = 2026;
+    const anio = 2026; // Año fijo según requerimiento
     
     const diasEnMes = new Date(anio, mes, 0).getDate();
     const diasSemana = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
@@ -101,110 +138,152 @@ function generarNuevaAgenda() {
         let territoriosUsadosHoy = [];
 
         horariosDelDia.forEach(hora => {
-            // Lógica AM/PM: 11:00 AM cuenta como bloque AM
+            // Lógica de Bloques: 11:00 AM se considera bloque AM
             const esTarde = hora.includes("PM");
             const bloqueBuscado = `${diaNombre}-${esTarde ? 'PM' : 'AM'}`;
 
-            // Filtrar conductores por bloque
-            const disponibles = conductores.filter(c => {
+            // 1. Filtrar conductores por disponibilidad de bloque y excepciones
+            const condsDisponibles = conductores.filter(c => {
                 const cumpleBloque = (c.disponibilidadDias || []).includes(bloqueBuscado);
                 const forzado = c.fechaDisponible === fechaIso;
                 const bloqueado = c.fechaNoDisponible === fechaIso;
                 return (cumpleBloque || forzado) && !bloqueado;
             });
 
-            // Filtrar territorios (Priorizando Subterritorios si coinciden día/hora)
-            const terrDisponibles = territorios.filter(t => {
-                const cumplePrincipal = (t.disponibilidadDias || []).includes(diaNombre) && (t.disponibilidadHoras || []).includes(hora);
-                const cumpleSub = (t.subDias || []).includes(diaNombre) && (t.subHoras || []).includes(hora);
+            // 2. Filtrar territorios (Principal o Subterritorio coincidente)
+            const terrsDisponibles = territorios.filter(t => {
+                const cumplePrincipal = (t.disponibilidadDias || []).includes(diaNombre) && 
+                                       (t.disponibilidadHoras || []).includes(hora);
+                const cumpleSub = (t.subDias || []).includes(diaNombre) && 
+                                  (t.subHoras || []).includes(hora);
                 return (cumplePrincipal || cumpleSub) && !territoriosUsadosHoy.includes(t.nombre);
             });
             
-            const cond = obtenerConductorEquitativo(disponibles, nuevaAgenda);
-            const t = terrDisponibles.length > 0 ? terrDisponibles[Math.floor(Math.random() * terrDisponibles.length)] : null;
+            // 3. Selección equitativa de conductor
+            const c = obtenerConductorMenosAsignado(condsDisponibles, nuevaAgenda);
+            const t = terrsDisponibles.length > 0 ? terrsDisponibles[Math.floor(Math.random() * terrsDisponibles.length)] : null;
 
-            let nombreTerritorio = "Sin Territorio";
+            let nombreFinalTerritorio = "Sin Territorio";
             if (t) {
                 const esMomentoSub = (t.subDias || []).includes(diaNombre) && (t.subHoras || []).includes(hora);
-                nombreTerritorio = (esMomentoSub && t.subNombre) ? `${t.numero}. ${t.nombre} (${t.subNombre})` : `${t.numero}. ${t.nombre}`;
+                nombreFinalTerritorio = (esMomentoSub && t.subNombre) ? 
+                                       `${t.numero}. ${t.nombre} (${t.subNombre})` : 
+                                       `${t.numero}. ${t.nombre}`;
                 territoriosUsadosHoy.push(t.nombre);
             }
 
             nuevaAgenda.push({
-                diaSemana: diaNombre, diaMes: i, hora: hora,
-                conductor: cond ? `${cond.nombre} ${cond.apellido}` : "Sin Asignar",
-                territorio: nombreTerritorio,
-                lugar: t ? t.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Por Definir"),
+                diaSemana: diaNombre, 
+                diaMes: i, 
+                hora: hora,
+                conductor: c ? `${c.nombre} ${c.apellido}` : "Sin Asignar",
+                territorio: nombreFinalTerritorio,
+                lugar: t ? t.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Punto de Encuentro"),
                 grupos: (hora === "06:30 PM") ? "Telegram" : "Todos",
                 avisado: false
             });
         });
     }
 
-    // Guardamos en memoria volátil para vista previa
+    // Guardamos en memoria de trabajo y renderizamos
     agendasMaestras[mes] = nuevaAgenda;
     renderAgenda(nuevaAgenda, nombreMes);
     document.getElementById('resultadoAgenda').classList.remove('hidden');
 }
 
-// --- 5. SISTEMA DE HISTORIAL (Oficialización de Agendas) ---
+// --- 5. SISTEMA DE HISTORIAL OFICIAL ---
 
 function guardarEnHistorial() {
     const mes = document.getElementById('mesAgenda').value;
     if (!agendasMaestras[mes]) {
-        alert("Primero genera una agenda para poder guardarla.");
+        alert("Primero debes generar una agenda para poder guardarla oficialmente.");
         return;
     }
     
-    // Pasamos de volátil a Permanente
+    // Clonamos la agenda de trabajo al historial permanente
     historialAgendas[mes] = JSON.parse(JSON.stringify(agendasMaestras[mes]));
     
-    // Sincronización inmediata
+    // Sincronizamos de inmediato con la nube
     guardarSincronizar();
     renderHistorial();
-    alert("¡Agenda oficializada y guardada en la nube!");
 }
 
 function cargarDeHistorial(m) {
     if (!historialAgendas[m]) return;
     
-    // Cargamos a memoria de trabajo
+    // Pasamos del historial a la memoria de trabajo
     agendasMaestras[m] = JSON.parse(JSON.stringify(historialAgendas[m]));
     document.getElementById('mesAgenda').value = m;
     
-    const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
-    renderAgenda(agendasMaestras[m], nombreMes);
+    const mesSelect = document.getElementById('mesAgenda');
+    const nombreMes = mesSelect.options[mesSelect.selectedIndex].text;
     
+    renderAgenda(agendasMaestras[m], nombreMes);
     document.getElementById('resultadoAgenda').classList.remove('hidden');
     closeModal('modalHistorial');
 }
 
 function borrarDeHistorial(m) {
-    if (confirm("¿Seguro que quieres borrar esta agenda del historial oficial?")) {
+    if (confirm("¿Estás seguro de que quieres eliminar esta agenda del historial oficial? Esto no se puede deshacer.")) {
         delete historialAgendas[m];
         guardarSincronizar();
         renderHistorial();
     }
 }
 
-// --- 6. UTILIDADES FINALES ---
+// --- 6. UTILIDADES DE MOTOR ---
 
-function obtenerConductorEquitativo(disponibles, agendaActual) {
+function obtenerConductorMenosAsignado(disponibles, agendaActual) {
     if (disponibles.length === 0) return null;
+    
     const conteo = {};
     disponibles.forEach(c => {
         const nom = `${c.nombre} ${c.apellido}`;
         conteo[nom] = agendaActual.filter(a => a.conductor === nom).length;
     });
-    disponibles.sort((a, b) => conteo[`${a.nombre} ${a.apellido}`] - conteo[`${b.nombre} ${b.apellido}`]);
+
+    // Ordenamos para que los que tienen menos asignaciones queden arriba
+    disponibles.sort((a, b) => {
+        const nomA = `${a.nombre} ${a.apellido}`;
+        const nomB = `${b.nombre} ${b.apellido}`;
+        return conteo[nomA] - conteo[nomB];
+    });
+
     return disponibles[0];
 }
 
 function actualizarDatalists() {
     const dlCond = document.getElementById('listaSugerenciasConductores');
     const dlTerr = document.getElementById('listaSugerenciasTerritorios');
-    if (dlCond) dlCond.innerHTML = conductores.map(c => `<option value="${c.nombre} ${c.apellido}">`).join('');
-    if (dlTerr) dlTerr.innerHTML = territorios.map(t => `<option value="${t.numero}. ${t.nombre}">`).join('');
+    
+    if (dlCond) {
+        dlCond.innerHTML = conductores.map(c => `<option value="${c.nombre} ${c.apellido}">`).join('');
+    }
+    if (dlTerr) {
+        dlTerr.innerHTML = territorios.map(t => `<option value="${t.numero}. ${t.nombre}">`).join('');
+    }
+}
+
+function actualizarCelda(idx, campo, valor) { 
+    const mes = document.getElementById('mesAgenda').value; 
+    if (agendasMaestras[mes]) { 
+        agendasMaestras[mes][idx][campo] = valor.trim(); 
+        // No guardamos local aquí para evitar sobrecarga, se hace al oficializar
+        renderContactos(); 
+    } 
+}
+
+function cargarAgendaDelMes() { 
+    const mes = document.getElementById('mesAgenda').value; 
+    const mesSelect = document.getElementById('mesAgenda');
+    const n = mesSelect.options[mesSelect.selectedIndex].text; 
+    
+    if (agendasMaestras[mes]) { 
+        renderAgenda(agendasMaestras[mes], n); 
+        document.getElementById('resultadoAgenda').classList.remove('hidden'); 
+    } else {
+        document.getElementById('resultadoAgenda').classList.add('hidden'); 
+    }
 }
 
 function obtenerAnioTrabajo() { return 2026; }
