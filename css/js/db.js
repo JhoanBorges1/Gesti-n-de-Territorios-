@@ -1,22 +1,22 @@
 // Configuración de Supabase
-const supabaseUrl = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
-const supabaseKey = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
-export const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const SUPABASE_URL = 'https://gbuqjbuwpdovuxzuysml.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
+const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Objeto principal de la aplicación (Estructura según Informe 2)
-export let data_app = {
+// Objeto de datos global (Iniciado según Informe 2)
+let data_app = {
     conductores: [],
     territorios: [],
     grupos: [],
-    historial: []
+    historial: {}
 };
 
 // --- PERSISTENCIA LOCAL ---
-export function guardarLocal() {
+function guardarLocal() {
     localStorage.setItem('data_app_v1', JSON.stringify(data_app));
 }
 
-export function cargarLocal() {
+function cargarLocal() {
     const localData = localStorage.getItem('data_app_v1');
     if (localData) {
         data_app = JSON.parse(localData);
@@ -26,7 +26,7 @@ export function cargarLocal() {
 }
 
 // --- SINCRONIZACIÓN NUBE ---
-export async function guardarSincronizar() {
+async function guardarSincronizar() {
     try {
         const { data: { session } } = await _supabase.auth.getSession();
         if (!session) return;
@@ -39,13 +39,13 @@ export async function guardarSincronizar() {
             }, { onConflict: 'user_id' });
 
         if (error) throw error;
-        console.log("Sincronización exitosa con la nube");
+        console.log("Sincronización exitosa");
     } catch (err) {
         console.error("Error de sincronización:", err);
     }
 }
 
-export async function descargarNube() {
+async function descargarNube() {
     try {
         const { data: { session } } = await _supabase.auth.getSession();
         if (!session) return;
@@ -54,9 +54,9 @@ export async function descargarNube() {
             .from('registros_tablas')
             .select('datos_json')
             .eq('user_id', session.user.id)
-            .single();
+            .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') throw error; // PGRST116 es "no hay filas"
+        if (error) throw error;
         
         if (data && data.datos_json) {
             data_app = data.datos_json;
@@ -64,7 +64,7 @@ export async function descargarNube() {
             return true;
         }
     } catch (err) {
-        console.error("Error al descargar de la nube:", err);
+        console.error("Error al descargar:", err);
     }
     return false;
 }
