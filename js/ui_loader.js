@@ -1,10 +1,10 @@
-/* ARCHIVO: js/ui_loader.js - RECONSTRUCCIÓN DE ESTRUCTURA DINÁMICA */
+/* ARCHIVO: js/ui_loader.js - ESTRUCTURA DINÁMICA VISTA AL MAR */
 
 function inyectarEstructuraTab(tabId) {
     const tab = document.getElementById(tabId);
     if (!tab) return;
 
-    // Limpiamos el contenido previo para evitar que se acumulen elementos al cambiar de pestaña
+    // Limpiamos siempre antes de inyectar para evitar duplicados
     tab.innerHTML = '';
 
     switch (tabId) {
@@ -13,7 +13,7 @@ function inyectarEstructuraTab(tabId) {
                 <section class="module-section">
                     <div class="module-title">Generación de Territorios</div>
                     <div class="input-group">
-                        <label>Seleccionar mes (2026)</label>
+                        <label style="font-weight:700;">Seleccionar mes (2026)</label>
                         <select id="mesAgenda" onchange="cargarAgendaDelMes()">
                             <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
                             <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
@@ -32,11 +32,14 @@ function inyectarEstructuraTab(tabId) {
                             <div id="areaExportar">
                                 <div class="export-header">
                                     <h2 id="tituloExportar">Agenda de Predicación</h2>
-                                    <p id="fechaActualDisplay"></p>
+                                    <p id="fechaActualDisplay" style="font-weight:700;"></p>
                                 </div>
                                 <table class="agenda-table">
                                     <thead>
-                                        <tr><th>Día</th><th>Fecha</th><th>Hora</th><th>Conductor</th><th>Territorio</th><th>Lugar</th><th>Grupos</th></tr>
+                                        <tr>
+                                            <th>Día</th><th>Fecha</th><th>Hora</th>
+                                            <th>Conductor</th><th>Territorio</th><th>Lugar</th><th>Grupos</th>
+                                        </tr>
                                     </thead>
                                     <tbody id="tablaCuerpoAgenda"></tbody>
                                 </table>
@@ -44,7 +47,7 @@ function inyectarEstructuraTab(tabId) {
                         </div>
                         <div style="margin-top: 20px; display: flex; gap: 12px; align-items: center; border-top: 1px solid #eee; padding-top: 20px; flex-wrap: wrap;">
                             <div class="input-group" style="margin-bottom:0; width: 180px;">
-                                <label>Rango Exportación</label>
+                                <label style="font-weight:700;">Rango Exportación</label>
                                 <select id="rangoExportar">
                                     <option value="mes">Mes Completo</option>
                                     <option value="sem1">Semana 1 (1-7)</option>
@@ -53,8 +56,8 @@ function inyectarEstructuraTab(tabId) {
                                     <option value="sem4">Semana 4 (22-Fin)</option>
                                 </select>
                             </div>
-                            <button class="btn-primary" onclick="guardarEnHistorial()" style="width: auto;">Guardar Historial</button>
-                            <button class="btn-outline" onclick="descargarImagen()" style="width: auto;">Descargar Imagen</button>
+                            <button class="btn-primary" onclick="guardarEnHistorial()">Guardar Historial</button>
+                            <button class="btn-outline" onclick="descargarImagen()">Descargar Imagen</button>
                         </div>
                     </div>
                 </section>
@@ -70,7 +73,7 @@ function inyectarEstructuraTab(tabId) {
             tab.innerHTML = `
                 <section class="module-section">
                     <div class="module-title">Conductores</div>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
                         <button class="btn-primary" onclick="openModalConductor()">Agregar Conductor</button>
                         <button class="btn-outline" onclick="toggleVisibility('listaConductores')">Ver Lista y Editar</button>
                     </div>
@@ -82,7 +85,7 @@ function inyectarEstructuraTab(tabId) {
             tab.innerHTML = `
                 <section class="module-section">
                     <div class="module-title">Territorios</div>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
                         <button class="btn-primary" onclick="openModalTerritorio()">Agregar Territorio</button>
                         <button class="btn-outline" onclick="toggleVisibility('listaTerritorios')">Ver Lista y Editar</button>
                     </div>
@@ -94,7 +97,7 @@ function inyectarEstructuraTab(tabId) {
             tab.innerHTML = `
                 <section class="module-section">
                     <div class="module-title">Grupos de Predicación</div>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
                         <button class="btn-primary" onclick="openModalGrupo()">Agregar Grupo</button>
                         <button class="btn-outline" onclick="toggleVisibility('listaGrupos')">Ver Grupos Registrados</button>
                     </div>
@@ -104,16 +107,8 @@ function inyectarEstructuraTab(tabId) {
     }
 }
 
-// Función para mostrar/ocultar las listas (Personal, Territorios, etc.)
 function toggleVisibility(id) {
     const el = document.getElementById(id);
     if (!el) return;
-
-    if (el.classList.contains('hidden')) {
-        el.classList.remove('hidden');
-        el.style.display = 'block';
-    } else {
-        el.classList.add('hidden');
-        el.style.display = 'none';
-    }
+    el.classList.toggle('hidden');
 }
