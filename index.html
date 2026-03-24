@@ -18,17 +18,11 @@
             <img src="https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24dp.svg" alt="Logo" class="auth-logo">
             <h2>Iniciar Sesión</h2>
             <p>Acceso exclusivo para administradores</p>
-            
             <form id="login-form">
-                <div class="input-group">
-                    <input type="email" id="email" placeholder="Correo electrónico" required>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="password" placeholder="Contraseña" required>
-                </div>
+                <div class="input-group"><input type="email" id="email" placeholder="Correo electrónico" required></div>
+                <div class="input-group"><input type="password" id="password" placeholder="Contraseña" required></div>
                 <button type="submit" class="btn-primary full-width">Entrar al Sistema</button>
             </form>
-            
             <p id="auth-msg" class="status-msg"></p>
         </div>
     </div>
@@ -55,9 +49,73 @@
         </main>
     </div>
 
-    <div id="modal-container"></div>
+    <div id="modal-container">
+        <div id="modalConductor" class="modal">
+            <div class="modal-content">
+                <h2 class="module-title">Registro de Conductor</h2>
+                <form id="formConductor">
+                    <input type="hidden" id="editIndexConductor">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <input type="text" id="cNombre" placeholder="Nombre" required>
+                        <input type="text" id="cApellido" placeholder="Apellido" required>
+                    </div>
+                    <input type="tel" id="cTelefono" value="+58 " required style="margin-top:10px;">
+                    <div class="input-group" style="margin-top:10px;">
+                        <label>¿Es Anciano?</label>
+                        <select id="cEsAnciano" onchange="toggleGrupoAnciano()">
+                            <option value="no">No</option><option value="si">Sí</option>
+                        </select>
+                    </div>
+                    <div id="grupoSugerido" class="input-group hidden">
+                        <label>Grupo Asignado</label>
+                        <select id="cGrupoAsignado">
+                            <option value="1">Grupo 1</option><option value="2">Grupo 2</option>
+                            <option value="3">Grupo 3</option><option value="4">Grupo 4</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="modalTerritorio" class="modal">
+            <div class="modal-content">
+                <h2 class="module-title">Configurar Territorio</h2>
+                <form id="formTerritorio">
+                    <input type="hidden" id="editIndexTerritorio">
+                    <div style="display:grid; grid-template-columns: 1fr 3fr; gap:12px;">
+                        <input type="number" id="tNumero" placeholder="N°" required>
+                        <input type="text" id="tNombre" placeholder="Nombre del Territorio" required>
+                    </div>
+                    <input type="text" id="tSubNombre" placeholder="Subterritorio (Opcional)" style="margin-top:10px;">
+                    <textarea id="tLugar" placeholder="Lugar de encuentro" style="margin-top:10px; width:100%; border-radius:12px; padding:10px;"></textarea>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="modalHistorial" class="modal">
+            <div class="modal-content">
+                <h2 class="module-title">Historial de Agendas</h2>
+                <div id="listaHistorial"></div>
+                <div class="modal-footer">
+                    <button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="dl-conductores"></datalist>
+    <datalist id="dl-territorios"></datalist>
 
     <script src="js/auth.js"></script>
+    <script src="js/ui_loader.js"></script>
     <script src="js/app.js"></script>
     <script src="js/ui.js"></script>
 </body>
