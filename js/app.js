@@ -120,11 +120,9 @@ async function guardarSincronizar() {
 // --- 4. MOTOR DE GENERACIÓN INTELIGENTE (VERSIÓN VISTA AL MAR PRO) ---
 
 function generarNuevaAgenda() {
-    const mesSelect = document.getElementById('mesAgenda');
-    const mes = mesSelect.value;
-    const nombreMes = mesSelect.options[mesSelect.selectedIndex].text;
-    const anio = 2026; // Año fijo según requerimiento
-    
+    const mes = document.getElementById('mesAgenda').value;
+    const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
+    const anio = 2026; // Ciclo operativo configurado
     const diasEnMes = new Date(anio, mes, 0).getDate();
     const diasSemana = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
     let nuevaAgenda = [];
@@ -133,63 +131,52 @@ function generarNuevaAgenda() {
         const fechaObj = new Date(anio, mes - 1, i);
         const diaNombre = diasSemana[fechaObj.getDay()];
         const fechaIso = fechaObj.toISOString().split('T')[0];
-        const horariosDelDia = MATRIZ_HORARIOS[diaNombre] || [];
         
+        // Obtenemos los horarios definidos en tu MATRIZ_HORARIOS
+        const horariosDelDia = MATRIZ_HORARIOS[diaNombre] || [];
         let territoriosUsadosHoy = [];
 
         horariosDelDia.forEach(hora => {
-            // Lógica de Bloques: 11:00 AM se considera bloque AM
-            const esTarde = hora.includes("PM");
-            const bloqueBuscado = `${diaNombre}-${esTarde ? 'PM' : 'AM'}`;
-
-            // 1. Filtrar conductores por disponibilidad de bloque y excepciones
+            // 1. Filtramos conductores que pueden y quieren ese día/hora
             const condsDisponibles = conductores.filter(c => {
-                const cumpleBloque = (c.disponibilidadDias || []).includes(bloqueBuscado);
-                const forzado = c.fechaDisponible === fechaIso;
-                const bloqueado = c.fechaNoDisponible === fechaIso;
-                return (cumpleBloque || forzado) && !bloqueado;
+                const cumpleDiaHora = c.disponibilidadDias?.includes(diaNombre) && c.disponibilidadHoras?.includes(hora);
+                const noDisponible = c.fechaNoDisponible === fechaIso;
+                const forzadoDisponible = c.fechaDisponible === fechaIso;
+                return (cumpleDiaHora && !noDisponible) || forzadoDisponible;
             });
 
-            // 2. Filtrar territorios (Principal o Subterritorio coincidente)
-            const terrsDisponibles = territorios.filter(t => {
-                const cumplePrincipal = (t.disponibilidadDias || []).includes(diaNombre) && 
-                                       (t.disponibilidadHoras || []).includes(hora);
-                const cumpleSub = (t.subDias || []).includes(diaNombre) && 
-                                  (t.subHoras || []).includes(hora);
-                return (cumplePrincipal || cumpleSub) && !territoriosUsadosHoy.includes(t.nombre);
-            });
+            // 2. Filtramos territorios aptos para este momento
+            const terrsDisponibles = territorios.filter(t => 
+                (t.disponibilidadDias?.includes(diaNombre) && t.disponibilidadHoras?.includes(hora)) ||
+                (t.subDias?.includes(diaNombre) && t.subHoras?.includes(hora))
+            ).filter(t => !territoriosUsadosHoy.includes(t.nombre));
             
-            // 3. Selección equitativa de conductor
+            // 3. Aplicamos Motor de Equidad para elegir al conductor
             const c = obtenerConductorMenosAsignado(condsDisponibles, nuevaAgenda);
             const t = terrsDisponibles.length > 0 ? terrsDisponibles[Math.floor(Math.random() * terrsDisponibles.length)] : null;
 
-            let nombreFinalTerritorio = "Sin Territorio";
-            if (t) {
-                const esMomentoSub = (t.subDias || []).includes(diaNombre) && (t.subHoras || []).includes(hora);
-                nombreFinalTerritorio = (esMomentoSub && t.subNombre) ? 
-                                       `${t.numero}. ${t.nombre} (${t.subNombre})` : 
-                                       `${t.numero}. ${t.nombre}`;
-                territoriosUsadosHoy.push(t.nombre);
-            }
+            if (t) territoriosUsadosHoy.push(t.nombre);
 
             nuevaAgenda.push({
-                diaSemana: diaNombre, 
-                diaMes: i, 
-                hora: hora,
+                diaSemana: diaNombre, diaMes: i, hora: hora,
                 conductor: c ? `${c.nombre} ${c.apellido}` : "Sin Asignar",
-                territorio: nombreFinalTerritorio,
-                lugar: t ? t.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Punto de Encuentro"),
+                territorio: t ? `${t.numero}. ${t.nombre}${t.subNombre ? ' ('+t.subNombre+')' : ''}` : "Sin Territorio",
+                lugar: t ? t.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Por Definir"),
                 grupos: (hora === "06:30 PM") ? "Telegram" : "Todos",
                 avisado: false
             });
         });
     }
-
-    // Guardamos en memoria de trabajo y renderizamos
+    
     agendasMaestras[mes] = nuevaAgenda;
+    guardarLocal(); 
     renderAgenda(nuevaAgenda, nombreMes);
     document.getElementById('resultadoAgenda').classList.remove('hidden');
+    
+    // Feedback visual para el administrador
+    console.log(`✅ Agenda de ${nombreMes} generada con éxito.`);
 }
+
 
 // --- 5. SISTEMA DE HISTORIAL OFICIAL ---
 
