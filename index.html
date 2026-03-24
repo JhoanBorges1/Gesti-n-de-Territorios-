@@ -6,17 +6,12 @@
     <title>Gestión de Territorios Vista Al Mar</title>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/estilos.css">
-    
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script type="module" src="./js/main.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
     <div id="auth-container" class="auth-wrapper">
         <div class="login-card">
-            <img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304603353545992.svg" alt="Gemini" class="login-logo">
             <h2>Iniciar Sesión</h2>
             <p>Acceso exclusivo Vista Al Mar</p>
             <form id="login-form">
@@ -30,33 +25,25 @@
 
     <div id="app-content" class="hidden">
         <header>
-            <div class="header-side"></div>
+            <div style="width: 80px;"></div>
             <h1>Gestión de Territorios Vista Al Mar</h1>
-            <div class="header-side">
-                <button class="btn-danger-outline" id="btn-logout">Salir</button>
-            </div>
+            <button class="btn-danger-outline" id="btn-logout">Salir</button>
         </header>
-
         <nav class="tab-bar">
             <button class="tab-btn active" data-tab="tab-agenda">Agenda</button>
             <button class="tab-btn" data-tab="tab-personal">Personal</button>
             <button class="tab-btn" data-tab="tab-territorios">Territorios</button>
             <button class="tab-btn" data-tab="tab-config">Grupos</button>
         </nav>
-        
         <main class="container">
-            <div id="tab-agenda" class="tab-content active">
-                </div>
+            <div id="tab-agenda" class="tab-content active"></div>
             <div id="tab-personal" class="tab-content hidden"></div>
             <div id="tab-territorios" class="tab-content hidden"></div>
             <div id="tab-config" class="tab-content hidden"></div>
         </main>
     </div>
 
-    <datalist id="listaSugerenciasConductores"></datalist>
-    <datalist id="listaSugerenciasTerritorios"></datalist>
-
-    <script type="module" src="js/main.js"></script>
+    <script src="./js/db.js"></script>
+    <script src="./js/main.js"></script>
 </body>
 </html>
- 
