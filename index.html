@@ -90,6 +90,7 @@
         .time-option { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--text-sub); }
         .time-option input { width: 16px; height: 16px; cursor: pointer; }
     </style>
+    
     </head>
 <body>
 
@@ -131,6 +132,7 @@
         <button class="tab-btn" onclick="switchTab('tab-territorios')">Territorios</button>
         <button class="tab-btn" onclick="switchTab('tab-config')">Grupos</button>
     </nav>
+    
     <div class="container">    <div id="tab-personal" class="tab-content">
 
         <section class="module-section">
@@ -218,6 +220,7 @@
             <div id="listaContactos"></div>
         </section>
    </div></div>
+   
    <div id="modalConductor" class="modal">
         <div class="modal-content">
             <h2 class="module-title" id="tituloModalConductor">Registro de Conductor</h2>
@@ -338,6 +341,7 @@
     <div id="modalGrupo" class="modal"><div class="modal-content"><h2 class="module-title">Registrar Grupo</h2><form id="formGrupo"><input type="hidden" id="editIndexGrupo"><div class="input-group"><label>Número del Grupo</label><select id="gNumero" required><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option></select></div><div class="input-group"><label>Anciano Responsable</label><select id="gAnciano" required></select></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cerrar</button><button type="submit" class="btn-primary">Guardar</button></div></form></div></div>
     
     <div id="modalHistorial" class="modal"><div class="modal-content"><h2 class="module-title">Historial Guardado</h2><div id="listaHistorial"></div><div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div></div></div>
+    
     <script>
     // --- LÓGICA AUTH ---
     document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -381,6 +385,7 @@
         'DOM': ['11:00 AM'] 
     };
 </script>
+
 <script>
     // --- INIT & SYNC ---
     async function initApp() {
@@ -406,7 +411,11 @@
             }
         } catch (e) { console.warn("Error sincronización nube."); }
         
-        renderListaConductores(); renderListaTerritorios(); renderListaGroups(); renderHistorial(); cargarAgendaDelMes();
+        renderListaConductores(); 
+        renderListaTerritorios(); 
+        renderListaGrupos(); // Corregido: antes decía Groups
+        renderHistorial(); 
+        cargarAgendaDelMes();
         const lastTab = localStorage.getItem('vdm_active_tab') || 'tab-agenda';
         switchTab(lastTab);
         actualizarDatalists();
@@ -441,14 +450,13 @@
         e.preventDefault();
         const index = document.getElementById('editIndexConductor').value;
         
-        // Nueva lógica para capturar disponibilidad combinada
         const disponibilidadActualizada = [];
         document.querySelectorAll('#disponibilidadSemanal .day-row').forEach(row => {
             const dayCheck = row.querySelector('.day-check');
-            if (dayCheck.checked) {
-                disponibilidadActualizada.push(dayCheck.value); // Guarda el día: ej "LUN"
+            if (dayCheck && dayCheck.checked) {
+                disponibilidadActualizada.push(dayCheck.value); 
                 row.querySelectorAll('.time-options input:checked').forEach(timeCheck => {
-                    disponibilidadActualizada.push(timeCheck.value); // Guarda el bloque: ej "LUN-AM"
+                    disponibilidadActualizada.push(timeCheck.value); 
                 });
             }
         });
@@ -459,7 +467,7 @@
             telefono: document.getElementById('cTelefono').value, 
             esAnciano: document.getElementById('cEsAnciano').value === 'si',
             grupo: document.getElementById('cGrupoAsignado').value,
-            disponibilidadDias: disponibilidadActualizada, // Ahora contiene días y bloques AM/PM
+            disponibilidadDias: disponibilidadActualizada, 
             fechaDisponible: document.getElementById('cFechaDisponible').value, 
             fechaNoDisponible: document.getElementById('cFechaNoDisponible').value
         };
@@ -488,9 +496,8 @@
         document.getElementById('cGrupoAsignado').value = c.grupo || "1";
         document.getElementById('grupoSugerido').classList.toggle('hidden', !c.esAnciano);
         
-        // Nueva lógica para marcar checkboxes de disponibilidad
         document.querySelectorAll('#disponibilidadSemanal input[type="checkbox"]').forEach(cb => {
-            cb.checked = c.disponibilidadDias?.includes(cb.value);
+            cb.checked = (c.disponibilidadDias || []).includes(cb.value);
         });
 
         document.getElementById('cFechaDisponible').value = c.fechaDisponible || "";
@@ -500,6 +507,7 @@
 
     function eliminarConductor(i) { if(confirm("¿Eliminar?")) { conductores.splice(i,1); guardarLocal(); renderListaConductores(); } }
 </script>
+
 <script>
     // --- CRUD TERRITORIOS ---
     function openModalTerritorio() { document.getElementById('formTerritorio').reset(); document.getElementById('editIndexTerritorio').value = ""; openModal('modalTerritorio'); }
@@ -538,7 +546,7 @@
     }
     function eliminarTerritorio(i) { if(confirm("¿Eliminar?")) { territorios.splice(i,1); guardarLocal(); renderListaTerritorios(); } }
 
-    // --- MOTOR DE GENERACIÓN INTELIGENTE (VERSIÓN AM/PM) ---
+    // --- MOTOR DE GENERACIÓN INTELIGENTE (LÓGICA AM/PM REFORZADA) ---
     function generarNuevaAgenda() {
         const mes = document.getElementById('mesAgenda').value;
         const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
@@ -555,20 +563,20 @@
             let territoriosUsadosHoy = [];
 
             horariosDelDia.forEach(hora => {
-                // Lógica para determinar si la hora de la matriz es AM o PM
-                const esTarde = hora.includes("PM") || (parseInt(hora) >= 12 && hora.includes("PM"));
+                // Determinamos el bloque según la hora de la matriz
+                const esTarde = hora.includes("PM");
                 const bloqueBuscado = `${diaNombre}-${esTarde ? 'PM' : 'AM'}`;
 
                 const condsDisponibles = conductores.filter(c => {
-                    const cumpleDiaBloque = c.disponibilidadDias?.includes(bloqueBuscado);
+                    const cumpleDiaBloque = (c.disponibilidadDias || []).includes(bloqueBuscado);
                     const noDisponible = c.fechaNoDisponible === fechaIso;
                     const forzadoDisponible = c.fechaDisponible === fechaIso;
                     return (cumpleDiaBloque && !noDisponible) || forzadoDisponible;
                 });
 
                 const terrsDisponibles = territorios.filter(t => 
-                    t.disponibilidadDias?.includes(diaNombre) && 
-                    t.disponibilidadHoras?.includes(hora) && 
+                    (t.disponibilidadDias || []).includes(diaNombre) && 
+                    (t.disponibilidadHoras || []).includes(hora) && 
                     !territoriosUsadosHoy.includes(t.nombre)
                 );
                 
@@ -592,6 +600,7 @@
         document.getElementById('resultadoAgenda').classList.remove('hidden');
     }
 </script>
+
 <script>
     // --- RENDERIZADO Y EDICIÓN DE TABLA ---
     function renderAgenda(datos, nombreMes) {
@@ -689,6 +698,7 @@
     
     function borrarDeHistorial(m) { if(confirm("¿Borrar historial de este mes?")) { delete historialAgendas[m]; guardarLocal(); renderHistorial(); } }
 </script>
+
 <script>
     // --- EXPORTACIÓN DE IMAGEN (HTML2CANVAS) ---
     async function descargarImagen() {
@@ -815,4 +825,4 @@
 <datalist id="listaSugerenciasTerritorios"></datalist>
 
 </body>
-</html> 
+                            </html> 
