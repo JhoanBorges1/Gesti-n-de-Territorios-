@@ -1,82 +1,54 @@
-// --- ELEMENTOS DE LA INTERFAZ ---
-const authContainer = document.getElementById('auth-container');
-const appContent = document.getElementById('app-content');
-const loginForm = document.getElementById('login-form');
-const authMsg = document.getElementById('auth-msg');
-const btnLogout = document.getElementById('btn-logout');
-
-// --- INICIO DE LA APP ---
-async function initApp() {
-    // 1. Revisar sesión
-    const { data: { session } } = await _supabase.auth.getSession();
+// --- MANEJADOR DE EVENTOS DE LOGIN ---
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
     
-    if (session) {
-        showApp();
-    } else {
-        showLogin();
+    // Usamos el cliente que definimos en db.js
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+        document.getElementById('auth-msg').innerText = "Acceso denegado. Revisa tus credenciales.";
     }
-}
+});
 
-function showLogin() {
-    authContainer.classList.remove('hidden');
-    appContent.classList.add('hidden');
-}
-
-async function showApp() {
-    authContainer.classList.add('hidden');
-    appContent.classList.remove('hidden');
+// --- ESCUCHADOR DE ESTADO (EL SECRETO DEL ÉXITO) ---
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    const auth = document.getElementById('auth-container');
+    const app = document.getElementById('app-content');
     
-    // Cargar datos: Prioridad Nube, luego Local
+    if (session) { 
+        auth.classList.add('hidden'); 
+        app.classList.remove('hidden'); 
+        initApp(); // Llama a la carga de datos
+    } else { 
+        auth.classList.remove('hidden'); 
+        app.classList.add('hidden'); 
+    }
+});
+
+async function initApp() {
+    console.log("Iniciando carga de datos...");
     const cargoNube = await descargarNube();
     if (!cargoNube) {
         cargarLocal();
     }
-    
-    console.log("Datos cargados correctamente.");
-    // Aquí es donde en el próximo paso inyectaremos la lógica de los conductores
+    // Aquí es donde llamaremos a las funciones de renderizado de conductores más adelante
 }
 
-// --- EVENTOS DE AUTENTICACIÓN ---
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-
-    const { error } = await _supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-        authMsg.textContent = "Acceso denegado: " + error.message;
-    } else {
-        showApp();
-    }
+document.getElementById('btn-logout').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    localStorage.removeItem('vdm_data_v1');
+    window.location.reload();
 });
 
-btnLogout.addEventListener('click', async () => {
-    await _supabase.auth.signOut();
-    localStorage.removeItem('data_app_v1'); 
-    location.reload();
-});
-
-// --- GESTIÓN DE PESTAÑAS ---
+// Control de pestañas sencillo
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        // Desactivar todos
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => {
-            c.classList.remove('active');
-            c.classList.add('hidden');
-        });
-        
-        // Activar seleccionado
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
         btn.classList.add('active');
         const tabId = btn.getAttribute('data-tab');
-        const targetTab = document.getElementById(tabId);
-        if (targetTab) {
-            targetTab.classList.add('active');
-            targetTab.classList.remove('hidden');
-        }
+        document.getElementById(tabId).classList.remove('hidden');
     });
 });
-
-// Arrancar el motor
-initApp();
