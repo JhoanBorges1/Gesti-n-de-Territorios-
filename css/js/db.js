@@ -1,7 +1,7 @@
 // Configuración de Supabase
 const supabaseUrl = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
 const supabaseKey = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
-export const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+export const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Objeto principal de la aplicación (Estructura según Informe 2)
 export let data_app = {
