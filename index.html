@@ -3,55 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Territorios Vista Al Mar</title>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/estilos.css">
+    <title>Gestión de Territorios | Vista Al Mar</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<div id="auth-container">
-    <div class="login-box">
-        <h2>Iniciar Sesión</h2>
-        <p>Acceso exclusivo para administradores</p>
-        <form id="login-form">
-            <input type="email" id="email" placeholder="Correo" required>
-            <input type="password" id="password" placeholder="Contraseña" required>
-            <button type="submit" class="btn-primary">Entrar al Sistema</button>
-        </form>
-        <p id="auth-msg"></p>
+    <div id="auth-container" class="auth-wrapper">
+        <div class="login-card">
+            <img src="https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24dp.svg" alt="Logo" class="auth-logo">
+            <h2>Iniciar Sesión</h2>
+            <p>Acceso exclusivo para administradores</p>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Correo electrónico" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                </div>
+                <button type="submit" class="btn-primary full-width">Entrar al Sistema</button>
+            </form>
+            
+            <p id="auth-msg" class="status-msg"></p>
+        </div>
     </div>
-</div>
 
-<div id="app-content" class="hidden">
-    <header>
-        <div style="width: 80px;"></div> 
-        <h1>Gestión de Territorios Vista Al Mar</h1>
-        <button class="btn-danger-outline" id="btn-logout">Salir</button>
-    </header>
+    <div id="app-content" class="hidden">
+        <header class="main-header">
+            <div class="header-placeholder"></div>
+            <h1>Vista Al Mar | Territorios</h1>
+            <button class="btn-danger-outline" onclick="handleLogout()">Salir</button>
+        </header>
 
-    <nav class="tab-bar">
-        <button class="tab-btn active" data-tab="tab-agenda">Agenda</button>
-        <button class="tab-btn" data-tab="tab-personal">Personal</button>
-        <button class="tab-btn" data-tab="tab-territorios">Territorios</button>
-        <button class="tab-btn" data-tab="tab-config">Grupos</button>
-    </nav>
+        <nav class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('tab-agenda')">Agenda</button>
+            <button class="tab-btn" onclick="switchTab('tab-personal')">Personal</button>
+            <button class="tab-btn" onclick="switchTab('tab-territorios')">Territorios</button>
+            <button class="tab-btn" onclick="switchTab('tab-config')">Grupos</button>
+        </nav>
 
-    <div class="container">
-        <div id="tab-agenda" class="tab-content active">
-            </div>
-        <div id="tab-personal" class="tab-content hidden"></div>
-        <div id="tab-territorios" class="tab-content hidden"></div>
-        <div id="tab-config" class="tab-content hidden"></div>
+        <main class="container">
+            <div id="tab-agenda" class="tab-content active"></div>
+            <div id="tab-personal" class="tab-content"></div>
+            <div id="tab-territorios" class="tab-content"></div>
+            <div id="tab-config" class="tab-content"></div>
+        </main>
     </div>
-</div>
 
-<datalist id="listaSugerenciasConductores"></datalist>
-<datalist id="listaSugerenciasTerritorios"></datalist>
+    <div id="modal-container"></div>
 
-<script src="./js/db.js"></script>
-<script src="./js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/ui.js"></script>
 </body>
 </html>
