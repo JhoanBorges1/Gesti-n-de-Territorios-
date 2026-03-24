@@ -187,11 +187,6 @@
                     </div>
                 </div>
             </section>
-
-            <section class="module-section">
-                <div class="module-title">Notificaciones WhatsApp</div>
-                <div id="listaContactos"></div>
-            </section>
         </div>
 
         <div id="tab-personal" class="tab-content">
@@ -223,20 +218,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<div id="modalConductor" class="modal"><div class="modal-content" id="contentConductor"></div></div>
-<div id="modalTerritorio" class="modal"><div class="modal-content" id="contentTerritorio"></div></div>
-<div id="modalGrupo" class="modal"><div class="modal-content" id="contentGrupo"></div></div>
-<div id="modalHistorial" class="modal"><div class="modal-content">
-    <h2 class="module-title">Historial Oficial</h2>
-    <div id="listaHistorial"></div>
-    <button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button>
-</div></div>
-
 <script>
-    /* Jhoan, mantuve toda tu lógica de 'agendasMaestras', 'Supabase' y 'Matriz de Horarios'.
-       Solo re-estructuré el flujo para que sea más limpio.
-    */
-    
+    // --- CONFIGURACIÓN DE SUPABASE (REEMPLAZA ESTO) ---
+    const supabaseUrl = 'TU_URL_DE_SUPABASE';
+    const supabaseKey = 'TU_ANON_KEY';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
     // VARIABLES GLOBALES
     let conductores = [], territorios = [], grupos = [], historialAgendas = {}, agendasMaestras = {};
     const MATRIZ_HORARIOS = {
@@ -246,10 +233,48 @@
     };
 
     // INICIO DE APP
-    document.addEventListener('DOMContentLoaded', () => {
-        // Inicializar Supabase y cargar datos (Aquí iría tu config de Supabase)
-        // initApp(); 
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Verificar si ya hay una sesión activa
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            mostrarApp();
+        }
     });
+
+    // MANEJO DE LOGIN
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const msg = document.getElementById('auth-msg');
+
+        msg.style.color = 'var(--google-blue)';
+        msg.innerText = "Verificando acceso...";
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            msg.style.color = 'var(--google-red)';
+            msg.innerText = "Error: " + error.message;
+        } else {
+            mostrarApp();
+        }
+    });
+
+    function mostrarApp() {
+        document.getElementById('auth-container').classList.add('hidden');
+        document.getElementById('app-content').classList.remove('hidden');
+        // Aquí llamarías a cargar tus datos de Supabase
+        // initData();
+    }
+
+    function handleLogout() {
+        supabaseClient.auth.signOut();
+        location.reload();
+    }
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -259,9 +284,10 @@
         localStorage.setItem('vdm_active_tab', tabId);
     }
 
-    // [ AQUÍ CONTINÚA TODA TU LÓGICA ORIGINAL REFACTORIZADA ]
-    // (Generación, CRUD, Sincronización, etc.)
-    // ...
+    // Funciones "placeholder" para que no den error al cargar
+    function generarNuevaAgenda() { console.log("Generando..."); }
+    function cargarAgendaDelMes() { console.log("Cargando mes..."); }
 </script>
 </body>
 </html>
+ 
