@@ -1,4 +1,4 @@
-/* ARCHIVO: css/styles.css - RESTAURACIÓN VISUAL COMPLETA VISTA AL MAR */
+/* ARCHIVO: css/styles.css - RECONSTRUCCIÓN VISUAL VISTA AL MAR */
 
 :root {
     --google-blue: #1a73e8;
@@ -20,7 +20,7 @@ body {
     padding-bottom: 50px; 
 }
 
-/* --- CABECERA (HEADER) --- */
+/* --- CABECERA --- */
 header { 
     background: var(--gemini-card); 
     padding: 20px; 
@@ -36,9 +36,10 @@ header h1 {
     color: var(--google-blue); 
     margin: 0; 
     font-size: 1.2rem; 
+    flex-grow: 1;
 }
 
-/* --- LOGIN --- */
+/* --- LOGIN (RESTAURADO) --- */
 .auth-wrapper {
     display: flex;
     justify-content: center;
@@ -51,14 +52,14 @@ header h1 {
     background: var(--gemini-card);
     padding: 40px;
     border-radius: 28px;
-    box-shadow: 0 4px 12px rgba(60,64,67,0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     border: 1px solid #dadce0;
     width: 100%;
     max-width: 350px;
     text-align: center;
 }
 
-/* --- NAVEGACIÓN (TABS) --- */
+/* --- NAVEGACIÓN --- */
 .tab-bar { 
     display: flex; 
     justify-content: space-around; 
@@ -86,47 +87,31 @@ header h1 {
     background: rgba(26, 115, 232, 0.04); 
 }
 
-/* --- CONTENEDORES --- */
-.container { 
-    max-width: 900px; 
-    margin: 32px auto; 
-    padding: 0 15px; 
+/* --- FORMULARIOS E INPUTS (MEJORADOS) --- */
+.input-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 6px; 
+    margin-bottom: 16px; 
+    text-align: left; 
 }
 
-.module-section { 
-    background: var(--gemini-card); 
-    border-radius: var(--border-radius); 
-    padding: 24px; 
-    margin-bottom: 24px; 
-    border: 1px solid #dadce0; 
-}
-
-.module-title { 
-    font-family: 'Google Sans', sans-serif; 
-    font-size: 1.2rem; 
-    margin-bottom: 20px; 
-    color: var(--text-main); 
-    border-bottom: 1px solid #f1f3f4; 
-    padding-bottom: 10px; 
-}
-
-/* --- TABLA DE AGENDA (EL DISEÑO QUE TE GUSTA) --- */
-#areaExportar { 
-    padding: 30px; 
-    background: #ffffff; 
+input, select, textarea { 
+    padding: 12px; 
     border-radius: 12px; 
-    width: 850px; 
-    margin: 0 auto; 
-    display: block; 
+    border: 1px solid #dadce0; 
+    font-size: 0.95rem; 
+    background: white; 
+    width: 100%; 
+    box-sizing: border-box; 
+    outline: none;
 }
 
-.export-header { 
-    margin-bottom: 25px; 
-    border-bottom: 2px solid var(--google-blue); 
-    padding-bottom: 15px; 
-    text-align: center; 
+input:focus, select:focus, textarea:focus {
+    border: 2px solid var(--google-blue);
 }
 
+/* --- TABLA DE AGENDA (NEGRITAS INTEGRADAS) --- */
 .agenda-table { 
     width: 100%; 
     border-collapse: separate; 
@@ -142,7 +127,7 @@ header h1 {
     padding: 12px; 
     text-align: center; 
     color: #202124; 
-    font-weight: 900; 
+    font-weight: 900; /* Encabezados en negrita fuerte */
     text-transform: uppercase; 
     border-bottom: 1px solid #e0e0e0; 
 }
@@ -150,14 +135,25 @@ header h1 {
 .agenda-table td { 
     padding: 12px; 
     border-bottom: 1px solid #f1f3f4; 
+    color: #202124; 
     text-align: center; 
+}
+
+/* Forzamos negrita en Día y Fecha */
+.agenda-table td:nth-child(1),
+.agenda-table td:nth-child(2),
+.agenda-table td.bold-cell { 
+    font-weight: 700; 
 }
 
 .agenda-table tr.day-separator td { 
     border-top: 3px solid var(--google-blue); 
 }
 
-/* --- COMPONENTES Y MODALES --- */
+/* --- OTROS COMPONENTES --- */
+.container { max-width: 900px; margin: 32px auto; padding: 0 8px; }
+.module-section { background: var(--gemini-card); border-radius: var(--border-radius); padding: 24px; margin-bottom: 24px; border: 1px solid #dadce0; }
+.module-title { font-family: 'Google Sans', sans-serif; font-size: 1.2rem; margin-bottom: 20px; color: var(--text-main); border-bottom: 1px solid #f1f3f4; padding-bottom: 10px; }
 .hidden { display: none !important; }
 
 .modal { 
@@ -182,71 +178,14 @@ header h1 {
     overflow-y: auto; 
 }
 
-.chip-group { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 8px; 
-    background: #f8f9fa; 
-    padding: 12px; 
-    border-radius: 12px; 
-    border: 1px solid #eee; 
-}
+.chip-group { display: flex; flex-wrap: wrap; gap: 8px; background: #f8f9fa; padding: 12px; border-radius: 12px; border: 1px solid #eee; }
+.chip-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; background: white; padding: 4px 10px; border-radius: 16px; border: 1px solid #dadce0; }
 
-.chip-item { 
-    display: flex; 
-    align-items: center; 
-    gap: 6px; 
-    font-size: 0.8rem; 
-    background: white; 
-    padding: 4px 10px; 
-    border-radius: 16px; 
-    border: 1px solid #dadce0; 
-}
+.btn-primary { background: var(--google-blue); color: white; padding: 12px 24px; border-radius: 28px; border: none; font-weight: 500; cursor: pointer; }
+.btn-outline { background: white; border: 1px solid #dadce0; color: var(--google-blue); padding: 10px 20px; border-radius: 28px; cursor: pointer; }
+.btn-danger-outline { background: white; border: 1px solid #f5c2c7; color: var(--google-red); padding: 6px 12px; font-size: 0.75rem; border-radius: 20px; }
+.btn-edit-outline { background: white; border: 1px solid #dadce0; color: var(--google-blue); padding: 6px 12px; font-size: 0.75rem; border-radius: 20px; }
 
-.group-card, .contact-item { 
-    border: 1px solid #dadce0; 
-    padding: 16px; 
-    border-radius: 16px; 
-    margin-top: 10px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    background: #fff; 
-}
-
-/* --- BOTONES --- */
-.btn-primary { 
-    background: var(--google-blue); 
-    color: white; 
-    padding: 12px 24px; 
-    border-radius: 28px; 
-    border: none; 
-    font-weight: 500; 
-    cursor: pointer; 
-}
-
-.btn-outline { 
-    background: white; 
-    border: 1px solid #dadce0; 
-    color: var(--google-blue); 
-    padding: 10px 20px; 
-    border-radius: 28px; 
-    cursor: pointer; 
-}
-
-.btn-whatsapp { 
-    background: #25D366; 
-    color: white; 
-    padding: 8px 16px; 
-    border-radius: 20px; 
-    text-decoration: none; 
-    font-size: 0.8rem; 
-}
-
-.sub-section { 
-    background: #f1f3f4; 
-    padding: 20px; 
-    border-radius: 20px; 
-    margin-top: 15px; 
-    border-left: 4px solid var(--google-blue); 
-}
+.group-card, .contact-item { border: 1px solid #dadce0; padding: 16px; border-radius: 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+.btn-whatsapp { background: #25D366; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.8rem; }
+.sub-section { background: #f1f3f4; padding: 20px; border-radius: 20px; margin-top: 15px; border-left: 4px solid var(--google-blue); }
