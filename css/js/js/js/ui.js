@@ -387,6 +387,36 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+/* ÚLTIMO BLOQUE: Control de envíos de formularios */
+
+document.getElementById('formConductor')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const datos = {
+        nombre: document.getElementById('cNombre').value,
+        apellido: document.getElementById('cApellido').value,
+        telefono: document.getElementById('cTelefono').value,
+        esAnciano: document.getElementById('cEsAnciano').value === 'si',
+        grupo: document.getElementById('cGrupoAsignado').value,
+        disponibilidadDias: Array.from(document.querySelectorAll('#cDias input:checked')).map(cb => cb.value),
+        disponibilidadHoras: Array.from(document.querySelectorAll('#cHoras input:checked')).map(cb => cb.value),
+        fechaDisponible: document.getElementById('cFechaDisponible').value,
+        fechaNoDisponible: document.getElementById('cFechaNoDisponible').value
+    };
+    if (agregarOEditarConductor(datos)) closeModal('modalConductor');
+});
+
+document.getElementById('formTerritorio')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const datos = {
+        numero: document.getElementById('tNumero').value,
+        nombre: document.getElementById('tNombre').value,
+        subNombre: document.getElementById('tSubNombre').value,
+        lugar: document.getElementById('tLugar').value,
+        disponibilidadDias: Array.from(document.querySelectorAll('#tDias input:checked')).map(cb => cb.value),
+        disponibilidadHoras: Array.from(document.querySelectorAll('#tHoras input:checked')).map(cb => cb.value)
+    };
+    if (agregarOEditarTerritorio(datos)) closeModal('modalTerritorio');
+});
 
 
 
