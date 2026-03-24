@@ -1,40 +1,37 @@
-/* ARCHIVO: js/ui.js - PARTE 1: NAVEGACIÓN Y GESTIÓN DE CONDUCTORES (RESTAURADO) */
+/* ARCHIVO: js/ui.js - PARTE 1: NAVEGACIÓN Y CAPTURA DE DATOS AM/PM */
 
-// --- 1. NAVEGACIÓN Y VISIBILIDAD DE PESTAÑAS ---
-
+// --- 1. NAVEGACIÓN DE PESTAÑAS ---
 function switchTab(tabId) {
-    // 1. Limpiamos estados activos de los botones
+    // Gestionar estado visual de los botones
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     
-    // 2. Escondemos TODAS las pestañas
+    // Ocultar contenidos previos
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
         content.style.display = 'none'; 
     });
 
-    // 3. Activamos el botón seleccionado
+    // Activar pestaña elegida
     const selectedBtn = Array.from(document.querySelectorAll('.tab-btn'))
         .find(btn => btn.getAttribute('onclick').includes(tabId));
     if (selectedBtn) selectedBtn.classList.add('active');
 
-    // 4. Activamos la pestaña seleccionada
-    const targetContent = document.getElementById(tabId);
-    if (targetContent) {
-        targetContent.classList.add('active');
-        targetContent.style.display = 'block';
+    const target = document.getElementById(tabId);
+    if (target) {
+        target.classList.add('active');
+        target.style.display = 'block';
         
-        // Inyectamos la estructura si está vacía (Loader)
-        if (targetContent.innerHTML.trim() === "") {
+        // Inyectar estructura si es la primera vez o está vacío
+        if (target.innerHTML.trim() === "") {
             inyectarEstructuraTab(tabId);
         }
         
-        // Renderizamos los datos específicos según la pestaña
+        // Refrescar datos según la sección
         if (tabId === 'tab-personal') renderListaConductores();
         if (tabId === 'tab-territorios') renderListaTerritorios();
         if (tabId === 'tab-config') renderListaGrupos();
         if (tabId === 'tab-agenda') cargarAgendaDelMes();
     }
-    
     localStorage.setItem('vdm_active_tab', tabId);
 }
 
@@ -48,13 +45,15 @@ function closeModal(id) {
     if (modal) modal.style.display = 'none'; 
 }
 
-// --- 2. GESTIÓN DE CONDUCTORES (CRUD COMPLETO) ---
+// --- 2. GESTIÓN DE PERSONAL (CONDUCTORES) ---
 
 function openModalConductor() { 
-    document.getElementById('formConductor').reset(); 
+    const form = document.getElementById('formConductor');
+    form.reset(); 
     document.getElementById('editIndexConductor').value = ""; 
     document.getElementById('grupoSugerido').classList.add('hidden'); 
-    // Limpieza manual de checkboxes AM/PM
+    
+    // Limpiar manualmente los checks de AM/PM para nuevo registro
     document.querySelectorAll('#disponibilidadSemanal input[type="checkbox"]').forEach(cb => cb.checked = false);
     openModal('modalConductor'); 
 }
@@ -63,17 +62,19 @@ function renderListaConductores() {
     const cont = document.getElementById('listaConductores');
     if (!cont) return;
     cont.innerHTML = '';
+    
+    // Ordenar alfabéticamente para que se vea profesional
     conductores.sort((a,b) => a.nombre.localeCompare(b.nombre));
 
     conductores.forEach((c, i) => {
         cont.innerHTML += `
-            <div class="group-card">
+            <div class="contact-item">
                 <div>
-                    <strong>${c.nombre} ${c.apellido}</strong><br>
-                    <small>G${c.grupo || 'S/G'} ${c.esAnciano ? '(Anciano)' : ''}</small>
+                    <span style="font-weight:700; color: var(--google-blue);">${c.nombre} ${c.apellido}</span><br>
+                    <small style="color: var(--text-sub);">Grupo ${c.grupo || '?'} | ${c.esAnciano ? 'Anciano' : 'Publicador'}</small>
                 </div>
-                <div>
-                    <button class="btn-edit-outline" onclick="editarConductor(${i})">Edit</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-edit-outline" onclick="editarConductor(${i})">Editar</button>
                     <button class="btn-danger-outline" onclick="eliminarConductor(${i})">X</button>
                 </div>
             </div>`;
@@ -90,7 +91,7 @@ function editarConductor(i) {
     document.getElementById('cGrupoAsignado').value = c.grupo || "1";
     document.getElementById('grupoSugerido').classList.toggle('hidden', !c.esAnciano);
     
-    // Marcar disponibilidad AM/PM guardada
+    // Restaurar los checks AM/PM guardados en la base de datos
     document.querySelectorAll('#disponibilidadSemanal input[type="checkbox"]').forEach(cb => {
         cb.checked = (c.disponibilidadDias || []).includes(cb.value);
     });
@@ -101,25 +102,26 @@ function editarConductor(i) {
 }
 
 function eliminarConductor(i) {
-    if(confirm("¿Eliminar este conductor?")) {
+    if(confirm("¿Eliminar este registro de personal?")) {
         conductores.splice(i, 1);
         guardarLocal();
         renderListaConductores();
     }
 }
+/* ARCHIVO: js/ui.js - PARTE 2: LISTENERS Y GESTIÓN DE TERRITORIOS/GRUPOS */
 
-/* ARCHIVO: js/ui.js - PARTE 2: LISTENERS Y GESTIÓN DE TERRITORIOS */
-
-// --- 3. LISTENERS DE FORMULARIOS (CAPTURA DETALLADA) ---
+// --- 3. LISTENERS DE FORMULARIOS (CAPTURA DE DATOS) ---
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Listener para el Formulario de Conductor
+    // Listener Único para procesar todos los formularios
     document.body.addEventListener('submit', (e) => {
+        
+        // A. GUARDAR CONDUCTOR
         if (e.target.id === 'formConductor') {
             e.preventDefault();
             const index = document.getElementById('editIndexConductor').value;
             
-            // Captura de disponibilidad AM/PM (Clave para la Mejora 2)
+            // Captura dinámica de disponibilidad AM/PM
             const disponibilidadActualizada = [];
             document.querySelectorAll('#disponibilidadSemanal .day-row').forEach(row => {
                 const dayCheck = row.querySelector('.day-check');
@@ -132,9 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const c = {
-                nombre: document.getElementById('cNombre').value,
-                apellido: document.getElementById('cApellido').value,
-                telefono: document.getElementById('cTelefono').value,
+                nombre: document.getElementById('cNombre').value.trim(),
+                apellido: document.getElementById('cApellido').value.trim(),
+                telefono: document.getElementById('cTelefono').value.trim(),
                 esAnciano: document.getElementById('cEsAnciano').value === 'si',
                 grupo: document.getElementById('cGrupoAsignado').value,
                 disponibilidadDias: disponibilidadActualizada, 
@@ -143,10 +145,14 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             if (index === "") conductores.push(c); else conductores[index] = c;
-            guardarLocal(); renderListaConductores(); actualizarSelectAncianos(); closeModal('modalConductor');
+            
+            guardarLocal(); 
+            renderListaConductores(); 
+            actualizarSelectAncianos(); 
+            closeModal('modalConductor');
         }
 
-        // Listener para el Formulario de Territorio
+        // B. GUARDAR TERRITORIO
         if (e.target.id === 'formTerritorio') {
             e.preventDefault();
             const index = document.getElementById('editIndexTerritorio').value;
@@ -162,6 +168,18 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             if(index === "") territorios.push(t); else territorios[index] = t;
             guardarLocal(); renderListaTerritorios(); closeModal('modalTerritorio');
+        }
+
+        // C. GUARDAR GRUPO
+        if (e.target.id === 'formGrupo') {
+            e.preventDefault();
+            const index = document.getElementById('editIndexGrupo').value;
+            const g = { 
+                numero: document.getElementById('gNumero').value, 
+                anciano: document.getElementById('gAnciano').value 
+            };
+            if(index === "") grupos.push(g); else grupos[index] = g;
+            guardarLocal(); renderListaGrupos(); closeModal('modalGrupo');
         }
     });
 });
@@ -182,12 +200,12 @@ function renderListaTerritorios() {
     territorios.sort((a,b) => (parseInt(a.numero)||999) - (parseInt(b.numero)||999));
 
     territorios.forEach((t, i) => {
-        const subBadge = t.subNombre ? `<br><small class="subterritorio-badge">Sub: ${t.subNombre}</small>` : '';
+        const subInfo = t.subNombre ? `<br><small style="color:var(--google-blue);">↳ Sub: ${t.subNombre}</small>` : '';
         cont.innerHTML += `
-            <div class="group-card">
-                <div><strong>${t.numero}. ${t.nombre}</strong>${subBadge}</div>
-                <div>
-                    <button class="btn-edit-outline" onclick="editarTerritorio(${i})">Edit</button>
+            <div class="contact-item">
+                <div><strong>${t.numero}. ${t.nombre}</strong>${subInfo}</div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-edit-outline" onclick="editarTerritorio(${i})">Editar</button>
                     <button class="btn-danger-outline" onclick="eliminarTerritorio(${i})">X</button>
                 </div>
             </div>`;
@@ -209,20 +227,9 @@ function editarTerritorio(i) {
     openModal('modalTerritorio');
 }
 
-function eliminarTerritorio(i) {
-    if(confirm("¿Eliminar territorio?")) { territorios.splice(i,1); guardarLocal(); renderListaTerritorios(); }
-}
+/* ARCHIVO: js/ui.js - PARTE 3: GRUPOS, HISTORIAL Y WHATSAPP (RESTAURADO) */
 
-/* ARCHIVO: js/ui.js - PARTE 3: AGENDA, GRUPOS Y WHATSAPP (COMPLETO) */
-
-// --- 5. GESTIÓN DE GRUPOS (CRUD) ---
-
-function openModalGrupo() { 
-    document.getElementById('formGrupo').reset(); 
-    document.getElementById('editIndexGrupo').value = ""; 
-    actualizarSelectAncianos(); 
-    openModal('modalGrupo'); 
-}
+// --- 5. GESTIÓN DE GRUPOS (8 GRUPOS) ---
 
 function renderListaGrupos() { 
     const cont = document.getElementById('listaGrupos'); 
@@ -232,32 +239,14 @@ function renderListaGrupos() {
     
     grupos.forEach((g,i) => {
         cont.innerHTML += `
-            <div class="group-card">
+            <div class="contact-item">
                 <div><strong>Grupo ${g.numero}</strong><br><small>Responsable: ${g.anciano}</small></div>
-                <div>
-                    <button class="btn-edit-outline" onclick="editarGrupo(${i})">Edit</button>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-edit-outline" onclick="editarGrupo(${i})">Editar</button>
                     <button class="btn-danger-outline" onclick="eliminarGrupo(${i})">X</button>
                 </div>
             </div>`;
     }); 
-}
-
-function editarGrupo(i) { 
-    const g = grupos[i]; 
-    document.getElementById('editIndexGrupo').value = i; 
-    actualizarSelectAncianos(); 
-    document.getElementById('gNumero').value = g.numero; 
-    document.getElementById('gAnciano').value = g.anciano; 
-    openModal('modalGrupo'); 
-}
-
-function eliminarGrupo(i) { 
-    if(confirm("¿Eliminar este grupo?")) { 
-        grupos.splice(i,1); 
-        guardarLocal(); 
-        guardarSincronizar();
-        renderListaGrupos(); 
-    } 
 }
 
 function actualizarSelectAncianos() {
@@ -270,35 +259,7 @@ function actualizarSelectAncianos() {
     });
 }
 
-// --- 6. RENDERIZADO DE AGENDA Y WHATSAPP ---
-
-function renderAgenda(datos, nombreMes) {
-    const displayFecha = document.getElementById('fechaActualDisplay');
-    if (displayFecha) displayFecha.innerText = `${nombreMes} ${obtenerAnioTrabajo()}`;
-    
-    const cuerpo = document.getElementById('tablaCuerpoAgenda');
-    if (!cuerpo) return;
-    cuerpo.innerHTML = '';
-    let ultimoDia = null;
-
-    datos.forEach((f, i) => {
-        const tr = document.createElement('tr');
-        if (ultimoDia !== null && ultimoDia !== f.diaMes) tr.className = 'day-separator';
-        
-        tr.innerHTML = `
-            <td class="bold-cell">${ultimoDia !== f.diaMes ? f.diaSemana : ''}</td>
-            <td class="bold-cell">${ultimoDia !== f.diaMes ? f.diaMes : ''}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'hora',this.innerText)">${f.hora}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'conductor',this.innerText)">${f.conductor}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'territorio',this.innerText)">${f.territorio}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'lugar',this.innerText)">${f.lugar}</td>
-            <td contenteditable="true" onblur="actualizarCelda(${i},'grupos',this.innerText)">${f.grupos}</td>`;
-        
-        cuerpo.appendChild(tr);
-        ultimoDia = f.diaMes;
-    });
-    renderContactos();
-}
+// --- 6. WHATSAPP Y RECORDATORIOS (Aspecto Mejorado) ---
 
 function renderContactos() {
     const cont = document.getElementById('listaContactos'); 
@@ -306,7 +267,10 @@ function renderContactos() {
     cont.innerHTML = '';
     const mesActivo = document.getElementById('mesAgenda').value;
     const hoy = new Date().getDate();
-    if (!agendasMaestras[mesActivo]) return;
+    if (!agendasMaestras[mesActivo]) {
+        cont.innerHTML = '<p style="font-size:0.8rem; color:var(--text-sub);">No hay agenda generada para este mes.</p>';
+        return;
+    }
 
     const proximas = agendasMaestras[mesActivo].filter(a => a.diaMes === hoy || a.diaMes === hoy + 1);
     
@@ -319,20 +283,68 @@ function renderContactos() {
         
         cont.innerHTML += `
             <div class="contact-item">
-                <div><strong>${asig.conductor}</strong><br><small>${asig.diaSemana} ${asig.diaMes} - ${asig.hora}</small></div>
-                <div class="contact-actions">
-                    <span class="check-icon" style="display: ${asig.avisado ? 'inline' : 'none'}; color: var(--google-green); margin-right: 8px;">✓</span>
-                    <a href="https://wa.me/${telf}?text=${encodeURIComponent(msg)}" target="_blank" class="btn-whatsapp" onclick="marcarComoAvisado(${idxReal})">WhatsApp</a>
+                <div>
+                    <span style="font-weight:700;">${asig.conductor}</span><br>
+                    <small>${asig.diaSemana} ${asig.diaMes} - ${asig.hora}</small>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="check-icon" style="display: ${asig.avisado ? 'inline' : 'none'}; color: var(--google-green); font-weight: bold;">✓</span>
+                    <a href="https://wa.me/${telf}?text=${encodeURIComponent(msg)}" target="_blank" class="btn-whatsapp" style="background:#25D366; color:white; padding:8px 12px; border-radius:12px; text-decoration:none; font-size:0.75rem;" onclick="marcarComoAvisado(${idxReal})">WhatsApp</a>
                 </div>
             </div>`;
     });
 }
 
-function marcarComoAvisado(idx) {
-    const mes = document.getElementById('mesAgenda').value;
-    if (agendasMaestras[mes] && agendasMaestras[mes][idx]) {
-        agendasMaestras[mes][idx].avisado = true;
-        renderContactos();
-    }
+// --- 7. HISTORIAL Y EXPORTACIÓN ---
+
+function renderHistorial() {
+    const cont = document.getElementById('listaHistorial'); 
+    if(!cont) return;
+    cont.innerHTML = '';
+    const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    
+    Object.keys(historialAgendas).sort((a,b) => a-b).forEach(m => {
+        cont.innerHTML += `
+            <div class="contact-item">
+                <span>Agenda de <strong>${meses[m-1]}</strong></span> 
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-edit-outline" onclick="cargarDeHistorial(${m})">Cargar</button>
+                    <button class="btn-danger-outline" onclick="borrarDeHistorial(${m})">Borrar</button>
+                </div>
+            </div>`;
+    });
 }
+
+async function descargarImagen() {
+    const area = document.getElementById('areaExportar'); 
+    const rango = document.getElementById('rangoExportar').value;
+    const filas = Array.from(document.querySelectorAll('#tablaCuerpoAgenda tr'));
+
+    // Filtrar visualmente para la foto
+    filas.forEach(tr => {
+        let diaCelda = tr.cells[1].innerText;
+        if (!diaCelda) { 
+            let prev = tr.previousElementSibling; 
+            while (prev && !diaCelda) { diaCelda = prev.cells[1].innerText; prev = prev.previousElementSibling; } 
+        }
+        const dia = parseInt(diaCelda); 
+        let visible = true;
+        if (rango === 'sem1' && (dia < 1 || dia > 7)) visible = false; 
+        else if (rango === 'sem2' && (dia < 8 || dia > 14)) visible = false; 
+        else if (rango === 'sem3' && (dia < 15 || dia > 21)) visible = false; 
+        else if (rango === 'sem4' && dia < 22) visible = false;
+        tr.style.display = visible ? '' : 'none';
+    });
+
+    try {
+        const canvas = await html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+        const link = document.createElement('a'); 
+        link.download = `Agenda_VistaAlMar_${rango}.png`; 
+        link.href = canvas.toDataURL("image/png"); 
+        link.click();
+    } catch (e) { console.error("Error capturando imagen", e); } 
+    finally { filas.forEach(f => f.style.display = ''); }
+}
+
+
 
