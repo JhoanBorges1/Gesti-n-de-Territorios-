@@ -1,4 +1,4 @@
-/* ARCHIVO: js/app.js - EL MOTOR LÓGICO DE VISTA AL MAR */
+/* ARCHIVO: js/app.js - MOTOR LÓGICO, SINCRONIZACIÓN Y AM/PM */
 
 // --- 1. ESTADO GLOBAL ---
 let conductores = [];
@@ -7,7 +7,6 @@ let grupos = [];
 let agendasMaestras = {};
 let historialAgendas = {};
 
-// Matriz de horarios fija para Vista Al Mar (Restaurada)
 const MATRIZ_HORARIOS = { 
     'LUN': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 
     'MAR': ['07:00 AM', '09:00 AM', '04:00 PM'], 
@@ -18,19 +17,19 @@ const MATRIZ_HORARIOS = {
     'DOM': ['11:00 AM'] 
 };
 
-// --- 2. INICIALIZACIÓN ---
+// --- 2. INICIALIZACIÓN CON PRIORIDAD NUBE (Sincronización Total) ---
 async function initApp() {
-    console.log("Cargando base de datos...");
+    console.log("Sincronizando datos...");
     
-    // 1. Carga rápida local (LocalStorage)
+    // Carga local rápida
     const local = JSON.parse(localStorage.getItem('vdm_data') || '{}');
     conductores = local.conductores || [];
     territorios = local.territorios || [];
     grupos = local.grupos || [];
-    agendasMaestras = local.registros || {};
     historialAgendas = local.historial || {};
+    agendasMaestras = {}; 
 
-    // 2. Sincronización con la Nube (Supabase)
+    // Descarga forzada de Supabase para actualización multi-dispositivo
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
@@ -45,25 +44,22 @@ async function initApp() {
                 conductores = d.conductores || conductores;
                 territorios = d.territorios || territorios;
                 grupos = d.grupos || grupos;
-                agendasMaestras = d.registros || agendasMaestras;
                 historialAgendas = d.historial || historialAgendas;
+                
+                guardarLocal(); // Actualizamos el local con lo más nuevo de la nube
             }
         }
     } catch (e) { 
-        console.warn("Sincronización fallida: Usando datos locales."); 
+        console.warn("Modo offline: No se pudo sincronizar con la nube."); 
     }
     
-    // 3. Dibujamos la interfaz una vez que los datos están listos
-    if (typeof renderAll === 'function') {
-        renderAll();
-    }
-    
-    actualizarDatalists(); // Activa sugerencias en las tablas
+    if (typeof renderAll === 'function') renderAll();
+    actualizarDatalists();
 }
 
 // --- 3. PERSISTENCIA ---
 function guardarLocal() { 
-    const payload = { conductores, territorios, grupos, registros: agendasMaestras, historial: historialAgendas };
+    const payload = { conductores, territorios, grupos, historial: historialAgendas };
     localStorage.setItem('vdm_data', JSON.stringify(payload)); 
 }
 
@@ -77,18 +73,18 @@ async function guardarSincronizar() {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) return;
         
-        const payload = { registros: agendasMaestras, conductores, territorios, grupos, historial: historialAgendas };
+        const payload = { conductores, territorios, grupos, historial: historialAgendas };
         await supabaseClient.from('registros_tablas').upsert([{ user_id: session.user.id, datos: payload }]);
         
-        if (btn) btn.innerText = "✅ ¡En la Nube!";
+        if (btn) btn.innerText = "✅ ¡Sincronizado!";
     } catch (e) { 
-        if (btn) btn.innerText = "❌ Error"; 
+        if (btn) btn.innerText = "❌ Error Nube"; 
     }
     
     setTimeout(() => { if (btn) btn.innerText = "Sincronizar Nube"; }, 3000);
 }
 
-// --- 4. MOTOR DE ASIGNACIÓN INTELIGENTE ---
+// --- 4. MOTOR DE GENERACIÓN CON LÓGICA AM/PM ---
 function generarNuevaAgenda() {
     const mesSelect = document.getElementById('mesAgenda');
     const mes = mesSelect.value;
@@ -108,33 +104,39 @@ function generarNuevaAgenda() {
         let territoriosUsadosHoy = [];
 
         horariosDelDia.forEach(hora => {
-            // Filtro de conductores disponibles
+            const esTarde = hora.includes("PM");
+            const bloqueBuscado = `${diaNombre}-${esTarde ? 'PM' : 'AM'}`;
+
+            // Filtrar conductores por el nuevo formato AM/PM
             const disponibles = conductores.filter(c => {
-                const cumpleDiaHora = c.disponibilidadDias?.includes(diaNombre) && c.disponibilidadHoras?.includes(hora);
-                const noDisponible = c.fechaNoDisponible === fechaIso;
-                const forzadoDisponible = c.fechaDisponible === fechaIso;
-                return (cumpleDiaHora && !noDisponible) || forzadoDisponible;
+                const cumpleBloque = (c.disponibilidadDias || []).includes(bloqueBuscado);
+                const forzado = c.fechaDisponible === fechaIso;
+                const bloqueado = c.fechaNoDisponible === fechaIso;
+                return (cumpleBloque || forzado) && !bloqueado;
             });
 
-            // Filtro de territorios disponibles (No repetir hoy)
-            const terrDisponibles = territorios.filter(t => 
-                t.disponibilidadDias?.includes(diaNombre) && 
-                t.disponibilidadHoras?.includes(hora) && 
-                !territoriosUsadosHoy.includes(t.nombre)
-            );
+            // Filtrar territorios (Principal o Subterritorio)
+            const terrDisponibles = territorios.filter(t => {
+                const cumplePrincipal = (t.disponibilidadDias || []).includes(diaNombre) && (t.disponibilidadHoras || []).includes(hora);
+                const cumpleSub = (t.subDias || []).includes(diaNombre) && (t.subHoras || []).includes(hora);
+                return (cumplePrincipal || cumpleSub) && !territoriosUsadosHoy.includes(t.nombre);
+            });
             
-            const cond = obtenerConductorMenosAsignado(disponibles, nuevaAgenda);
-            const terr = terrDisponibles.length > 0 ? terrDisponibles[Math.floor(Math.random() * terrDisponibles.length)] : null;
+            const cond = obtenerConductorEquitativo(disponibles, nuevaAgenda);
+            const t = terrDisponibles.length > 0 ? terrDisponibles[Math.floor(Math.random() * terrDisponibles.length)] : null;
 
-            if (terr) territoriosUsadosHoy.push(terr.nombre);
+            let nombreTerritorio = "Sin Territorio";
+            if (t) {
+                const esMomentoSub = (t.subDias || []).includes(diaNombre) && (t.subHoras || []).includes(hora);
+                nombreTerritorio = (esMomentoSub && t.subNombre) ? `${t.numero}. ${t.nombre} (${t.subNombre})` : `${t.numero}. ${t.nombre}`;
+                territoriosUsadosHoy.push(t.nombre);
+            }
 
             nuevaAgenda.push({
-                diaSemana: diaNombre, 
-                diaMes: i, 
-                hora: hora,
+                diaSemana: diaNombre, diaMes: i, hora: hora,
                 conductor: cond ? `${cond.nombre} ${cond.apellido}` : "Sin Asignar",
-                territorio: terr ? `${terr.numero}. ${terr.nombre}${terr.subNombre ? ' ('+terr.subNombre+')' : ''}` : "Sin Territorio",
-                lugar: terr ? terr.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Por Definir"),
+                territorio: nombreTerritorio,
+                lugar: t ? t.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Por Definir"),
                 grupos: (hora === "06:30 PM") ? "Telegram" : "Todos",
                 avisado: false
             });
@@ -142,46 +144,29 @@ function generarNuevaAgenda() {
     }
 
     agendasMaestras[mes] = nuevaAgenda;
-    guardarLocal();
-    
     if (typeof renderAgenda === 'function') {
         renderAgenda(nuevaAgenda, nombreMes);
         document.getElementById('resultadoAgenda').classList.remove('hidden');
     }
 }
 
-// Motor de equidad (Para que todos trabajen por igual)
-function obtenerConductorMenosAsignado(disponibles, agendaActual) {
+function obtenerConductorEquitativo(disponibles, agendaActual) {
     if (disponibles.length === 0) return null;
-    
     const conteo = {};
     disponibles.forEach(c => {
-        const nombreCompleto = `${c.nombre} ${c.apellido}`;
-        conteo[nombreCompleto] = agendaActual.filter(a => a.conductor === nombreCompleto).length;
+        const nom = `${c.nombre} ${c.apellido}`;
+        conteo[nom] = agendaActual.filter(a => a.conductor === nom).length;
     });
-
-    disponibles.sort((a, b) => {
-        return conteo[`${a.nombre} ${a.apellido}`] - conteo[`${b.nombre} ${b.apellido}`];
-    });
-
-    const minAsignaciones = conteo[`${disponibles[0].nombre} ${disponibles[0].apellido}`];
-    const candidatosFinales = disponibles.filter(c => conteo[`${c.nombre} ${c.apellido}`] === minAsignaciones);
-
-    return candidatosFinales[Math.floor(Math.random() * candidatosFinales.length)];
+    disponibles.sort((a, b) => conteo[`${a.nombre} ${a.apellido}`] - conteo[`${b.nombre} ${b.apellido}`]);
+    return disponibles[0];
 }
 
 // --- 5. UTILIDADES ---
-function obtenerAnioTrabajo() { return 2026; }
-
 function actualizarDatalists() {
-    // Sugerencias para cuando editas la tabla manualmente
     const dlCond = document.getElementById('listaSugerenciasConductores');
     const dlTerr = document.getElementById('listaSugerenciasTerritorios');
-    if (!dlCond || !dlTerr) return;
-
-    dlCond.innerHTML = ''; dlTerr.innerHTML = '';
-    conductores.forEach(c => dlCond.innerHTML += `<option value="${c.nombre} ${c.apellido}">`);
-    territorios.forEach(t => dlTerr.innerHTML += `<option value="${t.numero}. ${t.nombre}">`);
+    if (dlCond) dlCond.innerHTML = conductores.map(c => `<option value="${c.nombre} ${c.apellido}">`).join('');
+    if (dlTerr) dlTerr.innerHTML = territorios.map(t => `<option value="${t.numero}. ${t.nombre}">`).join('');
 }
 
 function actualizarCelda(idx, campo, valor) { 
