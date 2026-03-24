@@ -38,40 +38,54 @@ async function showApp() {
     // Aquí llamaremos a los renderizadores de cada pestaña más adelante
 }
 
-// --- EVENTOS DE AUTENTICACIÓN ---
-loginForm.addEventListener('submit', async (e) => {
+// Eventos de Autenticación
+document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-
+    
     const { error } = await _supabase.auth.signInWithPassword({ email, password });
-
     if (error) {
-        authMsg.textContent = "Error: " + error.message;
+        document.getElementById('auth-msg').innerText = "Acceso denegado.";
     } else {
-        showApp();
+        location.reload(); // Recargamos para que el listener de sesión detecte el cambio
     }
 });
 
-btnLogout.addEventListener('click', async () => {
+// Listener de Sesión (Copia exacta de tu código viejo que funciona)
+_supabase.auth.onAuthStateChange((event, session) => {
+    const auth = document.getElementById('auth-container');
+    const app = document.getElementById('app-content');
+    if (session) {
+        auth.classList.add('hidden');
+        app.classList.remove('hidden');
+        console.log("Sesión iniciada correctamente");
+    } else {
+        auth.classList.remove('hidden');
+        app.classList.add('hidden');
+    }
+});
+
+document.getElementById('btn-logout').addEventListener('click', async () => {
     await _supabase.auth.signOut();
-    localStorage.removeItem('data_app_v1'); // Limpieza de datos según Informe 2
     location.reload();
 });
 
-// --- GESTIÓN DE PESTAÑAS ---
+// Control de Pestañas
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        // Desactivar todos
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-        
-        // Activar seleccionado
+        document.querySelectorAll('.tab-content').forEach(c => {
+            c.classList.remove('active');
+            c.classList.add('hidden');
+        });
         btn.classList.add('active');
-        const tabId = btn.getAttribute('data-tab');
-        document.getElementById(tabId).classList.remove('hidden');
+        const target = btn.getAttribute('data-tab');
+        document.getElementById(target).classList.add('active');
+        document.getElementById(target).classList.remove('hidden');
     });
 });
+ 
 
 // Arrancar
 initApp();
