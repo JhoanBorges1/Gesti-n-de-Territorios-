@@ -1,5 +1,3 @@
-import { _supabase, data_app, cargarLocal, descargarNube, guardarLocal } from './db.js';
-
 // --- ELEMENTOS DE LA INTERFAZ ---
 const authContainer = document.getElementById('auth-container');
 const appContent = document.getElementById('app-content');
@@ -34,58 +32,51 @@ async function showApp() {
         cargarLocal();
     }
     
-    console.log("Datos cargados:", data_app);
-    // Aquí llamaremos a los renderizadores de cada pestaña más adelante
+    console.log("Datos cargados correctamente.");
+    // Aquí es donde en el próximo paso inyectaremos la lógica de los conductores
 }
 
-// Eventos de Autenticación
-document.getElementById('login-form').addEventListener('submit', async (e) => {
+// --- EVENTOS DE AUTENTICACIÓN ---
+loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
-    
+
     const { error } = await _supabase.auth.signInWithPassword({ email, password });
+
     if (error) {
-        document.getElementById('auth-msg').innerText = "Acceso denegado.";
+        authMsg.textContent = "Acceso denegado: " + error.message;
     } else {
-        location.reload(); // Recargamos para que el listener de sesión detecte el cambio
+        showApp();
     }
 });
 
-// Listener de Sesión (Copia exacta de tu código viejo que funciona)
-_supabase.auth.onAuthStateChange((event, session) => {
-    const auth = document.getElementById('auth-container');
-    const app = document.getElementById('app-content');
-    if (session) {
-        auth.classList.add('hidden');
-        app.classList.remove('hidden');
-        console.log("Sesión iniciada correctamente");
-    } else {
-        auth.classList.remove('hidden');
-        app.classList.add('hidden');
-    }
-});
-
-document.getElementById('btn-logout').addEventListener('click', async () => {
+btnLogout.addEventListener('click', async () => {
     await _supabase.auth.signOut();
+    localStorage.removeItem('data_app_v1'); 
     location.reload();
 });
 
-// Control de Pestañas
+// --- GESTIÓN DE PESTAÑAS ---
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+        // Desactivar todos
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => {
             c.classList.remove('active');
             c.classList.add('hidden');
         });
+        
+        // Activar seleccionado
         btn.classList.add('active');
-        const target = btn.getAttribute('data-tab');
-        document.getElementById(target).classList.add('active');
-        document.getElementById(target).classList.remove('hidden');
+        const tabId = btn.getAttribute('data-tab');
+        const targetTab = document.getElementById(tabId);
+        if (targetTab) {
+            targetTab.classList.add('active');
+            targetTab.classList.remove('hidden');
+        }
     });
 });
- 
 
-// Arrancar
+// Arrancar el motor
 initApp();
