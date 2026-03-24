@@ -111,6 +111,8 @@ async function guardarSincronizar() {
     setTimeout(() => { if (btn) btn.innerText = "Sincronizar Nube" }, 3000)
 }
 
+
+
 /* ARCHIVO: js/app.js - PARTE 2: Lógica de Conductores y Territorios */
 
 // --- 4. GESTIÓN DE CONDUCTORES ---
@@ -205,3 +207,187 @@ function eliminarGrupo(i) {
         renderListaGrupos()
     }
 }
+
+/* ARCHIVO: js/app.js - PARTE 3: Motor de Generación y Equidad */
+
+// --- 7. MOTOR DE EQUIDAD (ASIGNACIÓN JUSTA) ---
+
+function obtenerConductorMenosAsignado(disponibles, agendaActual) {
+    if (disponibles.length === 0) return null;
+    
+    // Contamos cuántas veces aparece cada conductor en lo que va de agenda
+    const conteo = {};
+    disponibles.forEach(c => {
+        const nombreCompleto = `${c.nombre} ${c.apellido}`;
+        conteo[nombreCompleto] = agendaActual.filter(a => a.conductor === nombreCompleto).length;
+    });
+
+    // Ordenamos por quien tiene menos "privilegios" asignados
+    disponibles.sort((a, b) => {
+        const nombreA = `${a.nombre} ${a.apellido}`;
+        const nombreB = `${b.nombre} ${b.apellido}`;
+        return conteo[nombreA] - conteo[nombreB];
+    });
+
+    // Filtramos a los que tienen el número mínimo de asignaciones para darles prioridad
+    const minAsignaciones = conteo[`${disponibles[0].nombre} ${disponibles[0].apellido}`];
+    const candidatosFinales = disponibles.filter(c => 
+        conteo[`${c.nombre} ${c.apellido}`] === minAsignaciones
+    );
+
+    // Si hay varios con el mismo número mínimo, elegimos uno al azar entre ellos
+    return candidatosFinales[Math.floor(Math.random() * candidatosFinales.length)];
+}
+
+// --- 8. GENERACIÓN DE AGENDA MENSUAL ---
+
+function generarNuevaAgenda() {
+    const mesSelect = document.getElementById('mesAgenda');
+    const mes = mesSelect.value;
+    const nombreMes = mesSelect.options[mesSelect.selectedIndex].text;
+    const anio = new Date().getFullYear();
+    const diasEnMes = new Date(anio, mes, 0).getDate();
+    const diasSemana = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+    
+    let nuevaAgenda = [];
+
+    for (let i = 1; i <= diasEnMes; i++) {
+        const fechaObj = new Date(anio, mes - 1, i);
+        const diaNombre = diasSemana[fechaObj.getDay()];
+        const fechaIso = fechaObj.toISOString().split('T')[0];
+        const horariosDelDia = MATRIZ_HORARIOS[diaNombre] || [];
+        
+        let territoriosUsadosHoy = [];
+
+        horariosDelDia.forEach(hora => {
+            // Filtrar conductores disponibles para este día y hora
+            const condsDisponibles = conductores.filter(c => {
+                const cumpleDiaHora = c.disponibilidadDias?.includes(diaNombre) && c.disponibilidadHoras?.includes(hora);
+                const noDisponible = c.fechaNoDisponible === fechaIso;
+                const forzadoDisponible = c.fechaDisponible === fechaIso;
+                return (cumpleDiaHora && !noDisponible) || forzadoDisponible;
+            });
+
+            // Filtrar territorios disponibles (evitando repetir el mismo nombre el mismo día)
+            const terrsDisponibles = territorios.filter(t => 
+                t.disponibilidadDias?.includes(diaNombre) && 
+                t.disponibilidadHoras?.includes(hora) && 
+                !territoriosUsadosHoy.includes(t.nombre)
+            );
+            
+            // Aplicar Motor de Equidad
+            const c = obtenerConductorMenosAsignado(condsDisponibles, nuevaAgenda);
+            
+            // Selección aleatoria de territorio entre los disponibles
+            const t = terrsDisponibles.length > 0 ? terrsDisponibles[Math.floor(Math.random() * terrsDisponibles.length)] : null;
+
+            if (t) territoriosUsadosHoy.push(t.nombre);
+
+            nuevaAgenda.push({
+                diaSemana: diaNombre, 
+                diaMes: i, 
+                hora: hora,
+                conductor: c ? `${c.nombre} ${c.apellido}` : "Sin Asignar",
+                territorio: t ? `${t.numero}. ${t.nombre}${t.subNombre ? ' ('+t.subNombre+')' : ''}` : "Sin Territorio",
+                lugar: t ? t.lugar : (hora === "06:30 PM" ? "Vía Telegram" : "Por Definir"),
+                grupos: (hora === "06:30 PM") ? "Telegram" : "Todos",
+                avisado: false
+            });
+        });
+    }
+
+    // Guardar en el estado global
+    agendasMaestras[mes] = nuevaAgenda;
+    guardarLocal();
+    
+    // Renderizado (se definirá en ui.js)
+    if (typeof renderAgenda === 'function') {
+        renderAgenda(nuevaAgenda, nombreMes);
+        document.getElementById('resultadoAgenda').classList.remove('hidden');
+    }
+}
+
+
+
+/* ARCHIVO: js/app.js - PARTE 4: Historial, WhatsApp y Utilidades */
+
+// --- 9. GESTIÓN DE HISTORIAL ---
+
+function guardarEnHistorial() {
+    const mes = document.getElementById('mesAgenda').value;
+    if (!agendasMaestras[mes]) {
+        alert("Primero debes generar una agenda para este mes.");
+        return;
+    }
+    // Clonamos el objeto para que no se altere si seguimos editando la agenda activa
+    historialAgendas[mes] = JSON.parse(JSON.stringify(agendasMaestras[mes]));
+    guardarLocal();
+    if (typeof renderHistorial === 'function') renderHistorial();
+    alert("Copia de seguridad guardada en el historial local.");
+}
+
+function borrarDeHistorial(m) {
+    if (confirm("¿Estás seguro de borrar el historial de este mes?")) {
+        delete historialAgendas[m];
+        guardarLocal();
+        renderHistorial();
+    }
+}
+
+// --- 10. LÓGICA DE WHATSAPP ---
+
+function marcarComoAvisado(idx) {
+    const mes = document.getElementById('mesAgenda').value;
+    if (agendasMaestras[mes] && agendasMaestras[mes][idx]) {
+        // Marcamos el registro como avisado
+        agendasMaestras[mes][idx].avisado = true;
+        
+        // Guardamos el cambio de estado
+        guardarLocal();
+        
+        // Refrescamos los contactos para mostrar el check verde (Función en ui.js)
+        if (typeof renderContactos === 'function') {
+            renderContactos();
+        }
+        
+        // Opcional: Sincronizar con la nube automáticamente al avisar
+        // guardarSincronizar(); 
+    }
+}
+
+// --- 11. UTILIDADES AUXILIARES ---
+
+function actualizarCelda(idx, campo, valor) { 
+    const mes = document.getElementById('mesAgenda').value; 
+    if (agendasMaestras[mes] && agendasMaestras[mes][idx]) { 
+        agendasMaestras[mes][idx][campo] = valor.trim(); 
+        guardarLocal(); 
+        // Si editamos el conductor, refrescamos la lista de WhatsApp
+        if (campo === 'conductor' && typeof renderContactos === 'function') {
+            renderContactos();
+        }
+    } 
+}
+
+function cargarAgendaDelMes() { 
+    const mesSelect = document.getElementById('mesAgenda');
+    const mes = mesSelect.value; 
+    const nombreMes = mesSelect.options[mesSelect.selectedIndex].text; 
+    
+    if (agendasMaestras[mes]) { 
+        if (typeof renderAgenda === 'function') {
+            renderAgenda(agendasMaestras[mes], nombreMes);
+            document.getElementById('resultadoAgenda').classList.remove('hidden');
+        }
+    } else {
+        document.getElementById('resultadoAgenda').classList.add('hidden'); 
+    }
+    
+    if (typeof renderContactos === 'function') renderContactos(); 
+}
+
+// Función para obtener el año actual dinámicamente
+function obtenerAnioTrabajo() {
+    return new Date().getFullYear();
+}
+
