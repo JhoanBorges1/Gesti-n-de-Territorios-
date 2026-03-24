@@ -1,74 +1,69 @@
-/* ARCHIVO: js/auth.js */
+/* ARCHIVO: js/auth.js - GESTIÓN DE ACCESO Y SESIÓN */
 
-// 1. Inicialización de Supabase
-const SUPABASE_URL = 'https://gbuqjbuwpdovuxzuysml.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv'
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+// 1. Configuración de Supabase (Vista Al Mar)
+const SUPABASE_URL = 'https://gbuqjbuwpdovuxzuysml.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_3MQOwq5YleBWlTapPiEWaw_okOxDHLv';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 2. Listener de Estado de Autenticación
-// Este bloque es el "vigilante": detecta si el usuario entró o salió
+// 2. Vigilante de Sesión
+// Detecta si hay un usuario logueado para mostrar la app o el login
 supabaseClient.auth.onAuthStateChange((event, session) => {
-    const authContainer = document.getElementById('auth-container')
-    const appContent = document.getElementById('app-content')
+    const authContainer = document.getElementById('auth-container');
+    const appContent = document.getElementById('app-content');
     
     if (session) {
-        // Si hay sesión, escondemos el login y mostramos la app
-        authContainer.classList.add('hidden')
-        appContent.classList.remove('hidden')
+        // Usuario dentro: Mostramos la App
+        if (authContainer) authContainer.classList.add('hidden');
+        if (appContent) appContent.classList.remove('hidden');
         
-        // Ejecutamos la inicialización de los datos si la función existe
+        // Disparamos la carga de datos en app.js
         if (typeof initApp === 'function') {
-            initApp()
+            initApp();
         }
     } else {
-        // Si no hay sesión, mostramos el login
-        authContainer.classList.remove('hidden')
-        appContent.classList.add('hidden')
+        // Usuario fuera: Mostramos el Login
+        if (authContainer) authContainer.classList.remove('hidden');
+        if (appContent) appContent.classList.add('hidden');
     }
-})
+});
 
-// 3. Lógica del Formulario de Login
+// 3. Lógica del Formulario de Inicio de Sesión
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('login-form')
-    const authMsg = document.getElementById('auth-msg')
+    const loginForm = document.getElementById('login-form');
+    const authMsg = document.getElementById('auth-msg');
 
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault() // CRÍTICO: Evita que la página se refresque
+            e.preventDefault();
             
-            authMsg.innerText = "Verificando..."
-            authMsg.style.color = "var(--google-blue)"
-
-            const email = document.getElementById('email').value.trim()
-            const password = document.getElementById('password').value
-
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password,
-                })
-
-                if (error) {
-                    authMsg.innerText = "Acceso denegado: " + error.message
-                    authMsg.style.color = "var(--google-red)"
-                } else {
-                    authMsg.innerText = "¡Bienvenido, Jhoan!"
-                    authMsg.style.color = "var(--google-green)"
-                }
-            } catch (err) {
-                authMsg.innerText = "Error de conexión"
-                console.error("Error en Auth:", err)
+            if (authMsg) {
+                authMsg.innerText = "Validando credenciales...";
+                authMsg.style.color = "var(--google-blue)";
             }
-        })
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            const { error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                if (authMsg) {
+                    authMsg.innerText = "Error: Acceso no autorizado";
+                    authMsg.style.color = "var(--google-red)";
+                }
+            }
+        });
     }
-})
+});
 
 // 4. Función de Salida
 async function handleLogout() {
-    const { error } = await supabaseClient.auth.signOut()
+    const { error } = await supabaseClient.auth.signOut();
     if (!error) {
-        window.location.reload()
-    } else {
-        console.error("Error al cerrar sesión:", error)
+        window.location.reload();
     }
 }
+ 
