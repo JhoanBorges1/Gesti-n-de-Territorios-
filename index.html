@@ -6,46 +6,52 @@
     <title>Gestión de Territorios Vista Al Mar</title>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/estilos.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="auth-container" class="auth-wrapper">
-        <div class="login-card">
-            <h2>Iniciar Sesión</h2>
-            <p>Acceso exclusivo Vista Al Mar</p>
-            <form id="login-form">
-                <input type="email" id="email" placeholder="Correo" required>
-                <input type="password" id="password" placeholder="Contraseña" required>
-                <button type="submit" class="btn-primary">Entrar al Sistema</button>
-            </form>
-            <p id="auth-msg" class="error-text"></p>
-        </div>
-    </div>
 
-    <div id="app-content" class="hidden">
-        <header>
-            <div style="width: 80px;"></div>
-            <h1>Gestión de Territorios Vista Al Mar</h1>
-            <button class="btn-danger-outline" id="btn-logout">Salir</button>
-        </header>
-        <nav class="tab-bar">
-            <button class="tab-btn active" data-tab="tab-agenda">Agenda</button>
-            <button class="tab-btn" data-tab="tab-personal">Personal</button>
-            <button class="tab-btn" data-tab="tab-territorios">Territorios</button>
-            <button class="tab-btn" data-tab="tab-config">Grupos</button>
-        </nav>
-        <main class="container">
-            <div id="tab-agenda" class="tab-content active"></div>
-            <div id="tab-personal" class="tab-content hidden"></div>
-            <div id="tab-territorios" class="tab-content hidden"></div>
-            <div id="tab-config" class="tab-content hidden"></div>
-        </main>
+<div id="auth-container">
+    <div class="login-box">
+        <h2>Iniciar Sesión</h2>
+        <p>Acceso exclusivo para administradores</p>
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Correo" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <button type="submit" class="btn-primary">Entrar al Sistema</button>
+        </form>
+        <p id="auth-msg"></p>
     </div>
+</div>
 
-    <script src="./js/db.js"></script>
-    
-    <script src="./js/main.js"></script>
+<div id="app-content" class="hidden">
+    <header>
+        <div style="width: 80px;"></div> 
+        <h1>Gestión de Territorios Vista Al Mar</h1>
+        <button class="btn-danger-outline" id="btn-logout">Salir</button>
+    </header>
+
+    <nav class="tab-bar">
+        <button class="tab-btn active" data-tab="tab-agenda">Agenda</button>
+        <button class="tab-btn" data-tab="tab-personal">Personal</button>
+        <button class="tab-btn" data-tab="tab-territorios">Territorios</button>
+        <button class="tab-btn" data-tab="tab-config">Grupos</button>
+    </nav>
+
+    <div class="container">
+        <div id="tab-agenda" class="tab-content active">
+            </div>
+        <div id="tab-personal" class="tab-content hidden"></div>
+        <div id="tab-territorios" class="tab-content hidden"></div>
+        <div id="tab-config" class="tab-content hidden"></div>
+    </div>
+</div>
+
+<datalist id="listaSugerenciasConductores"></datalist>
+<datalist id="listaSugerenciasTerritorios"></datalist>
+
+<script src="./js/db.js"></script>
+<script src="./js/main.js"></script>
 </body>
 </html>
- 
