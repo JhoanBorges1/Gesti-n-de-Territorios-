@@ -697,8 +697,10 @@
     }
     
     function borrarDeHistorial(m) { if(confirm("¿Borrar historial de este mes?")) { delete historialAgendas[m]; guardarLocal(); renderHistorial(); } }
-</script>
+        </div>
+</div>
 
+</script>
 <script>
     // --- EXPORTACIÓN DE IMAGEN (HTML2CANVAS) ---
     async function descargarImagen() {
@@ -761,7 +763,8 @@
     });
 
     function renderListaGrupos() { 
-        const cont = document.getElementById('listaGrupos'); cont.innerHTML = ''; 
+        const cont = document.getElementById('listaGrupos'); if(!cont) return;
+        cont.innerHTML = ''; 
         grupos.sort((a,b) => (parseInt(a.numero)||99) - (parseInt(b.numero)||99));
         grupos.forEach((g,i) => cont.innerHTML += `<div class="group-card"><div>Grupo ${g.numero} - ${g.anciano}</div><div><button class="btn-edit-outline" onclick="editarGrupo(${i})">Edit</button><button class="btn-danger-outline" onclick="eliminarGrupo(${i})">X</button></div></div>`); 
     }
@@ -777,8 +780,11 @@
         renderContactos(); 
     }
 
-    // --- MOTOR DE EQUIDAD Y ROBUSTEZ ---
+    // --- UTILIDADES Y ROBUSTEZ ---
     function obtenerAnioTrabajo() { return new Date().getFullYear(); }
+    function toggleVisibility(id) { const el = document.getElementById(id); el.classList.toggle('hidden'); }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function obtenerConductorMenosAsignado(disponibles, agendaActual) {
         if (disponibles.length === 0) return null;
@@ -800,6 +806,13 @@
     function validarDatosConductor(c) {
         if (!c.nombre || c.nombre.trim().length < 2) { alert("Nombre no válido."); return false; }
         return true;
+    }
+
+    function actualizarDatalists() {
+        const dlCond = document.getElementById('listaSugerenciasConductores');
+        const dlTerr = document.getElementById('listaSugerenciasTerritorios');
+        if(dlCond) dlCond.innerHTML = conductores.map(c => `<option value="${c.nombre} ${c.apellido}">`).join('');
+        if(dlTerr) dlTerr.innerHTML = territorios.map(t => `<option value="${t.numero}. ${t.nombre}">`).join('');
     }
 
     // --- EVENTOS DE TABLA (SUGERENCIAS) ---
@@ -825,4 +838,5 @@
 <datalist id="listaSugerenciasTerritorios"></datalist>
 
 </body>
-                            </html> 
+</html>
+ 
