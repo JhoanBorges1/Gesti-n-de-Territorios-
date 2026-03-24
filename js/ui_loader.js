@@ -1,8 +1,11 @@
-/* ARCHIVO: js/ui_loader.js - RESTAURACIÓN DE ESTRUCTURA ORIGINAL */
+/* ARCHIVO: js/ui_loader.js - RECONSTRUCCIÓN DE ESTRUCTURA DINÁMICA */
 
 function inyectarEstructuraTab(tabId) {
     const tab = document.getElementById(tabId);
     if (!tab) return;
+
+    // Limpiamos el contenido previo para evitar que se acumulen elementos al cambiar de pestaña
+    tab.innerHTML = '';
 
     switch (tabId) {
         case 'tab-agenda':
@@ -101,8 +104,16 @@ function inyectarEstructuraTab(tabId) {
     }
 }
 
-// Función auxiliar necesaria para los botones de "Ver Lista"
+// Función para mostrar/ocultar las listas (Personal, Territorios, etc.)
 function toggleVisibility(id) {
     const el = document.getElementById(id);
-    if (el) el.classList.toggle('hidden');
+    if (!el) return;
+
+    if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        el.style.display = 'block';
+    } else {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+    }
 }
