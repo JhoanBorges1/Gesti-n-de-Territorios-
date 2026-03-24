@@ -54,134 +54,154 @@
     </div>
 
 
-    <div id="modal-container">
-        <div id="modalConductor" class="modal">
-            <div class="modal-content">
-                <h2 class="module-title">Registro de Conductor</h2>
-                <form id="formConductor">
-                    <input type="hidden" id="editIndexConductor">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                        <input type="text" id="cNombre" placeholder="Nombre" required>
-                        <input type="text" id="cApellido" placeholder="Apellido" required>
+<div id="modal-container">
+    <div id="modalConductor" class="modal">
+        <div class="modal-content">
+            <h2 class="module-title" id="tituloModalConductor">Registro de Conductor</h2>
+            <form id="formConductor">
+                <input type="hidden" id="editIndexConductor">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div class="input-group"><label>Nombre</label><input type="text" id="cNombre" placeholder="Ej: Jhoan" required></div>
+                    <div class="input-group"><label>Apellido</label><input type="text" id="cApellido" placeholder="Ej: Borges" required></div>
+                </div>
+                <div class="input-group"><label>Teléfono</label><input type="tel" id="cTelefono" value="+58 " required></div>
+                <div class="input-group">
+                    <label>¿Es Anciano?</label>
+                    <select id="cEsAnciano" onchange="document.getElementById('grupoSugerido').classList.toggle('hidden', this.value !== 'si')">
+                        <option value="no">No</option><option value="si">Sí</option>
+                    </select>
+                </div>
+                <div id="grupoSugerido" class="input-group hidden">
+                    <label>Asignar a Grupo:</label>
+                    <select id="cGrupoAsignado">
+                        <option value="1">Grupo 1</option><option value="2">Grupo 2</option>
+                        <option value="3">Grupo 3</option><option value="4">Grupo 4</option>
+                        <option value="5">Grupo 5</option><option value="6">Grupo 6</option>
+                        <option value="7">Grupo 7</option><option value="8">Grupo 8</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Días Habituales</label>
+                    <div class="chip-group" id="cDias">
+                        <label class="chip-item"><input type="checkbox" value="LUN"> Lun</label>
+                        <label class="chip-item"><input type="checkbox" value="MAR"> Mar</label>
+                        <label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label>
+                        <label class="chip-item"><input type="checkbox" value="JUE"> Jue</label>
+                        <label class="chip-item"><input type="checkbox" value="VIE"> Vie</label>
+                        <label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label>
+                        <label class="chip-item"><input type="checkbox" value="DOM"> Dom</label>
                     </div>
-                    <input type="tel" id="cTelefono" value="+58 " required style="margin-top:10px;">
-                    
-                    <div class="input-group" style="margin-top:10px;">
-                        <label>¿Es Anciano?</label>
-                        <select id="cEsAnciano" onchange="toggleGrupoAnciano()">
-                            <option value="no">No</option><option value="si">Sí</option>
-                        </select>
+                </div>
+                <div class="input-group">
+                    <label>Horarios Disponibles</label>
+                    <div class="chip-group" id="cHoras">
+                        <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7 am</label>
+                        <label class="chip-item"><input type="checkbox" value="09:00 AM"> 9 am</label>
+                        <label class="chip-item"><input type="checkbox" value="11:00 AM"> 11 am</label>
+                        <label class="chip-item"><input type="checkbox" value="04:00 PM"> 4 pm</label>
+                        <label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm</label>
                     </div>
-                    <div id="grupoSugerido" class="input-group hidden">
-                        <label>Grupo Asignado</label>
-                        <select id="cGrupoAsignado">
-                            <option value="1">Grupo 1</option><option value="2">Grupo 2</option>
-                            <option value="3">Grupo 3</option><option value="4">Grupo 4</option>
-                            <option value="5">Grupo 5</option><option value="6">Grupo 6</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group"><label>Días Disponibles</label>
-                        <div id="cDias" class="chip-group">
-                            <label class="chip-item"><input type="checkbox" value="LUN"> Lun</label>
-                            <label class="chip-item"><input type="checkbox" value="MAR"> Mar</label>
-                            <label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label>
-                            <label class="chip-item"><input type="checkbox" value="JUE"> Jue</label>
-                            <label class="chip-item"><input type="checkbox" value="VIE"> Vie</label>
-                            <label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label>
-                            <label class="chip-item"><input type="checkbox" value="DOM"> Dom</label>
-                        </div>
-                    </div>
-                    <div class="input-group"><label>Horarios Habituales</label>
-                        <div id="cHoras" class="chip-group">
-                            <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7am</label>
-                            <label class="chip-item"><input type="checkbox" value="09:00 AM"> 9am</label>
-                            <label class="chip-item"><input type="checkbox" value="04:00 PM"> 4pm</label>
-                            <label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30pm</label>
-                        </div>
-                    </div>
-
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:10px;">
-                        <div class="input-group"><label>Fecha Extra</label><input type="date" id="cFechaDisponible"></div>
-                        <div class="input-group"><label>Fecha No Disponible</label><input type="date" id="cFechaNoDisponible"></div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
-                        <button type="submit" class="btn-primary">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div id="modalTerritorio" class="modal">
-            <div class="modal-content">
-                <h2 class="module-title">Configurar Territorio</h2>
-                <form id="formTerritorio">
-                    <input type="hidden" id="editIndexTerritorio">
-                    <div style="display:grid; grid-template-columns: 1fr 3fr; gap:12px;">
-                        <input type="number" id="tNumero" placeholder="N°" required>
-                        <input type="text" id="tNombre" placeholder="Nombre" required>
-                    </div>
-                    <input type="text" id="tSubNombre" placeholder="Subterritorio (Opcional)" style="margin-top:10px;">
-                    <textarea id="tLugar" placeholder="Lugar de encuentro" style="margin-top:10px; width:100%; border-radius:12px; padding:10px;"></textarea>
-
-                    <div class="input-group" style="margin-top:10px;"><label>Días Sugeridos</label>
-                        <div id="tDias" class="chip-group">
-                            <label class="chip-item"><input type="checkbox" value="LUN"> Lun</label>
-                            <label class="chip-item"><input type="checkbox" value="MAR"> Mar</label>
-                            <label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label>
-                            <label class="chip-item"><input type="checkbox" value="JUE"> Jue</label>
-                            <label class="chip-item"><input type="checkbox" value="VIE"> Vie</label>
-                            <label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label>
-                            <label class="chip-item"><input type="checkbox" value="DOM"> Dom</label>
-                        </div>
-                    </div>
-                    <div class="input-group"><label>Horarios Sugeridos</label>
-                        <div id="tHoras" class="chip-group">
-                            <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7am</label>
-                            <label class="chip-item"><input type="checkbox" value="09:00 AM"> 9am</label>
-                            <label class="chip-item"><input type="checkbox" value="04:00 PM"> 4pm</label>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
-                        <button type="submit" class="btn-primary">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div id="modalGrupo" class="modal">
-            <div class="modal-content">
-                <h2 class="module-title">Registrar Grupo</h2>
-                <form id="formGrupo">
-                    <input type="hidden" id="editIndexGrupo">
-                    <div class="input-group">
-                        <label>Número de Grupo</label>
-                        <select id="gNumero"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
-                    </div>
-                    <div class="input-group">
-                        <label>Encargado</label>
-                        <input type="text" id="gEncargado" placeholder="Nombre del encargado">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cerrar</button>
-                        <button type="submit" class="btn-primary">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div id="modalHistorial" class="modal">
-            <div class="modal-content">
-                <h2 class="module-title">Historial Guardado</h2>
-                <div id="listaHistorial"></div>
-                <div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div>
-            </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div class="input-group"><label>Fecha Disponible</label><input type="date" id="cFechaDisponible"></div>
+                    <div class="input-group"><label>Fecha NO Disponible</label><input type="date" id="cFechaNoDisponible"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('modalConductor')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
+
+    <div id="modalTerritorio" class="modal">
+        <div class="modal-content">
+            <h2 class="module-title" id="tituloModalTerritorio">Nuevo Territorio</h2>
+            <form id="formTerritorio">
+                <input type="hidden" id="editIndexTerritorio">
+                <div style="display:grid; grid-template-columns: 1fr 3fr; gap:12px;">
+                    <div class="input-group"><label>Número</label><input type="number" id="tNumero" placeholder="1" required></div>
+                    <div class="input-group"><label>Nombre del Territorio</label><input type="text" id="tNombre" placeholder="Ej: Zona A-1" required></div>
+                </div>
+                <div class="input-group"><label>Lugares de encuentro</label><textarea id="tLugar" rows="2" placeholder="Describe puntos de reunión..."></textarea></div>
+                <div class="input-group">
+                    <label>Días Sugeridos</label>
+                    <div class="chip-group" id="tDias">
+                        <label class="chip-item"><input type="checkbox" value="LUN"> Lun</label>
+                        <label class="chip-item"><input type="checkbox" value="MAR"> Mar</label>
+                        <label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label>
+                        <label class="chip-item"><input type="checkbox" value="JUE"> Jue</label>
+                        <label class="chip-item"><input type="checkbox" value="VIE"> Vie</label>
+                        <label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label>
+                        <label class="chip-item"><input type="checkbox" value="DOM"> Dom</label>
+                    </div>
+                </div>
+                <div class="chip-group" id="tHoras">
+                    <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7 am</label>
+                    <label class="chip-item"><input type="checkbox" value="09:00 AM"> 9 am</label>
+                    <label class="chip-item"><input type="checkbox" value="11:00 AM"> 11 am</label>
+                    <label class="chip-item"><input type="checkbox" value="04:00 PM"> 4 pm</label>
+                    <label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm</label>
+                </div>
+
+                <div class="sub-section">
+                    <label style="color:#1a73e8; font-weight:700;">Configuración de Subterritorio</label>
+                    <div class="input-group" style="margin-top:10px;"><input type="text" id="tsNombre" placeholder="Nombre del subterritorio"></div>
+                    <label style="font-size:0.75rem;">Días específicos:</label>
+                    <div class="chip-group" id="tsDias" style="margin-bottom:12px;">
+                        <label class="chip-item"><input type="checkbox" value="LUN"> Lun</label><label class="chip-item"><input type="checkbox" value="MAR"> Mar</label>
+                        <label class="chip-item"><input type="checkbox" value="MIÉ"> Mié</label><label class="chip-item"><input type="checkbox" value="JUE"> Jue</label>
+                        <label class="chip-item"><input type="checkbox" value="VIE"> Vie</label><label class="chip-item"><input type="checkbox" value="SÁB"> Sáb</label>
+                        <label class="chip-item"><input type="checkbox" value="DOM"> Dom</label>
+                    </div>
+                    <label style="font-size:0.75rem;">Horarios específicos:</label>
+                    <div class="chip-group" id="tsHoras">
+                        <label class="chip-item"><input type="checkbox" value="07:00 AM"> 7 am</label><label class="chip-item"><input type="checkbox" value="09:00 AM"> 9 am</label>
+                        <label class="chip-item"><input type="checkbox" value="04:00 PM"> 4 pm</label><label class="chip-item"><input type="checkbox" value="06:30 PM"> 6:30 pm</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('modalTerritorio')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalGrupo" class="modal">
+        <div class="modal-content">
+            <h2 class="module-title">Registrar Grupo</h2>
+            <form id="formGrupo">
+                <input type="hidden" id="editIndexGrupo">
+                <div class="input-group">
+                    <label>Número del Grupo</label>
+                    <select id="gNumero" required>
+                        <option value="1">Grupo 1</option><option value="2">Grupo 2</option>
+                        <option value="3">Grupo 3</option><option value="4">Grupo 4</option>
+                        <option value="5">Grupo 5</option><option value="6">Grupo 6</option>
+                        <option value="7">Grupo 7</option><option value="8">Grupo 8</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Anciano Responsable</label>
+                    <select id="gAnciano" required></select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cerrar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="modalHistorial" class="modal">
+        <div class="modal-content">
+            <h2 class="module-title">Historial Guardado</h2>
+            <div id="listaHistorial"></div>
+            <div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div>
+        </div>
+    </div>
+</div>
 
     <datalist id="dl-conductores"></datalist>
     <datalist id="dl-territorios"></datalist>
