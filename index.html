@@ -43,7 +43,6 @@
         }
         .export-header h2 { font-family: 'Google Sans', sans-serif; color: var(--google-blue); font-size: 1.5rem; margin: 0; }
         .export-header p { margin: 8px 0 0 0; color: var(--text-sub); font-size: 1.1rem; font-weight: 500; }
-
         /* --- TABLA --- */
         .table-responsive { width: 100%; overflow-x: auto; }
         .agenda-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; font-family: 'Google Sans', sans-serif; border: 1px solid #e0e0e0; border-radius: 12px; }
@@ -90,8 +89,7 @@
         .time-option { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--text-sub); }
         .time-option input { width: 16px; height: 16px; cursor: pointer; }
     </style>
-    
-    </head>
+</head>
 <body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -120,108 +118,121 @@
         <p id="auth-msg" style="font-size: 0.85rem; margin-top: 15px; font-weight: 500;"></p>
     </div>
 </div>
-
 <div id="app-content" class="hidden">
     <header>
-        <div style="width: 80px;"></div> <h1>Gestión de Territorios Vista Al Mar</h1>
+        <div style="width: 80px;"></div> 
+        <h1>Gestión de Territorios Vista Al Mar</h1>
         <button class="btn-danger-outline" onclick="handleLogout()" style="width: auto; margin-right: 10px;">Salir</button>
     </header>
-        <nav class="tab-bar">
+
+    <nav class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('tab-agenda')">Agenda</button>
         <button class="tab-btn" onclick="switchTab('tab-personal')">Personal</button>
         <button class="tab-btn" onclick="switchTab('tab-territorios')">Territorios</button>
         <button class="tab-btn" onclick="switchTab('tab-config')">Grupos</button>
     </nav>
     
-    <div class="container">    <div id="tab-personal" class="tab-content">
+    <div class="container">
+        <div id="tab-personal" class="tab-content">
+            <section class="module-section">
+                <div class="module-title">Conductores</div>
+                <div class="btn-vertical-group">
+                    <button class="btn-primary" onclick="openModalConductor()">Agregar Conductor</button>
+                    <button class="btn-outline" onclick="toggleVisibility('listaConductores')">Ver Lista y Editar</button>
+                </div>
+                <div id="listaConductores" class="hidden" style="margin-top:16px;"></div>
+            </section>
+        </div>
 
-        <section class="module-section">
-            <div class="module-title">Conductores</div>
-            <div class="btn-vertical-group">
-                <button class="btn-primary" onclick="openModalConductor()">Agregar Conductor</button>
-                <button class="btn-outline" onclick="toggleVisibility('listaConductores')">Ver Lista y Editar</button>
-            </div>
-            <div id="listaConductores" class="hidden" style="margin-top:16px;"></div>
-        </section>
+        <div id="tab-territorios" class="tab-content">
+            <section class="module-section">
+                <div class="module-title">Territorios</div>
+                <div class="btn-vertical-group">
+                    <button class="btn-primary" onclick="openModalTerritorio()">Agregar Territorio</button>
+                    <button class="btn-outline" onclick="toggleVisibility('listaTerritorios')">Ver Lista y Editar</button>
+                </div>
+                <div id="listaTerritorios" class="hidden" style="margin-top:16px;"></div>
+            </section>
+        </div>
 
-</div> <div id="tab-territorios" class="tab-content">
-        <section class="module-section">
-            <div class="module-title">Territorios</div>
-            <div class="btn-vertical-group">
-                <button class="btn-primary" onclick="openModalTerritorio()">Agregar Territorio</button>
-                <button class="btn-outline" onclick="toggleVisibility('listaTerritorios')">Ver Lista y Editar</button>
-            </div>
-            <div id="listaTerritorios" class="hidden" style="margin-top:16px;"></div>
-        </section>
-</div> <div id="tab-config" class="tab-content">
-        <section class="module-section">
-            <div class="module-title">Grupos de Predicación</div>
-            <div class="btn-vertical-group">
-                <button class="btn-primary" onclick="openModalGrupo()">Agregar Grupo</button>
-                <button class="btn-outline" onclick="toggleVisibility('listaGrupos')">Ver Grupos Registrados</button>
-            </div>
-            <div id="listaGrupos" class="hidden" style="margin-top:16px;"></div>
-        </section>
-</div> <div id="tab-agenda" class="tab-content active">
-        <section class="module-section">
-            <div class="module-title">Generación de Territorios</div>
-            <div class="btn-vertical-group">
-                <div class="input-group">
-                    <label>Seleccionar mes (2026)</label>
-                    <select id="mesAgenda" onchange="cargarAgendaDelMes()">
-                        <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
-                        <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
-                        <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
-                        <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-                    </select>
+        <div id="tab-config" class="tab-content">
+            <section class="module-section">
+                <div class="module-title">Grupos de Predicación</div>
+                <div class="btn-vertical-group">
+                    <button class="btn-primary" onclick="openModalGrupo()">Agregar Grupo</button>
+                    <button class="btn-outline" onclick="toggleVisibility('listaGrupos')">Ver Grupos Registrados</button>
                 </div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn-primary" onclick="generarNuevaAgenda()">Generar Todo el Mes</button>
-                    <button class="btn-outline" onclick="openModal('modalHistorial')">Historial Guardado</button>
-                    <button id="btn-sync-save" class="btn-primary" onclick="guardarSincronizar()" style="background: var(--google-green);">Sincronizar Nube</button>
-                </div>
-            </div>
-            
-            <div id="resultadoAgenda" class="hidden" style="margin-top: 24px;">
-                <div class="table-responsive">
-                    <div id="areaExportar">
-                        <div class="export-header">
-                            <h2 id="tituloExportar">Agenda de Predicación</h2>
-                            <p id="fechaActualDisplay"></p>
-                        </div>
-                        <table class="agenda-table">
-                            <thead>
-                                <tr><th>Día</th><th>Fecha</th><th>Hora</th><th>Conductor</th><th>Territorio</th><th>Lugar</th><th>Grupos</th></tr>
-                            </thead>
-                            <tbody id="tablaCuerpoAgenda"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div style="margin-top: 20px; display: flex; gap: 12px; align-items: center; border-top: 1px solid #eee; padding-top: 20px; flex-wrap: wrap;">
-                    <div class="input-group" style="margin-bottom:0; width: 180px;">
-                        <label>Rango Exportación</label>
-                        <select id="rangoExportar">
-                            <option value="mes">Mes Completo</option>
-                            <option value="sem1">Semana 1 (1-7)</option>
-                            <option value="sem2">Semana 2 (8-14)</option>
-                            <option value="sem3">Semana 3 (15-21)</option>
-                            <option value="sem4">Semana 4 (22-Fin)</option>
+                <div id="listaGrupos" class="hidden" style="margin-top:16px;"></div>
+            </section>
+        </div>
+        <div id="tab-agenda" class="tab-content active">
+            <section class="module-section">
+                <div class="module-title">Generación de Territorios</div>
+                <div class="btn-vertical-group">
+                    <div class="input-group">
+                        <label>Seleccionar mes (2026)</label>
+                        <select id="mesAgenda" onchange="cargarAgendaDelMes()">
+                            <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+                            <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+                            <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+                            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
                         </select>
                     </div>
-                    <button class="btn-primary" onclick="guardarEnHistorial()" style="width: auto;">Guardar Historial</button>
-                    <button class="btn-outline" onclick="descargarImagen()" style="width: auto;">Descargar Imagen</button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn-primary" onclick="generarNuevaAgenda()">Generar Todo el Mes</button>
+                        <button class="btn-outline" onclick="openModal('modalHistorial')">Historial Guardado</button>
+                        <button id="btn-sync-save" class="btn-primary" onclick="guardarSincronizar()" style="background: var(--google-green);">Sincronizar Nube</button>
+                    </div>
                 </div>
-            </div>
-        </section>
+                
+                <div id="resultadoAgenda" class="hidden" style="margin-top: 24px;">
+                    <div class="table-responsive">
+                        <div id="areaExportar">
+                            <div class="export-header">
+                                <h2 id="tituloExportar">Agenda de Predicación</h2>
+                                <p id="fechaActualDisplay"></p>
+                            </div>
+                            <table class="agenda-table">
+                                <thead>
+                                    <tr>
+                                        <th>Día</th>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Conductor</th>
+                                        <th>Territorio</th>
+                                        <th>Lugar</th>
+                                        <th>Grupos</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaCuerpoAgenda"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; gap: 12px; align-items: center; border-top: 1px solid #eee; padding-top: 20px; flex-wrap: wrap;">
+                        <div class="input-group" style="margin-bottom:0; width: 180px;">
+                            <label>Rango Exportación</label>
+                            <select id="rangoExportar">
+                                <option value="mes">Mes Completo</option>
+                                <option value="sem1">Semana 1 (1-7)</option>
+                                <option value="sem2">Semana 2 (8-14)</option>
+                                <option value="sem3">Semana 3 (15-21)</option>
+                                <option value="sem4">Semana 4 (22-Fin)</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" onclick="guardarEnHistorial()" style="width: auto;">Guardar Historial</button>
+                        <button class="btn-outline" onclick="descargarImagen()" style="width: auto;">Descargar Imagen</button>
+                    </div>
+                </div>
+            </section>
 
-        <section class="module-section">
-            <div class="module-title">Contactar</div>
-            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Próximas asignaciones (2 días):</p>
-            <div id="listaContactos"></div>
-        </section>
-   </div></div>
-   
-   <div id="modalConductor" class="modal">
+            <section class="module-section">
+                <div class="module-title">Contactar</div>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">Próximas asignaciones (2 días):</p>
+                <div id="listaContactos"></div>
+            </section>
+        </div>
+    </div> </div> ```
+    <div id="modalConductor" class="modal">
         <div class="modal-content">
             <h2 class="module-title" id="tituloModalConductor">Registro de Conductor</h2>
             <form id="formConductor">
@@ -255,7 +266,6 @@
                             <label class="day-label"><input type="checkbox" class="day-check" value="MIÉ"> Miércoles</label>
                             <div class="time-options">
                                 <label class="time-option"><input type="checkbox" value="MIÉ-AM"> AM</label>
-                                <label class="time-option"><input type="checkbox" value="MIÉ-PM"> PM</label>
                             </div>
                         </div>
                         <div class="day-row">
@@ -276,14 +286,12 @@
                             <label class="day-label"><input type="checkbox" class="day-check" value="SÁB"> Sábado</label>
                             <div class="time-options">
                                 <label class="time-option"><input type="checkbox" value="SÁB-AM"> AM</label>
-                                <label class="time-option"><input type="checkbox" value="SÁB-PM"> PM</label>
                             </div>
                         </div>
                         <div class="day-row">
                             <label class="day-label"><input type="checkbox" class="day-check" value="DOM"> Domingo</label>
                             <div class="time-options">
                                 <label class="time-option"><input type="checkbox" value="DOM-AM"> AM</label>
-                                <label class="time-option"><input type="checkbox" value="DOM-PM"> PM</label>
                             </div>
                         </div>
                     </div>
@@ -300,7 +308,6 @@
             </form>
         </div>
     </div>
-
     <div id="modalTerritorio" class="modal">
         <div class="modal-content">
             <h2 class="module-title" id="tituloModalTerritorio">Nuevo Territorio</h2>
@@ -338,10 +345,30 @@
         </div>
     </div>
 
-    <div id="modalGrupo" class="modal"><div class="modal-content"><h2 class="module-title">Registrar Grupo</h2><form id="formGrupo"><input type="hidden" id="editIndexGrupo"><div class="input-group"><label>Número del Grupo</label><select id="gNumero" required><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option></select></div><div class="input-group"><label>Anciano Responsable</label><select id="gAnciano" required></select></div><div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cerrar</button><button type="submit" class="btn-primary">Guardar</button></div></form></div></div>
+    <div id="modalGrupo" class="modal">
+        <div class="modal-content">
+            <h2 class="module-title">Registrar Grupo</h2>
+            <form id="formGrupo">
+                <input type="hidden" id="editIndexGrupo">
+                <div class="input-group">
+                    <label>Número del Grupo</label>
+                    <select id="gNumero" required>
+                        <option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option><option value="6">Grupo 6</option><option value="7">Grupo 7</option><option value="8">Grupo 8</option>
+                    </select>
+                </div>
+                <div class="input-group"><label>Anciano Responsable</label><select id="gAnciano" required></select></div>
+                <div class="modal-footer"><button type="button" class="btn-outline" onclick="closeModal('modalGrupo')">Cerrar</button><button type="submit" class="btn-primary">Guardar</button></div>
+            </form>
+        </div>
+    </div>
     
-    <div id="modalHistorial" class="modal"><div class="modal-content"><h2 class="module-title">Historial Guardado</h2><div id="listaHistorial"></div><div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div></div></div>
-    
+    <div id="modalHistorial" class="modal">
+        <div class="modal-content">
+            <h2 class="module-title">Historial Guardado</h2>
+            <div id="listaHistorial"></div>
+            <div class="modal-footer"><button class="btn-outline" onclick="closeModal('modalHistorial')">Cerrar</button></div>
+        </div>
+    </div>
     <script>
     // --- LÓGICA AUTH ---
     document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -355,26 +382,31 @@
     supabaseClient.auth.onAuthStateChange((event, session) => {
         const auth = document.getElementById('auth-container');
         const app = document.getElementById('app-content');
-        if (session) { auth.classList.add('hidden'); app.classList.remove('hidden'); initApp(); }
-        else { auth.classList.remove('hidden'); app.classList.add('hidden'); }
+        if (session) { 
+            auth.classList.add('hidden'); 
+            app.classList.remove('hidden'); 
+            initApp(); 
+        } else { 
+            auth.classList.remove('hidden'); 
+            app.classList.add('hidden'); 
+        }
     });
 
     function switchTab(tabId) {
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
         const selectedBtn = Array.from(document.querySelectorAll('.tab-btn'))
             .find(btn => btn.getAttribute('onclick').includes(tabId));
+        
         if (selectedBtn) selectedBtn.classList.add('active');
         document.getElementById(tabId).classList.add('active');
         localStorage.setItem('vdm_active_tab', tabId);
     }
 
-    // --- VARIABLES GLOBALES ---
+    // --- VARIABLES GLOBALES Y MATRIZ ---
     let conductores = [], territorios = [], grupos = [], agendasMaestras = {}, historialAgendas = {};
+    
     const MATRIZ_HORARIOS = { 
         'LUN': ['07:00 AM', '09:00 AM', '04:00 PM', '06:30 PM'], 
         'MAR': ['07:00 AM', '09:00 AM', '04:00 PM'], 
@@ -385,7 +417,6 @@
         'DOM': ['11:00 AM'] 
     };
 </script>
-
 <script>
     // --- INIT & SYNC ---
     async function initApp() {
@@ -413,9 +444,10 @@
         
         renderListaConductores(); 
         renderListaTerritorios(); 
-        renderListaGrupos(); // Corregido: antes decía Groups
+        renderListaGrupos(); 
         renderHistorial(); 
         cargarAgendaDelMes();
+        
         const lastTab = localStorage.getItem('vdm_active_tab') || 'tab-agenda';
         switchTab(lastTab);
         actualizarDatalists();
@@ -507,16 +539,21 @@
 
     function eliminarConductor(i) { if(confirm("¿Eliminar?")) { conductores.splice(i,1); guardarLocal(); renderListaConductores(); } }
 </script>
-
 <script>
     // --- CRUD TERRITORIOS ---
-    function openModalTerritorio() { document.getElementById('formTerritorio').reset(); document.getElementById('editIndexTerritorio').value = ""; openModal('modalTerritorio'); }
+    function openModalTerritorio() { 
+        document.getElementById('formTerritorio').reset(); 
+        document.getElementById('editIndexTerritorio').value = ""; 
+        openModal('modalTerritorio'); 
+    }
     
     document.getElementById('formTerritorio').addEventListener('submit', (e) => {
         e.preventDefault();
         const index = document.getElementById('editIndexTerritorio').value;
         const t = { 
-            numero: document.getElementById('tNumero').value, nombre: document.getElementById('tNombre').value, lugar: document.getElementById('tLugar').value,
+            numero: document.getElementById('tNumero').value, 
+            nombre: document.getElementById('tNombre').value, 
+            lugar: document.getElementById('tLugar').value,
             disponibilidadDias: Array.from(document.querySelectorAll('#tDias input:checked')).map(cb => cb.value),
             disponibilidadHoras: Array.from(document.querySelectorAll('#tHoras input:checked')).map(cb => cb.value),
             subNombre: document.getElementById('tsNombre').value,
@@ -538,15 +575,15 @@
     function editarTerritorio(i) {
         const t = territorios[i]; document.getElementById('editIndexTerritorio').value = i;
         document.getElementById('tNumero').value = t.numero; document.getElementById('tNombre').value = t.nombre; document.getElementById('tLugar').value = t.lugar; document.getElementById('tsNombre').value = t.subNombre || "";
-        document.querySelectorAll('#tDias input').forEach(cb => cb.checked = t.disponibilidadDias?.includes(cb.value));
-        document.querySelectorAll('#tHoras input').forEach(cb => cb.checked = t.disponibilidadHoras?.includes(cb.value));
-        document.querySelectorAll('#tsDias input').forEach(cb => cb.checked = t.subDias?.includes(cb.value));
-        document.querySelectorAll('#tsHoras input').forEach(cb => cb.checked = t.subHoras?.includes(cb.value));
+        document.querySelectorAll('#tDias input').forEach(cb => cb.checked = (t.disponibilidadDias || []).includes(cb.value));
+        document.querySelectorAll('#tHoras input').forEach(cb => cb.checked = (t.disponibilidadHoras || []).includes(cb.value));
+        document.querySelectorAll('#tsDias input').forEach(cb => cb.checked = (t.subDias || []).includes(cb.value));
+        document.querySelectorAll('#tsHoras input').forEach(cb => cb.checked = (t.subHoras || []).includes(cb.value));
         openModal('modalTerritorio');
     }
     function eliminarTerritorio(i) { if(confirm("¿Eliminar?")) { territorios.splice(i,1); guardarLocal(); renderListaTerritorios(); } }
 
-    // --- MOTOR DE GENERACIÓN INTELIGENTE (LÓGICA AM/PM REFORZADA) ---
+    // --- MOTOR DE GENERACIÓN INTELIGENTE (VERSIÓN REPARADA AM/PM) ---
     function generarNuevaAgenda() {
         const mes = document.getElementById('mesAgenda').value;
         const nombreMes = document.getElementById('mesAgenda').options[document.getElementById('mesAgenda').selectedIndex].text;
@@ -563,7 +600,6 @@
             let territoriosUsadosHoy = [];
 
             horariosDelDia.forEach(hora => {
-                // Determinamos el bloque según la hora de la matriz
                 const esTarde = hora.includes("PM");
                 const bloqueBuscado = `${diaNombre}-${esTarde ? 'PM' : 'AM'}`;
 
@@ -596,17 +632,18 @@
             });
         }
         agendasMaestras[mes] = nuevaAgenda;
-        guardarLocal(); renderAgenda(nuevaAgenda, nombreMes);
+        guardarLocal(); 
+        renderAgenda(nuevaAgenda, nombreMes);
         document.getElementById('resultadoAgenda').classList.remove('hidden');
     }
 </script>
-
 <script>
     // --- RENDERIZADO Y EDICIÓN DE TABLA ---
     function renderAgenda(datos, nombreMes) {
         const anioActual = obtenerAnioTrabajo();
         document.getElementById('fechaActualDisplay').innerText = `${nombreMes} ${anioActual}`;
         const cuerpo = document.getElementById('tablaCuerpoAgenda');
+        if (!cuerpo) return;
         cuerpo.innerHTML = '';
         let ultimoDia = null;
 
@@ -681,7 +718,8 @@
     }
 
     function renderHistorial() {
-        const cont = document.getElementById('listaHistorial'); cont.innerHTML = '';
+        const cont = document.getElementById('listaHistorial'); if(!cont) return;
+        cont.innerHTML = '';
         const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
         Object.keys(historialAgendas).forEach(m => {
             cont.innerHTML += `<div class="group-card"><span>Agenda de ${meses[m-1]} 2026</span> <div><button class="btn-edit-outline" onclick="cargarDeHistorial(${m})">Cargar</button><button class="btn-danger-outline" onclick="borrarDeHistorial(${m})">Borrar</button></div></div>`;
@@ -697,12 +735,8 @@
     }
     
     function borrarDeHistorial(m) { if(confirm("¿Borrar historial de este mes?")) { delete historialAgendas[m]; guardarLocal(); renderHistorial(); } }
-        </div>
-</div>
 
-</script>
-<script>
-    // --- EXPORTACIÓN DE IMAGEN (HTML2CANVAS) ---
+    // --- EXPORTACIÓN DE IMAGEN ---
     async function descargarImagen() {
         const area = document.getElementById('areaExportar'); 
         const rango = document.getElementById('rangoExportar').value;
@@ -712,10 +746,7 @@
             let diaCelda = tr.cells[1].innerText;
             if (!diaCelda) { 
                 let prev = tr.previousElementSibling; 
-                while (prev && !diaCelda) { 
-                    diaCelda = prev.cells[1].innerText; 
-                    prev = prev.previousElementSibling; 
-                } 
+                while (prev && !diaCelda) { diaCelda = prev.cells[1].innerText; prev = prev.previousElementSibling; } 
             }
             const dia = parseInt(diaCelda); 
             let v = true;
@@ -726,27 +757,18 @@
             tr.style.display = v ? '' : 'none';
         });
 
-        const opciones = { scale: 3, useCORS: true, width: 850, windowWidth: 1000, logging: false, backgroundColor: "#ffffff",
-            onclone: (clonedDoc) => {
-                const areaClonada = clonedDoc.getElementById('areaExportar');
-                if(areaClonada) { areaClonada.style.padding = '40px'; areaClonada.style.margin = '0'; }
-            }
-        };
-
+        const opciones = { scale: 3, useCORS: true, backgroundColor: "#ffffff" };
         try {
             const canvas = await html2canvas(area, opciones);
             const link = document.createElement('a'); 
             link.download = `Agenda_VDM_${rango}.png`; 
             link.href = canvas.toDataURL("image/png"); 
             link.click();
-        } catch (error) {
-            console.error("Error al generar imagen:", error);
-        } finally {
-            filas.forEach(f => f.style.display = '');
-        }
+        } catch (error) { console.error("Error imagen:", error); } 
+        finally { filas.forEach(f => f.style.display = ''); }
     }
 
-    // --- GESTIÓN DE GRUPOS ---
+    // --- GESTIÓN DE GRUPOS Y AUXILIARES ---
     function openModalGrupo() { document.getElementById('formGrupo').reset(); document.getElementById('editIndexGrupo').value = ""; actualizarSelectAncianos(); openModal('modalGrupo'); }
     
     function actualizarSelectAncianos() {
@@ -780,9 +802,8 @@
         renderContactos(); 
     }
 
-    // --- UTILIDADES Y ROBUSTEZ ---
     function obtenerAnioTrabajo() { return new Date().getFullYear(); }
-    function toggleVisibility(id) { const el = document.getElementById(id); el.classList.toggle('hidden'); }
+    function toggleVisibility(id) { document.getElementById(id).classList.toggle('hidden'); }
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
@@ -790,23 +811,14 @@
         if (disponibles.length === 0) return null;
         const conteo = {};
         disponibles.forEach(c => {
-            const nombreCompleto = `${c.nombre} ${c.apellido}`;
-            conteo[nombreCompleto] = agendaActual.filter(a => a.conductor === nombreCompleto).length;
+            const nom = `${c.nombre} ${c.apellido}`;
+            conteo[nom] = agendaActual.filter(a => a.conductor === nom).length;
         });
-        disponibles.sort((a, b) => {
-            const nombreA = `${a.nombre} ${a.apellido}`;
-            const nombreB = `${b.nombre} ${b.apellido}`;
-            return conteo[nombreA] - conteo[nombreB];
-        });
-        const minAsignaciones = conteo[`${disponibles[0].nombre} ${disponibles[0].apellido}`];
-        const candidatosFinales = disponibles.filter(c => conteo[`${c.nombre} ${c.apellido}`] === minAsignaciones);
-        return candidatosFinales[Math.floor(Math.random() * candidatosFinales.length)];
+        disponibles.sort((a, b) => conteo[`${a.nombre} ${a.apellido}`] - conteo[`${b.nombre} ${b.apellido}`]);
+        return disponibles[0];
     }
 
-    function validarDatosConductor(c) {
-        if (!c.nombre || c.nombre.trim().length < 2) { alert("Nombre no válido."); return false; }
-        return true;
-    }
+    function validarDatosConductor(c) { if (!c.nombre || c.nombre.trim().length < 2) { alert("Nombre no válido."); return false; } return true; }
 
     function actualizarDatalists() {
         const dlCond = document.getElementById('listaSugerenciasConductores');
@@ -815,21 +827,12 @@
         if(dlTerr) dlTerr.innerHTML = territorios.map(t => `<option value="${t.numero}. ${t.nombre}">`).join('');
     }
 
-    // --- EVENTOS DE TABLA (SUGERENCIAS) ---
     document.getElementById('tablaCuerpoAgenda').addEventListener('click', function(e) {
         if (e.target.tagName === 'TD' && e.target.hasAttribute('contenteditable')) {
             const col = e.target.cellIndex;
             if (col === 3) e.target.setAttribute('list', 'listaSugerenciasConductores');
             else if (col === 4) e.target.setAttribute('list', 'listaSugerenciasTerritorios');
             actualizarDatalists();
-        }
-    });
-
-    document.getElementById('tablaCuerpoAgenda').addEventListener('input', function(e) {
-        if (e.target.cellIndex === 3) {
-            const valor = e.target.innerText.trim();
-            const existe = conductores.some(c => `${c.nombre} ${c.apellido}` === valor);
-            e.target.style.color = (existe || valor === "" || valor === "Sin Asignar") ? 'var(--text-main)' : 'var(--google-red)';
         }
     });
 </script>
@@ -839,4 +842,3 @@
 
 </body>
 </html>
- 
