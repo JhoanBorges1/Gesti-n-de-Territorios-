@@ -274,4 +274,33 @@ function cargarAgendaDelMes() {
 }
 
 function obtenerAnioTrabajo() { return 2026; }
+// --- MOTOR DE EQUIDAD (DISTRIBUCIÓN DE CARGA VISTA AL MAR) ---
+
+function obtenerConductorMenosAsignado(disponibles, agendaActual) {
+    if (disponibles.length === 0) return null;
+    
+    // 1. Contamos cuántas veces aparece cada conductor en lo que va de mes
+    const conteo = {};
+    disponibles.forEach(c => {
+        const nombreCompleto = `${c.nombre} ${c.apellido}`;
+        // Filtramos en la agenda generada cuántos turnos tiene ya este nombre
+        conteo[nombreCompleto] = agendaActual.filter(a => a.conductor === nombreCompleto).length;
+    });
+
+    // 2. Ordenamos a los disponibles: el que tiene 0 turnos va primero, luego los de 1, etc.
+    disponibles.sort((a, b) => {
+        const nombreA = `${a.nombre} ${a.apellido}`;
+        const nombreB = `${b.nombre} ${b.apellido}`;
+        return conteo[nombreA] - conteo[nombreB];
+    });
+
+    // 3. Para evitar que siempre sea el mismo orden alfabético si todos tienen 0,
+    // seleccionamos al azar entre los que tienen el mismo número mínimo de turnos.
+    const minAsignaciones = conteo[`${disponibles[0].nombre} ${disponibles[0].apellido}`];
+    const candidatosFinales = disponibles.filter(c => 
+        conteo[`${c.nombre} ${c.apellido}`] === minAsignaciones
+    );
+
+    return candidatosFinales[Math.floor(Math.random() * candidatosFinales.length)];
+}
 
