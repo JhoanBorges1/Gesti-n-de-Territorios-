@@ -176,16 +176,19 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const index = document.getElementById('editIndexTerritorio').value;
             
-            const nuevoTerritorio = { 
-                numero: document.getElementById('tNumero').value, 
-                nombre: document.getElementById('tNombre').value.trim(), 
-                lugar: document.getElementById('tLugar').value.trim(),
-                disponibilidadDias: Array.from(document.querySelectorAll('#tDias input:checked')).map(cb => cb.value),
-                disponibilidadHoras: Array.from(document.querySelectorAll('#tHoras input:checked')).map(cb => cb.value),
-                subNombre: document.getElementById('tsNombre').value.trim(),
-                subDias: Array.from(document.querySelectorAll('#tsDias input:checked')).map(cb => cb.value),
-                subHoras: Array.from(document.querySelectorAll('#tsHoras input:checked')).map(cb => cb.value)
-            };
+                  const t = { 
+        numero: document.getElementById('tNumero').value, 
+        nombre: document.getElementById('tNombre').value, 
+        lugar: document.getElementById('tLugar').value,
+        // Días y Horas principales
+        disponibilidadDias: Array.from(document.querySelectorAll('#tDias input:checked')).map(cb => cb.value),
+        disponibilidadHoras: Array.from(document.querySelectorAll('#tHoras input:checked')).map(cb => cb.value),
+        // Configuración de Subterritorio (Paso 1: Todas las opciones)
+        subNombre: document.getElementById('tsNombre').value,
+        subDias: Array.from(document.querySelectorAll('#tsDias input:checked')).map(cb => cb.value),
+        subHoras: Array.from(document.querySelectorAll('#tsHoras input:checked')).map(cb => cb.value)
+    };
+
 
             if (index === "") {
                 territorios.push(nuevoTerritorio);
@@ -201,24 +204,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // C. PROCESAR REGISTRO DE GRUPO (1-8)
         if (e.target.id === 'formGrupo') {
             e.preventDefault();
-            const index = document.getElementById('editIndexGrupo').value;
-            
-            const nuevoGrupo = { 
-                numero: document.getElementById('gNumero').value, 
-                anciano: document.getElementById('gAnciano').value 
-            };
+            const index = document.getElementById('formGrupo').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const index = document.getElementById('editIndexGrupo').value;
+    
+    // Captura de datos del grupo
+    const g = { 
+        numero: document.getElementById('gNumero').value, 
+        anciano: document.getElementById('gAnciano').value 
+    };
 
-            if (index === "") {
-                grupos.push(nuevoGrupo);
-            } else {
-                grupos[index] = nuevoGrupo;
-            }
-            
-            guardarLocal(); 
-            renderListaGrupos(); 
-            closeModal('modalGrupo');
-        }
-    });
+    // Lógica de Edición vs Creación
+    if (index === "") {
+        grupos.push(g); 
+    } else {
+        grupos[index] = g;
+    }
+
+    guardarLocal();       // Persistencia en el móvil
+    renderListaGrupos();  // Actualiza la vista de tarjetas
+    
+    // Sincronización con la nube (Supabase)
+    if (typeof guardarSincronizar === 'function') {
+        guardarSincronizar(); 
+    }
+
+    closeModal('modalGrupo');
+});
+
 });
 
 // --- 5. GESTIÓN DE TERRITORIOS (VISTA) ---
@@ -259,40 +272,46 @@ function eliminarTerritorio(i) {
 // --- 6. GESTIÓN DE GRUPOS (VISUALIZACIÓN DE LOS 8 GRUPOS) ---
 
 function renderListaGrupos() { 
-    const cont = document.getElementById('listaGrupos'); 
-    if(!cont) return;
-    cont.innerHTML = ''; 
+    const cont = document.getElementById('listaGroups'); // Verifica si es 'listaGrupos' o 'listaGroups' según tu HTML
+    if (!cont) return;
     
-    // Ordenamos numéricamente para que se vea como una lista oficial
+    cont.innerHTML = ''; 
+    // Ordenar para mantener la jerarquía 1, 2, 3...
     grupos.sort((a,b) => (parseInt(a.numero)||99) - (parseInt(b.numero)||99));
     
-    grupos.forEach((g,i) => {
+    grupos.forEach((g, i) => {
         cont.innerHTML += `
-            <div class="contact-item">
+            <div class="group-card" style="border-left: 5px solid var(--google-blue); padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <div>
-                    <span style="font-weight:700; color: var(--google-blue);">Grupo ${g.numero}</span><br>
-                    <small style="color: var(--text-sub);">Responsable: ${g.anciano}</small>
+                    <div style="color: var(--google-blue); font-weight: 700; font-size: 1.1rem;">Grupo ${g.numero}</div>
+                    <div style="color: var(--text-sub); font-size: 0.9rem;">Responsable: <strong>${g.anciano}</strong></div>
                 </div>
-                <div style="display:flex; gap:8px;">
+                <div style="display: flex; gap: 8px;">
                     <button class="btn-edit-outline" onclick="editarGrupo(${i})">Editar</button>
-                    <button class="btn-danger-outline" onclick="eliminarGrupo(${i})">X</button>
+                    <button class="btn-danger-outline" onclick="eliminarGrupo(${i})">✕</button>
                 </div>
             </div>`;
     }); 
 }
 
 function actualizarSelectAncianos() {
-    const s = document.getElementById('gAnciano'); 
-    if(!s) return;
-    
-    s.innerHTML = '<option value="">Seleccione un anciano...</option>';
-    
-    // Solo mostramos a los conductores marcados como Ancianos
-    conductores.filter(c => c.esAnciano).forEach(c => {
-        const nombreCompleto = `${c.nombre} ${c.apellido}`;
-        s.innerHTML += `<option value="${nombreCompleto}">${nombreCompleto} (G${c.grupo})</option>`;
+    const selectAnciano = document.getElementById('gAnciano');
+    if (!selectAnciano) return; // Validación de seguridad
+
+    selectAnciano.innerHTML = '<option value="">Seleccione un responsable...</option>';
+
+    // Filtramos solo a los conductores que tienen el check de "Anciano"
+    const listaAncianos = conductores.filter(c => c.esAnciano === true || c.esAnciano === 'si');
+
+    listaAncianos.forEach(anciano => {
+        const nombreCompleto = `${anciano.nombre} ${anciano.apellido}`;
+        const option = document.createElement('option');
+        option.value = nombreCompleto;
+        option.textContent = `${nombreCompleto} (Actual: G${anciano.grupo || 'S/N'})`;
+        selectAnciano.appendChild(option);
     });
 }
+
 
 // --- 7. RENDERIZADO DE LA TABLA DE AGENDA (CON ESTÉTICA ORIGINAL) ---
 
@@ -402,4 +421,3 @@ function renderHistorial() {
             </div>`;
     });
 }
-
